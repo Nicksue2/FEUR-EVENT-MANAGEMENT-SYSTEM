@@ -8,8 +8,129 @@
 body {
     background-color: #f4f4f9;
     color: #333;
+}
+
+/* --- DASHBOARD LAYOUT --- */
+.dashboard-body {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Top Nav */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    min-height: 100vh;
+    background: #006633; /* FEU Green */
+    color: white;
+    padding: 10px 20px;
+    height: 60px;
+    z-index: 100;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.campus-dropdown {
+    padding: 5px;
+    border-radius: 4px;
+}
+
+/* Search & Notif Dropdowns */
+.search-container, .notif-container { position: relative; }
+.dropdown-content, .notif-modal {
+    position: absolute;
+    top: 40px;
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 250px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 200;
+}
+.notif-modal { right: 0; padding: 10px; }
+.notif-item { padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+.hidden { display: none; }
+
+/* Layout & Sidebar */
+.layout-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 250px;
+    background: #004d26;
+    color: white;
+    transition: width 0.3s;
+}
+
+.sidebar.minimized { width: 60px; }
+.sidebar.minimized span { display: none; }
+
+.side-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 20px;
+    color: white;
+    text-decoration: none;
+}
+.side-menu a:hover, .side-menu a.active { background: #006633; }
+
+/* Main Content & Grid */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.event-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+}
+
+/* Mobile Bottom Nav */
+.bottom-nav { display: none; }
+
+@media (max-width: 768px) {
+    .sidebar { display: none; }
+    .bottom-nav {
+        display: flex;
+        justify-content: space-around;
+        background: #006633;
+        padding: 10px 0;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        z-index: 100;
+    }
+    .bottom-nav a { color: white; text-decoration: none; font-size: 24px; }
+    .user-greeting { display: none; }
 }

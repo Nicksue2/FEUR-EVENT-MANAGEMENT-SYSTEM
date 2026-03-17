@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - FEU Roosevelt Events</title>
+    <title>My Orders - FEU Roosevelt Events</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="dashboard-body">
@@ -11,20 +11,10 @@
     <header class="top-nav">
         <div class="nav-left">
             <button id="burger-btn" class="icon-btn">☰</button>
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Search events...">
-                <div id="search-dropdown" class="dropdown-content hidden"></div>
-            </div>
+            <h3 style="margin-left: 10px;">My Orders</h3>
         </div>
         
         <div class="nav-right">
-            <select id="campus-select" class="campus-dropdown">
-                <option value="" disabled selected>FEU Roosevelt Campuses</option>
-                <option value="Cainta">Cainta</option>
-                <option value="Marikina">Marikina</option>
-                <option value="Rodriguez">Rodriguez</option>
-            </select>
-            
             <div class="notif-container">
                 <button id="notif-btn" class="icon-btn">🔔</button>
                 <div id="notif-modal" class="notif-modal hidden">
@@ -39,25 +29,25 @@
     <div class="layout-container">
         <aside id="sidebar" class="sidebar">
             <nav class="side-menu">
-                <a href="dashboard.html" class="active">🏠 <span>Dashboard</span></a>
+                <a href="dashboard.html">🏠 <span>Dashboard</span></a>
                 <a href="#events">📅 <span>Events</span></a>
-                <a href="orderlist.html">📋 <span>Order List</span></a>
+                <a href="orderlist.html" class="active">📋 <span>Order List</span></a>
                 <a href="#settings">⚙️ <span>Settings</span></a>
                 <a href="#" id="logout-btn">🚪 <span>Logout</span></a>
             </nav>
         </aside>
 
         <main class="main-content">
-            <h2>Upcoming Events</h2>
-            <div id="events-grid" class="events-grid">
-                <p>Loading events...</p>
+            <h2>My Tickets</h2>
+            <div id="orders-grid" class="events-grid">
+                <p>No registered events yet.</p>
             </div>
         </main>
     </div>
 
     <nav class="bottom-nav">
-        <a href="dashboard.html" class="active">🏠</a>
-        <a href="orderlist.html">📋</a>
+        <a href="dashboard.html">🏠</a>
+        <a href="orderlist.html" class="active">📋</a>
         <a href="#settings">⚙️</a>
     </nav>
 

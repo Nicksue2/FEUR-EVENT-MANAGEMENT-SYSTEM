@@ -1,44 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log In - FEU Roosevelt Events</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="signinup.css" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="signinup.css">
+</head>
+<body class="auth-page">
     <div class="auth-container">
-      <h2>Log In</h2>
-      <form id="signin-form">
-        <div class="form-group">
-          <label>School Email Address</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="@feuroosevelt.edu.ph"
-            required
-          />
+        <h2>Log In</h2>
+        <form id="signin-form">
+            <div class="form-group">
+                <input type="email" id="email" placeholder="School Email (@feuroosevelt.edu.ph)" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <div class="form-options">
+                <input type="checkbox" id="show-password-signin">
+                <label for="show-password-signin">Show Password</label>
+            </div>
+            <div class="form-options">
+                <input type="checkbox" id="remember-me">
+                <label for="remember-me">Remember Me</label>
+            </div>
+            <button type="submit" class="btn">Log In</button>
+        </form>
+        <div class="switch-link">
+            Don't have an account? <a href="signup.html">Sign Up</a>
         </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="password" required />
-        </div>
-        <div class="form-options">
-          <input type="checkbox" id="show-password-signin" />
-          <label for="show-password-signin">Show Password</label>
-        </div>
-        <div class="form-options">
-          <input type="checkbox" id="remember-me" />
-          <label for="remember-me">Remember Me</label>
-        </div>
-        <button type="submit" class="btn">Log In</button>
-      </form>
-      <div class="switch-link">
-        Don't have an account? <a href="signup.html">Sign Up</a>
-      </div>
     </div>
 
     <script type="module" src="script.js"></script>
-  </body>
+</body>
 </html>
