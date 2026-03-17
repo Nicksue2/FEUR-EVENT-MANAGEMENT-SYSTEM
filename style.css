@@ -35,7 +35,9 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
-  transition: background 0.3s, color 0.3s;
+  transition:
+    background 0.3s,
+    color 0.3s;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -189,7 +191,9 @@ body {
 .sidebar {
   width: 240px;
   background: var(--sidebar-bg);
-  transition: width 0.3s, transform 0.3s;
+  transition:
+    width 0.3s,
+    transform 0.3s;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -430,34 +434,49 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
-/* --- MOBILE RESPONSIVENESS (FIXED) --- */
+/* --- MOBILE RESPONSIVENESS (FIXED SEARCH) --- */
 .bottom-nav {
   display: none;
 }
 
 @media (max-width: 768px) {
-  /* Fix logo overlap by hiding the text on small screens */
+  .logo-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .logo-img {
+    width: 40px;
+    height: 40px;
+  }
   .logo-text {
     display: none;
   }
-  
-  /* Adjusted search bar so it doesn't break header */
+
+  /* Fixed Mobile Search Bar */
   .search-container {
-    width: 40px;
+    width: 36px;
+    height: 36px;
     overflow: hidden;
-    transition: width 0.3s;
-    padding: 5px;
+    transition:
+      width 0.3s ease,
+      background 0.3s;
+    padding: 8px;
     cursor: pointer;
+    background: transparent;
   }
   .search-container:focus-within {
-    width: 150px;
-    padding: 5px 10px;
+    width: 180px;
+    background: rgba(255, 255, 255, 0.15);
   }
   .search-container input {
-    display: none;
+    display: block !important;
+    opacity: 0;
+    width: 130px;
+    transition: opacity 0.2s;
   }
   .search-container:focus-within input {
-    display: block;
+    opacity: 1;
   }
 
   .campus-dropdown {
@@ -467,11 +486,10 @@ input:checked + .slider:before {
     display: none;
   }
 
-  /* INCREASED Z-INDEX PARA MAG-SLIDE SA IBAABAW NG HEADER */
   .sidebar {
     position: absolute;
     height: calc(100vh - 70px);
-    z-index: 1000; 
+    z-index: 1000;
     transform: translateX(-100%);
     width: 240px;
   }
