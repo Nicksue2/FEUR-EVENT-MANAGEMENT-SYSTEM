@@ -35,9 +35,7 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
-  transition:
-    background 0.3s,
-    color 0.3s;
+  transition: background 0.3s, color 0.3s;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -191,9 +189,7 @@ body {
 .sidebar {
   width: 240px;
   background: var(--sidebar-bg);
-  transition:
-    width 0.3s,
-    transform 0.3s;
+  transition: width 0.3s, transform 0.3s;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -434,26 +430,18 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
-/* --- MOBILE RESPONSIVENESS (UPDATED) --- */
+/* --- MOBILE RESPONSIVENESS (FIXED) --- */
 .bottom-nav {
   display: none;
 }
 
 @media (max-width: 768px) {
-  /* Logo adjustments for mobile */
-  .logo-container {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .logo-img {
-    width: 40px;
-    height: 40px;
-  }
+  /* Fix logo overlap by hiding the text on small screens */
   .logo-text {
     display: none;
   }
-
+  
+  /* Adjusted search bar so it doesn't break header */
   .search-container {
     width: 40px;
     overflow: hidden;
@@ -479,10 +467,11 @@ input:checked + .slider:before {
     display: none;
   }
 
+  /* INCREASED Z-INDEX PARA MAG-SLIDE SA IBAABAW NG HEADER */
   .sidebar {
     position: absolute;
     height: calc(100vh - 70px);
-    z-index: 90;
+    z-index: 1000; 
     transform: translateX(-100%);
     width: 240px;
   }
