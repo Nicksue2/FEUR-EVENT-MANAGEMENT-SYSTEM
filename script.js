@@ -7,7 +7,20 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
     let currentUser = null;
-    let allEventsGlobal = []; // For search and filtering
+    let allEventsGlobal = [];
+
+    // --- REUSABLE SHOW PASSWORD ---
+    const togglePassword = (checkboxId, ...inputIds) => {
+        const checkbox = document.getElementById(checkboxId);
+        if (checkbox) {
+            checkbox.addEventListener('change', function() {
+                inputIds.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) input.type = this.checked ? 'text' : 'password';
+                });
+            });
+        }
+    };
 
     // --- 1. DARK MODE & SETTINGS LOGIC ---
     const darkModeToggle = document.getElementById('dark-toggle');
@@ -31,29 +44,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(closeSettings) closeSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
 
 
-    // --- 2. AUTHENTICATION & GUEST/USER LOGIC ---
+    // --- 2. AUTHENTICATION STATE (SESSION CHECK) ---
     const { data: sessionData } = await supabase.auth.getSession();
     
     if (sessionData && sessionData.session) {
         currentUser = sessionData.session.user;
         
-        // Hide Guest UI, Show User UI
+        // Hide Guest UI, Show User UI on Dashboard
         document.querySelectorAll('.guest-only').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.user-only').forEach(el => el.classList.remove('hidden'));
         
-        // Fetch User Name
         const greetingEl = document.getElementById('user-greeting');
         if(greetingEl) {
             const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', currentUser.id).single();
             if (profile) greetingEl.innerText = `Welcome, ${profile.first_name} ${profile.last_name}!`;
         }
     } else {
-        // Hide User UI, Show Guest UI
         document.querySelectorAll('.user-only').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.guest-only').forEach(el => el.classList.remove('hidden'));
     }
 
-    // Logout
+    // Logout Action
     const logoutBtns = document.querySelectorAll('#logout-btn');
     logoutBtns.forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -63,7 +74,112 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Sidebar & Modal Toggles
+
+    // --- 3. SIGN UP PAGE LOGIC ---
+    if (path.includes('signup.html')) {
+        togglePassword('show-password-signup', 'password', 'confirm-password');
+
+        const tcModal = document.getElementById('tc-modal');
+        const openTcBtn = document.getElementById('open-tc');
+        const tcBox = document.getElementById('tc-box');
+        const ackBtn = document.getElementById('acknowledge-btn');
+        const tcCheckbox = document.getElementById('tc-checkbox');
+        const registerBtn = document.getElementById('register-btn');
+
+        if(openTcBtn) openTcBtn.addEventListener('click', () => { tcModal.style.display = 'flex'; });
+        
+        if(tcBox) tcBox.addEventListener('scroll', () => {
+            if (tcBox.scrollHeight - tcBox.scrollTop <= tcBox.clientHeight + 2) {
+                ackBtn.disabled = false;
+            }
+        });
+
+        if(ackBtn) ackBtn.addEventListener('click', () => {
+            tcModal.style.display = 'none';
+            tcCheckbox.disabled = false;
+            tcCheckbox.checked = true;
+            registerBtn.disabled = false;
+        });
+
+        const signupForm = document.getElementById('signup-form');
+        if(signupForm) signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            registerBtn.innerText = 'Processing...';
+            registerBtn.disabled = true;
+            
+            const fname = document.getElementById('fname').value;
+            const lname = document.getElementById('lname').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (!email.endsWith('@feuroosevelt.edu.ph')) {
+                alert('Please use your official @feuroosevelt.edu.ph email account.');
+                registerBtn.innerText = 'Sign Up';
+                registerBtn.disabled = false;
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                registerBtn.innerText = 'Sign Up';
+                registerBtn.disabled = false;
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert('Error: ' + error.message);
+                registerBtn.innerText = 'Sign Up';
+                registerBtn.disabled = false;
+            } else {
+                if (data.user) {
+                    await supabase.from('profiles').insert([
+                        { id: data.user.id, first_name: fname, last_name: lname, phone_number: phone, school_email: email }
+                    ]);
+                }
+                alert('Registration successful! You can now log in.');
+                window.location.href = 'signin.html';
+            }
+        });
+    }
+
+    // --- 4. SIGN IN PAGE LOGIC ---
+    if (path.includes('signin.html')) {
+        togglePassword('show-password-signin', 'password');
+
+        const signinForm = document.getElementById('signin-form');
+        if(signinForm) signinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = signinForm.querySelector('button');
+            btn.innerText = 'Logging in...';
+            btn.disabled = true;
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert('Login Failed: ' + error.message);
+                btn.innerText = 'Log In';
+                btn.disabled = false;
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+
+    // --- 5. GLOBAL UI (Sidebar, Modals) ---
     const burgerBtn = document.getElementById('burger-btn');
     const sidebar = document.getElementById('sidebar');
     if (burgerBtn && sidebar) {
@@ -80,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // --- 3. DASHBOARD: FETCH, SEARCH & FILTER EVENTS ---
+    // --- 6. DASHBOARD LOGIC (Fetch, Search, Filter) ---
     const eventsGrid = document.getElementById('events-grid');
     if (eventsGrid && (path === '/' || path.includes('index.html'))) {
         
@@ -93,7 +209,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderEvents(allEventsGlobal);
         }
 
-        // Search Filter
         const searchInput = document.getElementById('search-input');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
@@ -103,7 +218,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // Campus Filter
         const campusSelect = document.getElementById('campus-select');
         if (campusSelect) {
             campusSelect.addEventListener('change', (e) => {
@@ -141,7 +255,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             eventsGrid.appendChild(card);
         });
 
-        // Register Button Actions
         document.querySelectorAll('.register-trigger').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 if (!currentUser) {
@@ -171,7 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(closeAuthBtn) closeAuthBtn.addEventListener('click', () => document.getElementById('auth-modal').classList.add('hidden'));
 
 
-    // --- 4. ORDER LIST LOGIC (Foreign Keys) ---
+    // --- 7. ORDER LIST LOGIC ---
     const ordersGrid = document.getElementById('orders-grid');
     if (ordersGrid && path.includes('orderlist.html')) {
         if (!currentUser) {
@@ -179,7 +292,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Inner Join using Foreign Key 'event_id'
         const { data: orders, error } = await supabase.from('orders').select(`id, status, events ( title, event_date, event_time, campus, poster_url )`).eq('user_id', currentUser.id);
 
         ordersGrid.innerHTML = '';
