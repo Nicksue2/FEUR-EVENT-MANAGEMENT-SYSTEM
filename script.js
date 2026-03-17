@@ -1,198 +1,141 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// Your live Supabase Credentials
 const supabaseUrl = 'https://wcqkpqcyaiuocwyjtvhs.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjcWtwcWN5YWl1b2N3eWp0dmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDI3NDEsImV4cCI6MjA4OTMxODc0MX0.ECG7XZIovBahv9NlDMuYGe0RrlI7J4oxr1gBBIYh7aY';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
+    let currentUser = null;
 
-    // --- REUSABLE SHOW PASSWORD ---
-    const togglePassword = (checkboxId, ...inputIds) => {
-        const checkbox = document.getElementById(checkboxId);
-        if (checkbox) {
-            checkbox.addEventListener('change', function() {
-                inputIds.forEach(id => {
-                    const input = document.getElementById(id);
-                    if (input) input.type = this.checked ? 'text' : 'password';
+    // --- 1. DARK MODE LOGIC ---
+    const darkModeToggle = document.getElementById('dark-toggle');
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        if(darkModeToggle) darkModeToggle.checked = true;
+    }
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', darkModeToggle.checked);
+        });
+    }
+
+    // --- 2. AUTHENTICATION & UI TOGGLE ---
+    const { data: sessionData } = await supabase.auth.getSession();
+    
+    const guestView = document.getElementById('guest-view');
+    const authUserView = document.getElementById('auth-user-view');
+    const navOrders = document.getElementById('nav-orders');
+    const logoutBtn = document.getElementById('logout-btn');
+    const greetingEl = document.getElementById('user-greeting');
+
+    if (sessionData && sessionData.session) {
+        currentUser = sessionData.session.user;
+        if(guestView) guestView.classList.add('hidden');
+        if(authUserView) authUserView.classList.remove('hidden');
+        if(logoutBtn) logoutBtn.classList.remove('hidden');
+        
+        // Get Profile Name
+        const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', currentUser.id).single();
+        if (profile && greetingEl) {
+            greetingEl.innerText = `Welcome, ${profile.first_name} ${profile.last_name}!`;
+        }
+    } else {
+        if(guestView) guestView.classList.remove('hidden');
+        if(authUserView) authUserView.classList.add('hidden');
+        if(navOrders) navOrders.classList.add('hidden'); // Hide orders for guests
+    }
+
+    // Logout Action
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.reload();
+        });
+    }
+
+    // --- 3. UI INTERACTIONS (Burger, Modals, Search) ---
+    const burgerBtn = document.getElementById('burger-btn');
+    const sidebar = document.getElementById('sidebar');
+    if (burgerBtn && sidebar) {
+        burgerBtn.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('open'); // Slide in for mobile
+            } else {
+                sidebar.classList.toggle('minimized'); // Shrink for PC
+            }
+        });
+    }
+
+    const notifBtn = document.getElementById('notif-btn');
+    const notifModal = document.getElementById('notif-modal');
+    if (notifBtn && notifModal) {
+        notifBtn.addEventListener('click', () => notifModal.classList.toggle('hidden'));
+    }
+
+    const navSettings = document.getElementById('nav-settings');
+    const settingsModal = document.getElementById('settings-modal');
+    const closeSettings = document.getElementById('close-settings');
+    if (navSettings && settingsModal) {
+        navSettings.addEventListener('click', (e) => {
+            e.preventDefault();
+            settingsModal.classList.remove('hidden');
+        });
+        closeSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
+    }
+
+    // --- 4. FETCH AND RENDER EVENTS (index.html) ---
+    const eventsGrid = document.getElementById('events-grid');
+    if (eventsGrid) {
+        const { data: events, error } = await supabase.from('events').select('*');
+        
+        eventsGrid.innerHTML = ''; // Clear loading text
+        
+        if (error || !events || events.length === 0) {
+            eventsGrid.innerHTML = '<p>No events found. Please add events in Supabase.</p>';
+        } else {
+            events.forEach(event => {
+                const isPaidText = event.is_paid ? `₱${event.price}` : 'FREE';
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <img src="${event.poster_url || 'https://via.placeholder.com/300x160?text=FEUR+Event'}" alt="Event" class="event-img">
+                    <div class="event-info">
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-meta">
+                            <span>📅 ${event.event_date || 'TBA'} | ${event.event_time || ''}</span>
+                            <span>📍 FEU Roosevelt ${event.campus}</span>
+                            <span>🎟️ ${isPaidText}</span>
+                        </div>
+                        <button class="event-btn register-trigger" data-id="${event.id}">Register Now</button>
+                    </div>
+                `;
+                eventsGrid.appendChild(card);
+            });
+
+            // Register Button Logic
+            document.querySelectorAll('.register-trigger').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    if (!currentUser) {
+                        document.getElementById('auth-modal').classList.remove('hidden');
+                        return;
+                    }
+                    const eventId = e.target.getAttribute('data-id');
+                    alert('Registration functionality connecting to Order List... (Coming Next!)');
+                    // Logic to insert into 'orders' table goes here
                 });
             });
         }
-    };
-
-    // ==========================================
-    // SIGN UP LOGIC
-    // ==========================================
-    if (path.includes('signup.html')) {
-        togglePassword('show-password-signup', 'password', 'confirm-password');
-
-        const tcModal = document.getElementById('tc-modal');
-        const openTcBtn = document.getElementById('open-tc');
-        const tcBox = document.getElementById('tc-box');
-        const ackBtn = document.getElementById('acknowledge-btn');
-        const tcCheckbox = document.getElementById('tc-checkbox');
-        const registerBtn = document.getElementById('register-btn');
-
-        openTcBtn.addEventListener('click', () => { tcModal.style.display = 'flex'; });
-        
-        tcBox.addEventListener('scroll', () => {
-            if (tcBox.scrollHeight - tcBox.scrollTop <= tcBox.clientHeight + 2) {
-                ackBtn.disabled = false;
-            }
-        });
-
-        ackBtn.addEventListener('click', () => {
-            tcModal.style.display = 'none';
-            tcCheckbox.disabled = false;
-            tcCheckbox.checked = true;
-            registerBtn.disabled = false;
-        });
-
-        const signupForm = document.getElementById('signup-form');
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            registerBtn.innerText = 'Processing...';
-            registerBtn.disabled = true;
-            
-            const fname = document.getElementById('fname').value;
-            const lname = document.getElementById('lname').value;
-            const phone = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-
-            if (!email.endsWith('@feuroosevelt.edu.ph')) {
-                alert('Please use your official @feuroosevelt.edu.ph email account.');
-                registerBtn.innerText = 'Sign Up';
-                registerBtn.disabled = false;
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                alert('Passwords do not match.');
-                registerBtn.innerText = 'Sign Up';
-                registerBtn.disabled = false;
-                return;
-            }
-
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                alert('Error: ' + error.message);
-                registerBtn.innerText = 'Sign Up';
-                registerBtn.disabled = false;
-            } else {
-                if (data.user) {
-                    await supabase.from('profiles').insert([
-                        { id: data.user.id, first_name: fname, last_name: lname, phone_number: phone, school_email: email }
-                    ]);
-                }
-                alert('Registration successful! You can now log in.');
-                window.location.href = 'signin.html';
-            }
-        });
     }
 
-    // ==========================================
-    // SIGN IN LOGIC
-    // ==========================================
-    if (path.includes('signin.html')) {
-        togglePassword('show-password-signin', 'password');
-
-        const signinForm = document.getElementById('signin-form');
-        signinForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = signinForm.querySelector('button');
-            btn.innerText = 'Logging in...';
-            btn.disabled = true;
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                alert('Login Failed: ' + error.message);
-                btn.innerText = 'Log In';
-                btn.disabled = false;
-            } else {
-                window.location.href = 'dashboard.html';
-            }
+    // Close Auth Modal
+    const closeAuthBtn = document.getElementById('close-auth-modal');
+    if (closeAuthBtn) {
+        closeAuthBtn.addEventListener('click', () => {
+            document.getElementById('auth-modal').classList.add('hidden');
         });
-    }
-
-    // ==========================================
-    // DASHBOARD & GLOBAL UI LOGIC
-    // ==========================================
-    if (path.includes('dashboard.html') || path.includes('orderlist.html')) {
-        
-        // 1. Session Check
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !sessionData.session) {
-            window.location.href = 'signin.html';
-            return;
-        }
-
-        const user = sessionData.session.user;
-
-        // Fetch Name
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name')
-            .eq('id', user.id)
-            .single();
-
-        if (profile) {
-            const greetingEl = document.getElementById('user-greeting');
-            if (greetingEl) greetingEl.innerText = `Welcome, ${profile.first_name} ${profile.last_name}!`;
-        }
-
-        // Logout
-        const logoutBtns = document.querySelectorAll('#logout-btn');
-        logoutBtns.forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await supabase.auth.signOut();
-                window.location.href = 'signin.html';
-            });
-        });
-
-        // 2. UI Toggles
-        const burgerBtn = document.getElementById('burger-btn');
-        const sidebar = document.getElementById('sidebar');
-        if (burgerBtn && sidebar) {
-            burgerBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('minimized');
-            });
-        }
-
-        const notifBtn = document.getElementById('notif-btn');
-        const notifModal = document.getElementById('notif-modal');
-        if (notifBtn && notifModal) {
-            notifBtn.addEventListener('click', () => {
-                notifModal.classList.toggle('hidden');
-            });
-        }
-
-        const searchInput = document.getElementById('search-input');
-        const searchDropdown = document.getElementById('search-dropdown');
-        if (searchInput && searchDropdown) {
-            searchInput.addEventListener('input', (e) => {
-                if (e.target.value.length > 0) {
-                    searchDropdown.classList.remove('hidden');
-                    searchDropdown.innerHTML = `<p style="padding:10px;">Searching for "${e.target.value}"...</p>`;
-                } else {
-                    searchDropdown.classList.add('hidden');
-                }
-            });
-        }
     }
 });
