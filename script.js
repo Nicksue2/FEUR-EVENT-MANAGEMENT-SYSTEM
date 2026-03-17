@@ -45,58 +45,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(closeSettings) closeSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
 
 
-   // --- 2. AUTHENTICATION STATE (SESSION CHECK) ---
+    // --- 2. AUTHENTICATION STATE (SESSION CHECK) ---
     const { data: sessionData } = await supabase.auth.getSession();
     
     if (sessionData && sessionData.session) {
         currentUser = sessionData.session.user;
-
-        try {
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('first_name, last_name, role')
-                .eq('id', currentUser.id)
-                .single();
-
-            if (profile) {
-                userRole = profile.role || 'user';
-                const greetingEl = document.getElementById('user-greeting');
-                if (greetingEl) greetingEl.innerText = `Welcome, ${profile.first_name}!`;
-            }
-
-            // Admin Link Logic
-            if (userRole === 'admin') {
-                const sideMenu = document.querySelector('.side-menu');
-                if (sideMenu && !document.getElementById('admin-link')) {
-                    const a = document.createElement('a');
-                    a.id = 'admin-link';
-                    a.href = 'admin.html';
-                    a.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>Admin Panel</span>`;
-                    const logoutBtn = document.getElementById('logout-btn');
-                    if (logoutBtn) sideMenu.insertBefore(a, logoutBtn);
-                    else sideMenu.appendChild(a);
-                }
-            }
-        } catch (err) {
-            console.error("Profile fetch failed:", err);
-        }
-
-        // Access Control for Admin Page
-        if (path.includes('admin.html') && userRole !== 'admin') {
-            window.location.href = 'index.html';
-            return;
-        }
-
+        
         document.querySelectorAll('.guest-only').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.user-only').forEach(el => el.classList.remove('hidden'));
-    } else {
-        if (path.includes('admin.html')) {
-            window.location.href = 'signin.html';
-            return;
+        
+        const greetingEl = document.getElementById('user-greeting');
+        if(greetingEl) {
+            const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', currentUser.id).single();
+            if (profile) greetingEl.innerText = `Welcome, ${profile.first_name} ${profile.last_name}!`;
         }
-        document.querySelectorAll('.user-only').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.guest-only').forEach(el => el.classList.remove('hidden'));
-    }
+
         // Dummy Notifications Logic for Logged-In Users
         const notifList = document.getElementById('notif-list');
         if (notifList) {
@@ -467,15 +430,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function showCustomAlert(title, message) {
-    const modal = document.getElementById('custom-alert');
-    if (!modal) return alert(message);
-
-    document.getElementById('alert-title').innerText = title;
-    document.getElementById('alert-message').innerText = message;
-    modal.classList.remove('hidden');
-
-    document.getElementById('close-alert').onclick = () => {
-        modal.classList.add('hidden');
-    };
-}
+    
