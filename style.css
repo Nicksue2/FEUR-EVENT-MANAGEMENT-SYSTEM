@@ -1,31 +1,15 @@
-::-webkit-scrollbar {
-  width: 5px;
-}
-::-webkit-scrollbar-thumb {
-  background: #3b5e3c;
-}
-
-.hidden-el {
-  display: none !important;
-}
-.view {
-  animation: fade 0.3s ease;
-}
-@keyframes fade {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
-/* Minimized Sidebar */
-#side.mini {
-  width: 4.5rem;
-}
-#side.mini .s-text {
-  display: none;
+body {
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }

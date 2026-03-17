@@ -1,39 +1,97 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config={theme:{extend:{colors:{'f-grn':'#3B5E3C','f-bg':'#EAE5D9'}}}}</script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js" defer></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-f-bg h-screen flex justify-center items-center p-4">
-    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
-        <h2 class="text-3xl font-bold text-f-grn text-center mb-6">Sign Up</h2>
-        <div class="space-y-3">
-            <div class="flex gap-3">
-                <input type="text" id="s-fname" placeholder="First Name" class="w-1/2 p-3 border rounded outline-none">
-                <input type="text" id="s-lname" placeholder="Last Name" class="w-1/2 p-3 border rounded outline-none">
-            </div>
-            <input type="email" id="s-mail" placeholder="@feuroosevelt.edu.ph" class="w-full p-3 border rounded outline-none">
-            <input type="password" id="s-pass" placeholder="Password" class="w-full p-3 border rounded outline-none">
-            
-            <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="show-p"> Show Password</label>
-
-            <div class="border p-3 h-20 overflow-y-auto text-xs bg-gray-50" id="tc">
-                Terms: 1. Use school email. 2. No dummy accounts.<br><br>End.
-            </div>
-            
-            <label class="flex items-center gap-2 text-sm text-gray-500">
-                <input type="checkbox" id="chk-tc" disabled> I agree
-            </label>
-
-            <button id="btn-reg" disabled class="w-full bg-gray-400 text-white font-bold py-3 rounded cursor-not-allowed">Register</button>
-            <p class="text-center text-sm">Have an account? <a href="signin.html" class="text-f-grn font-bold">Sign in</a></p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up - FEU Roosevelt Events</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="signinup.css" />
+  </head>
+  <body>
+    <div class="auth-container">
+      <h2>Register Account</h2>
+      <form id="signup-form">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="fname" required />
         </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="lname" required />
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" id="phone" required />
+        </div>
+        <div class="form-group">
+          <label>School Email Address</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="@feuroosevelt.edu.ph"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" required />
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" id="confirm-password" required />
+        </div>
+        <div class="form-options">
+          <input type="checkbox" id="show-password-signup" />
+          <label for="show-password-signup">Show Password</label>
+        </div>
+        <div class="form-options">
+          <button
+            type="button"
+            id="open-tc"
+            style="
+              background: none;
+              border: none;
+              color: #006633;
+              text-decoration: underline;
+              cursor: pointer;
+              padding: 0;
+              font-weight: bold;
+            "
+          >
+            View Terms & Conditions
+          </button>
+        </div>
+        <div class="form-options">
+          <input type="checkbox" id="tc-checkbox" disabled required />
+          <label for="tc-checkbox">I acknowledge the Terms & Conditions</label>
+        </div>
+        <button type="submit" id="register-btn" class="btn" disabled>
+          Sign Up
+        </button>
+      </form>
+      <div class="switch-link">
+        Already have an account? <a href="signin.html">Log In</a>
+      </div>
     </div>
-</body>
+
+    <div id="tc-modal" class="modal">
+      <div class="modal-content">
+        <h3 style="color: #006633">Terms & Conditions</h3>
+        <div id="tc-box" class="tc-box">
+          <p>Welcome to the FEU Roosevelt Event Management System.</p>
+          <p>
+            Please read these terms carefully. You must use your official school
+            email to register.
+          </p>
+          <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+          <p>End of Terms and Conditions. You may now acknowledge.</p>
+        </div>
+        <button type="button" id="acknowledge-btn" class="btn" disabled>
+          Acknowledge
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+  </body>
 </html>
