@@ -3,55 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - FEU Events</title>
-    <link rel="stylesheet" href="signinup.css">
+    <title>Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{'f-grn':'#3B5E3C','f-bg':'#EAE5D9'}}}}</script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="auth-container">
-        <form id="signup-form" class="auth-box">
-            <h2>Register</h2>
-            <p class="subtitle">Use your official @feuroosevelt.edu.ph email.</p>
+<body class="bg-f-bg h-screen flex justify-center items-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
+        <h2 class="text-3xl font-bold text-f-grn text-center mb-6">Sign Up</h2>
+        <div class="space-y-3">
+            <div class="flex gap-3">
+                <input type="text" id="s-fname" placeholder="First Name" class="w-1/2 p-3 border rounded outline-none">
+                <input type="text" id="s-lname" placeholder="Last Name" class="w-1/2 p-3 border rounded outline-none">
+            </div>
+            <input type="email" id="s-mail" placeholder="@feuroosevelt.edu.ph" class="w-full p-3 border rounded outline-none">
+            <input type="password" id="s-pass" placeholder="Password" class="w-full p-3 border rounded outline-none">
             
-            <div class="input-group">
-                <input type="text" id="fname" placeholder="First Name" required>
-                <input type="text" id="lname" placeholder="Last Name" required>
-            </div>
-            <div class="input-group">
-                <input type="email" id="signup-email" placeholder="School Email" required>
-                <input type="tel" id="phone" placeholder="Phone Number" required>
-            </div>
-            <div class="input-group">
-                <input type="password" id="signup-password" placeholder="Password" required>
-                <input type="password" id="confirm-password" placeholder="Confirm Password" required>
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="show-p"> Show Password</label>
+
+            <div class="border p-3 h-20 overflow-y-auto text-xs bg-gray-50" id="tc">
+                Terms: 1. Use school email. 2. No dummy accounts.<br><br>End.
             </div>
             
-            <label class="show-pass-label"><input type="checkbox" id="show-signup-pass"> Show Passwords</label>
+            <label class="flex items-center gap-2 text-sm text-gray-500">
+                <input type="checkbox" id="chk-tc" disabled> I agree
+            </label>
 
-            <div class="tc-section">
-                <button type="button" id="open-tc" class="btn-secondary">Read Terms & Conditions</button>
-                <label class="tc-check-label">
-                    <input type="checkbox" id="tc-checkbox" disabled> I accept the Terms & Conditions
-                </label>
-            </div>
-
-            <button type="submit" id="register-btn" class="btn-primary" disabled>Sign Up</button>
-            <p>Already have an account? <a href="signin.html">Log In</a></p>
-        </form>
-    </div>
-
-    <div id="tc-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Terms and Conditions</h3>
-            <div id="tc-text" class="scroll-box">
-                <p>Welcome to FEU Roosevelt Event Management System...</p>
-                <br><br><br><br><br><br><br><br><br><br>
-                <p>Scroll down to the bottom to acknowledge.</p>
-                <br><br><br><br><br><br><br><br><br><br>
-                <p>End of terms.</p>
-            </div>
-            <button type="button" id="acknowledge-btn" class="btn-primary" disabled>Acknowledge</button>
+            <button id="btn-reg" disabled class="w-full bg-gray-400 text-white font-bold py-3 rounded cursor-not-allowed">Register</button>
+            <p class="text-center text-sm">Have an account? <a href="signin.html" class="text-f-grn font-bold">Sign in</a></p>
         </div>
     </div>
-    <script type="module" src="script.js"></script>
 </body>
 </html>

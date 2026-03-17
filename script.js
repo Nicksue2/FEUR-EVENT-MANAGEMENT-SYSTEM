@@ -1,199 +1,144 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+// Supabase Init
+const sbUrl = "https://wcqkpqcyaiuocwyjtvhs.supabase.co";
+const sbKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjcWtwcWN5YWl1b2N3eWp0dmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDI3NDEsImV4cCI6MjA4OTMxODc0MX0.ECG7XZIovBahv9NlDMuYGe0RrlI7J4oxr1gBBIYh7aY";
+const sb = window.supabase.createClient(sbUrl, sbKey);
 
-// PASTE YOUR VERCEL ENVIRONMENT VARIABLES HERE
-const SUPABASE_URL = 'https://wcqkpqcyaiuocwyjtvhs.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjcWtwcWN5YWl1b2N3eWp0dmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDI3NDEsImV4cCI6MjA4OTMxODc0MX0.ECG7XZIovBahv9NlDMuYGe0RrlI7J4oxr1gBBIYh7aY'; // Paki-paste yung buong anon key mo dito
+// DOM Elements
+const d = document;
+const el = (id) => d.getElementById(id);
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// --- AUTH LOGIC ---
+const btnReg = el("btn-reg");
+const btnLog = el("btn-login");
+const btnOut = el("btn-out");
 
-document.addEventListener('DOMContentLoaded', async () => {
-    
-    const path = window.location.pathname;
+// Session Check (Dashboard protection)
+async function checkAuth() {
+  const {
+    data: { session },
+  } = await sb.auth.getSession();
+  const isDash = window.location.pathname.includes("dashboard.html");
 
-    // ==========================================
-    // AUTH LOGIC (SIGNUP & SIGNIN)
-    // ==========================================
-    if (path.includes('signup.html')) {
-        const form = document.getElementById('signup-form');
-        const tcModal = document.getElementById('tc-modal');
-        const openTcBtn = document.getElementById('open-tc');
-        const tcText = document.getElementById('tc-text');
-        const ackBtn = document.getElementById('acknowledge-btn');
-        const tcCheckbox = document.getElementById('tc-checkbox');
-        const regBtn = document.getElementById('register-btn');
-
-        // Show Passwords
-        document.getElementById('show-signup-pass').addEventListener('change', (e) => {
-            const type = e.target.checked ? 'text' : 'password';
-            document.getElementById('signup-password').type = type;
-            document.getElementById('confirm-password').type = type;
-        });
-
-        // T&C Scroll Logic
-        openTcBtn.addEventListener('click', () => tcModal.classList.remove('hidden'));
-        
-        tcText.addEventListener('scroll', () => {
-            if (tcText.scrollTop + tcText.clientHeight >= tcText.scrollHeight - 5) {
-                ackBtn.disabled = false;
-            }
-        });
-
-        ackBtn.addEventListener('click', () => {
-            tcCheckbox.checked = true;
-            tcCheckbox.disabled = false;
-            regBtn.disabled = false;
-            tcModal.classList.add('hidden');
-        });
-
-        // Registration Submit
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('signup-email').value;
-            const pass = document.getElementById('signup-password').value;
-            const confPass = document.getElementById('confirm-password').value;
-            const fname = document.getElementById('fname').value;
-            const lname = document.getElementById('lname').value;
-            const phone = document.getElementById('phone').value;
-
-            if (!email.endsWith('@feuroosevelt.edu.ph')) return alert("Use your @feuroosevelt.edu.ph email.");
-            if (pass !== confPass) return alert("Passwords do not match.");
-
-            const { data, error } = await supabase.auth.signUp({
-                email, password, options: { data: { first_name: fname, last_name: lname, phone_number: phone } }
-            });
-
-            if (error) alert(error.message);
-            else { alert("Success! Check email for verification, then Log in."); window.location.href = 'signin.html'; }
-        });
+  if (isDash) {
+    if (!session) window.location.href = "signin.html";
+    else {
+      el("app-body").classList.remove("invisible");
+      // Show email username format
+      el("u-name").innerText = session.user.email.split("@")[0];
     }
+  } else if (
+    session &&
+    (window.location.pathname.includes("signin") ||
+      window.location.pathname.includes("signup"))
+  ) {
+    window.location.href = "dashboard.html";
+  }
+}
+checkAuth();
 
-    if (path.includes('signin.html')) {
-        const form = document.getElementById('signin-form');
-        
-        document.getElementById('show-login-pass').addEventListener('change', (e) => {
-            document.getElementById('login-password').type = e.target.checked ? 'text' : 'password';
-        });
+// Sign Up
+if (btnReg) {
+  btnReg.onclick = async () => {
+    const mail = el("s-mail").value;
+    const pass = el("s-pass").value;
+    const fname = el("s-fname").value;
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+    if (!mail.endsWith("@feuroosevelt.edu.ph"))
+      return alert("Use school email!");
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            
-            if (error) alert(error.message);
-            else window.location.href = 'dashboard.html';
-        });
+    btnReg.innerText = "Loading...";
+    const { data, error } = await sb.auth.signUp({
+      email: mail,
+      password: pass,
+    });
+
+    if (error) alert(error.message);
+    else {
+      alert("Check email for verification or login now!");
+      window.location.href = "signin.html";
     }
+    btnReg.innerText = "Register";
+  };
+}
 
-    // ==========================================
-    // DASHBOARD LOGIC
-    // ==========================================
-    if (path.includes('dashboard.html') || path === '/' || path.endsWith('/')) {
-        
-        // Session Check
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { window.location.href = 'signin.html'; return; }
+// Login
+if (btnLog) {
+  btnLog.onclick = async () => {
+    const mail = el("l-mail").value;
+    const pass = el("l-pass").value;
 
-        // Fetch User Profile Name
-        const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', user.id).single();
-        if (profile) {
-            document.getElementById('welcome-msg').innerText = `Welcome, ${profile.first_name} ${profile.last_name}!`;
-        }
+    btnLog.innerText = "Checking...";
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: mail,
+      password: pass,
+    });
 
-        // Logout
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            window.location.href = 'signin.html';
-        });
+    if (error) {
+      alert(error.message);
+      btnLog.innerText = "Login";
+    } else window.location.href = "dashboard.html";
+  };
+}
 
-        // UI Toggles
-        const sidebar = document.getElementById('sidebar');
-        document.getElementById('burger-btn').addEventListener('click', () => {
-            if (window.innerWidth <= 768) sidebar.classList.toggle('active-mobile');
-            else sidebar.classList.toggle('collapsed');
-        });
+// Logout
+if (btnOut) {
+  btnOut.onclick = async () => {
+    await sb.auth.signOut();
+    window.location.href = "signin.html";
+  };
+}
 
-        const notifModal = document.getElementById('notif-modal');
-        document.getElementById('notif-btn').addEventListener('click', () => {
-            notifModal.classList.toggle('hidden');
-        });
+// --- UI LOGIC ---
 
-        // Search Dropdown dummy logic
-        const searchInput = document.getElementById('search-input');
-        const searchResults = document.getElementById('search-results');
-        searchInput.addEventListener('input', (e) => {
-            if(e.target.value.length > 0) {
-                searchResults.classList.remove('hidden');
-                searchResults.innerHTML = `<p>Searching for "${e.target.value}"...</p>`;
-            } else {
-                searchResults.classList.add('hidden');
-            }
-        });
+// Show/Hide password
+if (el("show-p"))
+  el("show-p").onchange = (e) =>
+    (el("s-pass").type = e.target.checked ? "text" : "password");
 
-        // Fetch Data (Events vs Order List)
-        const contentArea = document.getElementById('events-grid');
-        const pageTitle = document.getElementById('page-title');
-        
-        async function loadEvents(campusFilter = null) {
-            contentArea.innerHTML = 'Loading events...';
-            let query = supabase.from('events').select('*');
-            if (campusFilter) query = query.eq('campus', campusFilter);
-            
-            const { data: events, error } = await query;
-            if (error) { contentArea.innerHTML = 'Error loading events.'; return; }
-            if (events.length === 0) { contentArea.innerHTML = 'No events found.'; return; }
-
-            contentArea.innerHTML = events.map(ev => `
-                <div class="card">
-                    <img src="${ev.poster_url || 'https://via.placeholder.com/150'}" class="card-img">
-                    <h3>${ev.title}</h3>
-                    <p>${ev.event_date}</p>
-                    <p style="font-size: 12px; margin-top:10px;">HOSTED BY: ${ev.campus}</p>
-                    <button class="card-btn" onclick="alert('Register logic here')">VIEW & REGISTER</button>
-                </div>
-            `).join('');
-        }
-
-        async function loadOrderList() {
-            pageTitle.innerHTML = 'Order List <span class="sub">My Registered Events</span>';
-            contentArea.innerHTML = 'Loading orders...';
-            
-            const { data: orders, error } = await supabase.from('orders').select('*, events(*)').eq('user_id', user.id);
-            if (error) { contentArea.innerHTML = 'Error loading orders.'; return; }
-            if (orders.length === 0) { contentArea.innerHTML = 'You have not registered for any events.'; return; }
-
-            contentArea.innerHTML = orders.map(o => `
-                <div class="card">
-                    <h3>${o.events.title}</h3>
-                    <p>Status: ${o.status}</p>
-                    <button class="card-btn">VIEW QR CODE</button>
-                </div>
-            `).join('');
-        }
-
-        // Event Listeners for Nav
-        document.querySelectorAll('.nav-links a[data-page]').forEach(link => {
-            link.addEventListener('click', (e) => {
-                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-                e.target.classList.add('active');
-                
-                const page = e.target.getAttribute('data-page');
-                if (page === 'events' || page === 'home') {
-                    pageTitle.innerHTML = 'Dashboard <span class="sub">Events Management</span>';
-                    loadEvents();
-                } else if (page === 'orders') {
-                    loadOrderList();
-                }
-            });
-        });
-
-        // Campus Filter Listener
-        document.getElementById('campus-select').addEventListener('change', (e) => {
-            loadEvents(e.target.value);
-        });
-
-        // Initial Load
-        loadEvents();
+// Terms Scroll Check
+if (el("tc")) {
+  el("tc").onscroll = () => {
+    if (
+      el("tc").scrollHeight - el("tc").scrollTop <=
+      el("tc").clientHeight + 5
+    ) {
+      el("chk-tc").disabled = false;
     }
+  };
+  el("chk-tc").onchange = (e) => {
+    btnReg.disabled = !e.target.checked;
+    btnReg.className = e.target.checked
+      ? "w-full bg-[#3B5E3C] text-white font-bold py-3 rounded"
+      : "w-full bg-gray-400 text-white font-bold py-3 rounded cursor-not-allowed";
+  };
+}
+
+// Sidebar Minimizer
+if (el("m-desk"))
+  el("m-desk").onclick = () => el("side").classList.toggle("mini");
+
+// View Switcher
+d.querySelectorAll(".nav-b").forEach((b) => {
+  b.onclick = () => {
+    const trg = b.getAttribute("data-v");
+    if (!trg) return;
+
+    d.querySelectorAll(".view").forEach((v) => {
+      v.classList.remove("active");
+      v.classList.add("hidden-el");
+    });
+    const v = el(trg);
+    v.classList.remove("hidden-el");
+    void v.offsetWidth;
+    v.classList.add("active");
+
+    // Active style update
+    if (b.parentElement.tagName === "NAV") {
+      d.querySelectorAll("nav .nav-b").forEach((n) =>
+        n.classList.remove("bg-black", "bg-opacity-20"),
+      );
+      b.classList.add("bg-black", "bg-opacity-20");
+    }
+  };
 });

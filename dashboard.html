@@ -1,60 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - FEU Events</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header class="top-bar">
-        <div class="left-head">
-            <button id="burger-btn">☰</button>
-            <div class="welcome-text" id="welcome-msg">Welcome, Loading...!</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: { colors: { "f-grn": "#3B5E3C", "f-bg": "#EAE5D9" } },
+        },
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body
+    class="bg-f-bg font-sans h-screen flex overflow-hidden invisible"
+    id="app-body"
+  >
+    <aside
+      id="side"
+      class="hidden md:flex flex-col w-64 bg-f-grn text-white shadow-2xl transition-all"
+    >
+      <div class="p-4 bg-[#8B7A6A] font-bold flex justify-between">
+        <span id="u-name" class="s-text">Loading...</span>
+        <i class="fa-solid fa-bars cursor-pointer" id="m-desk"></i>
+      </div>
+      <nav class="p-4 flex flex-col gap-2 flex-1">
+        <button
+          class="nav-b bg-black bg-opacity-20 p-3 rounded flex gap-3 text-left"
+          data-v="v-dash"
+        >
+          <i class="fa-solid fa-house"></i>
+          <span class="s-text">Dashboard</span>
+        </button>
+        <button
+          class="nav-b p-3 rounded flex gap-3 text-left hover:bg-black/10"
+          data-v="v-ord"
+        >
+          <i class="fa-solid fa-ticket"></i> <span class="s-text">Tickets</span>
+        </button>
+        <button
+          id="btn-out"
+          class="p-3 rounded flex gap-3 text-left hover:bg-red-600 text-red-300 mt-auto"
+        >
+          <i class="fa-solid fa-power-off"></i>
+          <span class="s-text">Logout</span>
+        </button>
+      </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full">
+      <header
+        class="bg-f-grn md:bg-transparent p-4 flex justify-between items-center text-white md:text-black"
+      >
+        <i class="fa-solid fa-bars md:hidden text-xl" id="m-mob"></i>
+        <div class="hidden md:flex gap-4 ml-auto items-center">
+          <input
+            type="text"
+            placeholder="Search..."
+            class="p-1 rounded text-black outline-none px-2 text-sm"
+          />
+          <select class="p-1 rounded text-black text-sm outline-none">
+            <option>Marikina</option>
+            <option>Cainta</option>
+          </select>
         </div>
-        
-        <div class="right-head">
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Search events...">
-                <div id="search-results" class="dropdown-modal hidden"></div>
-            </div>
-            
-            <select id="campus-select">
-                <option value="" disabled selected>FEU Roosevelt Campuses</option>
-                <option value="Cainta">Cainta</option>
-                <option value="Marikina">Marikina</option>
-                <option value="Rodriguez">Rodriguez</option>
-            </select>
+      </header>
 
-            <div class="notif-container">
-                <button id="notif-btn">🔔</button>
-                <div id="notif-modal" class="dropdown-modal hidden">
-                    <h4>Notifications</h4>
-                    <p>No new notifications.</p>
-                </div>
-            </div>
+      <div class="p-4 md:p-8 flex-1 overflow-y-auto">
+        <div id="v-dash" class="view active">
+          <h2 class="text-2xl font-bold mb-6">Events</h2>
+          <div
+            class="bg-gradient-to-b from-green-700 to-black rounded-3xl h-64 p-5 text-white max-w-sm cursor-pointer nav-b"
+            data-v="v-det"
+          >
+            <h4 class="font-bold text-2xl uppercase">Sinag Tamaraw</h4>
+            <p class="text-sm">Jan 27, 2026</p>
+          </div>
         </div>
-    </header>
 
-    <div class="main-layout">
-        <nav id="sidebar" class="sidebar">
-            <ul class="nav-links">
-                <li><a href="#" class="active" data-page="home">🏠 Dashboard</a></li>
-                <li><a href="#" data-page="events">📅 Events</a></li>
-                <li><a href="#" data-page="orders">📄 Order List</a></li>
-                <li><a href="#" data-page="settings">⚙️ Settings</a></li>
-                <li><a href="#" id="logout-btn">🚪 Logout</a></li>
-            </ul>
-        </nav>
+        <div id="v-det" class="view hidden-el">
+          <button class="font-bold mb-4 nav-b" data-v="v-dash">
+            <i class="fa-solid fa-arrow-left"></i> Back
+          </button>
+          <div class="bg-white p-8 rounded-xl shadow">
+            <h2 class="text-3xl font-bold mb-4">Sinag Tamaraw</h2>
+            <button class="bg-f-grn text-white px-6 py-2 rounded font-bold">
+              Register
+            </button>
+          </div>
+        </div>
 
-        <main id="content-area" class="content">
-            <h2 id="page-title">Dashboard <span class="sub">Events Management</span></h2>
-            
-            <div id="events-grid" class="cards-container">
-                </div>
-        </main>
-    </div>
-    
-    <script type="module" src="script.js"></script>
-</body>
+        <div id="v-ord" class="view hidden-el">
+          <h2 class="text-2xl font-bold mb-6">My Tickets</h2>
+          <div class="bg-white p-8 rounded-xl text-center text-gray-500 shadow">
+            No tickets found in DB.
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
 </html>
