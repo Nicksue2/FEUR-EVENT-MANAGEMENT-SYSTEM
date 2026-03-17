@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
     let currentUser = null;
     let allEventsGlobal = [];
-    let currentSelectedEvent = null;
+    let currentSelectedEvent = null; // Stores event info for modal
 
     // --- REUSABLE SHOW PASSWORD ---
     const togglePassword = (checkboxId, ...inputIds) => {
@@ -60,11 +60,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (profile) greetingEl.innerText = `Welcome, ${profile.first_name} ${profile.last_name}!`;
         }
 
+        // Dummy Notifications Logic for Logged-In Users
         const notifList = document.getElementById('notif-list');
         if (notifList) {
             notifList.innerHTML = `
-                <p class="notif-item">🔔 Welcome to FEUR Events!</p>
-                <p class="notif-item">✅ Email Outlook sync is enabled.</p>
+                <p class="notif-item">🔔 Welcome to FEUR Events! Explore upcoming activities.</p>
+                <p class="notif-item">✅ Email Outlook sync is enabled in settings.</p>
             `;
         }
 
@@ -202,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(closeDetailsBtn) closeDetailsBtn.addEventListener('click', () => eventDetailsModal.classList.add('hidden'));
 
 
-    // --- 6. DASHBOARD LOGIC & REGISTRATION DUPLICATE CHECKER ---
+    // --- 6. DASHBOARD LOGIC (Fetch, Search, Filter & Modals) ---
     const eventsGrid = document.getElementById('events-grid');
     if (eventsGrid && (path === '/' || path.includes('index.html'))) {
         
@@ -251,25 +252,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 modalRegBtn.innerText = 'Registering...';
                 modalRegBtn.disabled = true;
 
-                // 1. DUPLICATE CHECKER (Prevents 1 person from registering to the exact same event multiple times)
-                const { data: existingRegistration } = await supabase
-                    .from('orders')
-                    .select('id')
-                    .eq('user_id', currentUser.id)
-                    .eq('event_id', currentSelectedEvent.id);
-
-                if (existingRegistration && existingRegistration.length > 0) {
-                    alert('You are already registered for this event!');
-                    modalRegBtn.innerText = 'Register Now';
-                    modalRegBtn.disabled = false;
-                    return; // Stop the process here
-                }
-
-                // 2. Insert if no duplicate is found
                 const { error } = await supabase.from('orders').insert([{ user_id: currentUser.id, event_id: currentSelectedEvent.id, status: 'Registered' }]);
                 
                 if(error) {
-                    alert('An error occurred during registration.');
+                    alert('You might be already registered to this event!');
                 } else {
                     alert('Successfully Registered! Check your Order List.');
                     modalRegBtn.innerText = 'Registered';
@@ -292,6 +278,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isPaidText = event.is_paid ? `₱${event.price}` : 'FREE';
             const card = document.createElement('div');
             card.className = 'event-card';
+            // Store event id in data attribute to fetch it when clicked
             card.setAttribute('data-id', event.id); 
             card.innerHTML = `
                 <img src="${event.poster_url || 'https://via.placeholder.com/300x160?text=FEUR+Event'}" class="event-img">
@@ -305,8 +292,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             `;
             
+            // Open Details Modal on Card Click
             card.addEventListener('click', () => {
                 currentSelectedEvent = event;
+                
                 document.getElementById('modal-event-img').src = event.poster_url || 'https://via.placeholder.com/500x200?text=FEUR+Event';
                 document.getElementById('modal-event-title').innerText = event.title;
                 document.getElementById('modal-event-meta').innerHTML = `📅 ${event.event_date || 'TBA'} at ${event.event_time || ''} <br>📍 FEU Roosevelt ${event.campus}`;
@@ -322,11 +311,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     modalBtn.style.background = 'var(--primary)';
                     modalBtn.style.color = 'white';
                 }
+
                 eventDetailsModal.classList.remove('hidden');
             });
+
             eventsGrid.appendChild(card);
         });
     }
+
 
     // --- 7. ORDER LIST LOGIC ---
     const ordersGrid = document.getElementById('orders-grid');
