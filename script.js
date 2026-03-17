@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const closeAlertBtn = document.getElementById("close-alert");
   if (closeAlertBtn)
     closeAlertBtn.addEventListener("click", () =>
-      document.getElementById("custom-alert").classList.add("hidden"),
+      document.getElementById("custom-alert").classList.add("hidden")
     );
 
   const togglePassword = (checkboxId, ...inputIds) => {
@@ -78,29 +78,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   document
     .getElementById("close-settings")
     ?.addEventListener("click", () =>
-      document.getElementById("settings-modal").classList.add("hidden"),
+      document.getElementById("settings-modal").classList.add("hidden")
     );
   document
     .getElementById("burger-btn")
     ?.addEventListener("click", () =>
       document
         .getElementById("sidebar")
-        .classList.toggle(window.innerWidth <= 768 ? "open" : "minimized"),
+        .classList.toggle(window.innerWidth <= 768 ? "open" : "minimized")
     );
   document
     .getElementById("notif-btn")
     ?.addEventListener("click", () =>
-      document.getElementById("notif-modal").classList.toggle("hidden"),
+      document.getElementById("notif-modal").classList.toggle("hidden")
     );
   document
     .getElementById("close-auth-modal")
     ?.addEventListener("click", () =>
-      document.getElementById("auth-modal").classList.add("hidden"),
+      document.getElementById("auth-modal").classList.add("hidden")
     );
   document
     .getElementById("close-details-modal")
     ?.addEventListener("click", () =>
-      document.getElementById("event-details-modal").classList.add("hidden"),
+      document.getElementById("event-details-modal").classList.add("hidden")
     );
 
   // --- 3. SESSION & DATABASE ROLE CHECK ---
@@ -174,6 +174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- 4. SIGN IN & SIGN UP LOGIC ---
   if (path.includes("signup.html")) {
     togglePassword("show-password-signup", "password", "confirm-password");
+    
     const tcModal = document.getElementById("tc-modal");
     const openTcBtn = document.getElementById("open-tc");
     const tcBox = document.getElementById("tc-box");
@@ -181,22 +182,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tcCheckbox = document.getElementById("tc-checkbox");
     const registerBtn = document.getElementById("register-btn");
 
-    if (openTcBtn)
+    // Pag pinindot ang button, lalabas ang Terms & Conditions
+    if (openTcBtn && tcModal) {
       openTcBtn.addEventListener("click", () => {
         tcModal.classList.remove("hidden");
       });
-    if (tcBox)
+    }
+
+    // Scroll detection na may 20px allowance para hindi pumalya sa phones
+    if (tcBox && ackBtn) {
       tcBox.addEventListener("scroll", () => {
-        if (tcBox.scrollHeight - tcBox.scrollTop <= tcBox.clientHeight + 2)
-          ackBtn.disabled = false;
+        if (tcBox.scrollTop + tcBox.clientHeight >= tcBox.scrollHeight - 20) {
+          ackBtn.disabled = false; // Magiging clickable na ang Acknowledge
+        }
       });
-    if (ackBtn)
+    }
+
+    // Pag pinindot ang Acknowledge, auto-check at enable ang Sign Up
+    if (ackBtn && tcModal && tcCheckbox && registerBtn) {
       ackBtn.addEventListener("click", () => {
-        tcModal.classList.add("hidden");
+        tcModal.classList.add("hidden"); // Isasara ang modal
         tcCheckbox.disabled = false;
-        tcCheckbox.checked = true;
-        registerBtn.disabled = false;
+        tcCheckbox.checked = true; // Auto-check
+        registerBtn.disabled = false; // Pwede na mag-Sign Up
       });
+    }
 
     document
       .getElementById("signup-form")
@@ -235,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           showCustomAlert(
             "Success",
-            "Registration successful! You can now log in.",
+            "Registration successful! You can now log in."
           );
           setTimeout(() => {
             window.location.href = "signin.html";
@@ -295,7 +305,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("search-input")?.addEventListener("input", (e) => {
       const term = e.target.value.toLowerCase();
       renderEvents(
-        allEventsGlobal.filter((ev) => ev.title.toLowerCase().includes(term)),
+        allEventsGlobal.filter((ev) => ev.title.toLowerCase().includes(term))
       );
     });
 
@@ -306,7 +316,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderEvents(
           campus === "All"
             ? allEventsGlobal
-            : allEventsGlobal.filter((ev) => ev.campus === campus),
+            : allEventsGlobal.filter((ev) => ev.campus === campus)
         );
       });
   }
@@ -392,7 +402,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (alreadyIn) {
         showCustomAlert(
           "Notification",
-          "You are already registered for this event!",
+          "You are already registered for this event!"
         );
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
@@ -414,7 +424,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         showCustomAlert(
           "Success",
-          "Successfully Registered! Check your Order List.",
+          "Successfully Registered! Check your Order List."
         );
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
@@ -441,7 +451,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="window.deleteEvent('${ev.id}')">Delete</button>
                         </td>
                     </tr>
-                `,
+                `
           )
           .join("");
         if (document.getElementById("stat-events"))
