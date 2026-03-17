@@ -1,10 +1,12 @@
 body.auth-page {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* FIX: Pinalitan mula center para hindi kainin yung taas */
     min-height: 100vh;
     background-color: var(--bg-color, #f4f6f8);
     margin: 0;
+    padding: 50px 20px; /* FIX: Nilakihan yung space sa taas at baba para sa scrolling */
+    box-sizing: border-box;
     font-family: "Segoe UI", sans-serif;
 }
 
@@ -15,7 +17,8 @@ body.auth-page {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     width: 100%;
     max-width: 400px;
-    text-align: center; /* Centers the logo and text */
+    text-align: center;
+    margin: auto; /* MAGIC FIX: Para nasa gitna palagi kung malaki ang screen, pero scrollable kung maliit */
 }
 
 .logo-wrapper {
@@ -92,14 +95,12 @@ body.auth-page {
     background: #004d26; 
 }
 
-/* Automatic na lalabo at bawal i-click kapag disabled */
 .btn-auth:disabled { 
     background: #cccccc; 
     cursor: not-allowed; 
     opacity: 0.6;
 }
 
-/* Specific styling para sa Read Terms button */
 .btn-tc {
     background: #e0e0e0;
     color: #333;
@@ -114,7 +115,6 @@ body.auth-page {
 .switch-link a { color: #006633; text-decoration: none; font-weight: bold; }
 .switch-link a:hover { text-decoration: underline; }
 
-/* Modal specific stylings para maiwasan ang inline CSS */
 .tc-modal-box {
     text-align: left;
 }
