@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (openTcBtn)
       openTcBtn.addEventListener("click", () => {
-        tcModal.style.display = "flex";
+        tcModal.classList.remove("hidden");
       });
     if (tcBox)
       tcBox.addEventListener("scroll", () => {
@@ -192,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     if (ackBtn)
       ackBtn.addEventListener("click", () => {
-        tcModal.style.display = "none";
+        tcModal.classList.add("hidden");
         tcCheckbox.disabled = false;
         tcCheckbox.checked = true;
         registerBtn.disabled = false;
