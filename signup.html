@@ -12,58 +12,63 @@
       <h2>Register Account</h2>
       <form id="signup-form">
         <div class="form-group">
-          <label>First Name</label>
-          <input type="text" id="fname" required />
+          <input type="text" id="fname" placeholder="First Name" required />
         </div>
         <div class="form-group">
-          <label>Last Name</label>
-          <input type="text" id="lname" required />
+          <input type="text" id="lname" placeholder="Last Name" required />
         </div>
         <div class="form-group">
-          <label>Phone Number</label>
-          <input type="text" id="phone" required />
-        </div>
-        <div class="form-group">
-          <label>School Email Address</label>
           <input
             type="email"
             id="email"
-            placeholder="@feuroosevelt.edu.ph"
+            placeholder="School Email (@feuroosevelt.edu.ph)"
             required
           />
         </div>
         <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="password" required />
+          <input type="text" id="phone" placeholder="Phone Number" required />
         </div>
         <div class="form-group">
-          <label>Confirm Password</label>
-          <input type="password" id="confirm-password" required />
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Confirm Password"
+            required
+          />
         </div>
         <div class="form-options">
           <input type="checkbox" id="show-password-signup" />
-          <label for="show-password-signup">Show Password</label>
+          <label for="show-password-signup">Show Passwords</label>
         </div>
         <div class="form-options">
           <button
             type="button"
             id="open-tc"
             style="
-              background: none;
+              width: 100%;
+              padding: 10px;
+              background: #e0e0e0;
               border: none;
-              color: #006633;
-              text-decoration: underline;
+              border-radius: 4px;
               cursor: pointer;
-              padding: 0;
               font-weight: bold;
+              color: #333;
             "
           >
-            View Terms & Conditions
+            Read Terms & Conditions
           </button>
         </div>
         <div class="form-options">
           <input type="checkbox" id="tc-checkbox" disabled required />
-          <label for="tc-checkbox">I acknowledge the Terms & Conditions</label>
+          <label for="tc-checkbox">I accept the Terms & Conditions</label>
         </div>
         <button type="submit" id="register-btn" class="btn" disabled>
           Sign Up
