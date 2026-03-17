@@ -34,10 +34,18 @@ body { background-color: var(--bg-color); color: var(--text-color); transition: 
 .top-nav { display: flex; justify-content: space-between; align-items: center; background: var(--nav-bg); color: var(--nav-text); padding: 10px 20px; height: 70px; z-index: 100; box-shadow: var(--shadow); position: relative; }
 .nav-left, .nav-right { display: flex; align-items: center; gap: 15px; z-index: 2; }
 
-/* Logo Styles */
-.logo-container { display: flex; align-items: center; gap: 10px; z-index: 1; }
-.logo-img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid white; }
-.logo-text { font-size: 1.2rem; font-weight: bold; letter-spacing: 1px; }
+/* --- LOGO STYLES (UPDATED) --- */
+.logo-container { display: flex; align-items: center; gap: 12px; z-index: 1; }
+.logo-img { 
+    width: 45px; 
+    height: 45px; 
+    border-radius: 50%; 
+    object-fit: contain; /* Ensures the whole logo is visible */
+    background: #ffffff; /* White bg makes transparent logos pop */
+    border: 2px solid var(--secondary); /* Yellow border to match FEU vibe */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.logo-text { font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; color: var(--nav-text); }
 
 .icon-btn { background: none; border: none; color: var(--nav-text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; transition: background 0.2s; }
 .icon-btn:hover { background: rgba(255,255,255,0.1); }
@@ -108,13 +116,14 @@ body { background-color: var(--bg-color); color: var(--text-color); transition: 
 input:checked + .slider { background-color: var(--primary); }
 input:checked + .slider:before { transform: translateX(20px); }
 
-/* --- MOBILE RESPONSIVENESS --- */
+/* --- MOBILE RESPONSIVENESS (UPDATED) --- */
 .bottom-nav { display: none; }
 
 @media (max-width: 768px) {
-    /* Center Logo Setup */
+    /* Logo adjustments for mobile */
     .logo-container { position: absolute; left: 50%; transform: translateX(-50%); }
-    .logo-text { font-size: 1rem; }
+    .logo-img { width: 40px; height: 40px; }
+    .logo-text { display: none; } /* HIDDEN to avoid overlapping with Log In button */
     
     .search-container { width: 40px; overflow: hidden; transition: width 0.3s; padding: 5px; cursor: pointer; }
     .search-container:focus-within { width: 150px; padding: 5px 10px; }
