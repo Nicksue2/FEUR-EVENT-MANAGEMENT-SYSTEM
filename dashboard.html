@@ -4,93 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - FEU Events</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { theme: { extend: { colors: { 'feu-green': '#3B5E3C', 'feu-bg': '#EAE5D9', 'feu-brown': '#8B7A6A' } } } }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
 </head>
-<body class="bg-feu-bg font-sans h-screen flex overflow-hidden">
-
-    <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-feu-green text-white shadow-2xl z-20 transition-all duration-300">
-        <div class="p-4 bg-feu-brown text-sm flex justify-between items-center sidebar-header">
-            <div class="sidebar-text">
-                <p>Welcome,</p>
-                <p class="text-lg font-bold">Hans Tyler Asuncion!</p>
-            </div>
-            <i class="fa-solid fa-bars cursor-pointer text-xl ml-2" id="desktop-burger"></i>
+<body>
+    <header class="top-bar">
+        <div class="left-head">
+            <button id="burger-btn">☰</button>
+            <div class="welcome-text" id="welcome-msg">Welcome, Loading...!</div>
         </div>
-        <nav class="flex-1 p-4 space-y-2 flex flex-col">
-            <button onclick="showContent('dash-view')" class="w-full flex items-center space-x-3 p-3 bg-black bg-opacity-20 rounded-lg hover:bg-opacity-30 transition">
-                <i class="fa-solid fa-house w-6"></i> <span class="sidebar-text">Dashboard</span>
-            </button>
-            <button onclick="showContent('order-view')" class="w-full flex items-center space-x-3 p-3 hover:bg-black hover:bg-opacity-10 rounded-lg transition mt-4">
-                <i class="fa-regular fa-file-lines w-6"></i> <span class="sidebar-text">Order List</span>
-            </button>
-            <button onclick="window.location.href='signin.html'" class="w-full flex items-center space-x-3 p-3 hover:bg-red-600 text-red-300 rounded-lg transition mt-auto">
-                <i class="fa-solid fa-right-from-bracket w-6"></i> <span class="sidebar-text">Logout</span>
-            </button>
+        
+        <div class="right-head">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search events...">
+                <div id="search-results" class="dropdown-modal hidden"></div>
+            </div>
+            
+            <select id="campus-select">
+                <option value="" disabled selected>FEU Roosevelt Campuses</option>
+                <option value="Cainta">Cainta</option>
+                <option value="Marikina">Marikina</option>
+                <option value="Rodriguez">Rodriguez</option>
+            </select>
+
+            <div class="notif-container">
+                <button id="notif-btn">🔔</button>
+                <div id="notif-modal" class="dropdown-modal hidden">
+                    <h4>Notifications</h4>
+                    <p>No new notifications.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <nav id="sidebar" class="sidebar">
+            <ul class="nav-links">
+                <li><a href="#" class="active" data-page="home">🏠 Dashboard</a></li>
+                <li><a href="#" data-page="events">📅 Events</a></li>
+                <li><a href="#" data-page="orders">📄 Order List</a></li>
+                <li><a href="#" data-page="settings">⚙️ Settings</a></li>
+                <li><a href="#" id="logout-btn">🚪 Logout</a></li>
+            </ul>
         </nav>
-    </aside>
 
-    <main class="flex-1 flex flex-col h-full relative">
-        <header class="bg-feu-green md:bg-transparent p-4 flex justify-between items-center z-30">
-            <div class="md:hidden text-white flex items-center space-x-3">
-                <i class="fa-solid fa-bars text-xl cursor-pointer" id="mobile-burger"></i>
-                <span class="font-bold">FEU Events</span>
-            </div>
-            <div class="hidden md:flex w-full justify-end items-center text-white bg-feu-green p-3 rounded-md shadow-md">
-                <select class="bg-white text-gray-800 px-3 py-1 rounded outline-none text-sm font-semibold cursor-pointer">
-                    <option>Cainta</option>
-                    <option>Marikina</option>
-                    <option>Rodriguez</option>
-                </select>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto pb-20 md:pb-4 p-4 md:p-8">
-            <div id="dash-view" class="content-page active">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div onclick="showContent('details-view')" class="bg-gradient-to-b from-green-700 to-black rounded-3xl h-64 relative overflow-hidden flex flex-col justify-between p-5 text-white shadow-md cursor-pointer hover:-translate-y-1 transition">
-                        <div>
-                            <h4 class="font-bold text-2xl uppercase">Sinag Tamaraw</h4>
-                            <p class="text-sm">Jan 27, 2026</p>
-                        </div>
-                    </div>
+        <main id="content-area" class="content">
+            <h2 id="page-title">Dashboard <span class="sub">Events Management</span></h2>
+            
+            <div id="events-grid" class="cards-container">
                 </div>
-            </div>
-
-            <div id="details-view" class="content-page hidden-page max-w-4xl mx-auto">
-                <button onclick="showContent('dash-view')" class="text-gray-800 font-bold mb-4 flex items-center space-x-2"><i class="fa-solid fa-arrow-left"></i> <span>Back</span></button>
-                <div class="bg-white rounded-3xl p-8 shadow-xl">
-                    <h2 class="text-3xl font-bold mb-4">Sinag Tamaraw 2026</h2>
-                    <button onclick="userRegisterAlert()" class="bg-feu-green text-white font-bold py-3 px-6 rounded-lg">Register Now</button>
-                </div>
-            </div>
-
-            <div id="order-view" class="content-page hidden-page">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">My Tickets</h2>
-                <div class="bg-white p-8 rounded-xl shadow text-center text-gray-500">No tickets yet.</div>
-            </div>
-        </div>
-    </main>
-
-    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
-        <div id="mobile-sidebar" class="w-64 bg-feu-green h-full text-white transform -translate-x-full transition-transform duration-300 shadow-2xl">
-            <div class="p-4 flex justify-between items-center border-b border-green-800">
-                <span class="font-bold">Menu</span>
-                <i class="fa-solid fa-xmark text-2xl cursor-pointer" id="close-mobile-menu"></i>
-            </div>
-            <div class="p-4 flex flex-col space-y-4">
-                <button onclick="showContent('dash-view'); toggleMobileMenu()" class="text-left">Dashboard</button>
-                <button onclick="showContent('order-view'); toggleMobileMenu()" class="text-left">Order List</button>
-                <button onclick="window.location.href='signin.html'" class="text-left mt-8 text-red-300 border-t border-green-800 pt-4">Logout</button>
-            </div>
-        </div>
+        </main>
     </div>
-
+    
+    <script type="module" src="script.js"></script>
 </body>
 </html>
