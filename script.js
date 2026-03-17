@@ -355,3 +355,75 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 });
+
+// --- ADMIN ACCESS & CRUD (DATABASE BASIS) ---
+    if (currentUser) {
+        // Kunin ang role mula sa DB profiles
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', currentUser.id).single();
+        const userRole = profile?.role || 'user';
+
+        // Security check para sa admin page
+        if (path.includes('admin.html') && userRole !== 'admin') {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        // I-display ang Admin Link sa sidebar kung admin siya
+        if (userRole === 'admin') {
+            const sideMenu = document.querySelector('.side-menu');
+            if (sideMenu && !document.getElementById('admin-link')) {
+                const a = document.createElement('a');
+                a.id = 'admin-link';
+                a.href = 'admin.html';
+                a.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>Admin Panel</span>`;
+                sideMenu.insertBefore(a, document.getElementById('logout-btn'));
+            }
+        }
+
+        // Logic para sa Admin Page CRUD
+        if (path.includes('admin.html') && userRole === 'admin') {
+            const fetchAdminEvents = async () => {
+                const { data: events } = await supabase.from('events').select('*').order('created_at', { ascending: false });
+                const list = document.getElementById('admin-event-list');
+                if (list && events) {
+                    list.innerHTML = events.map(ev => `
+                        <tr>
+                            <td>${ev.title}</td>
+                            <td>${ev.campus}</td>
+                            <td>${ev.event_date}</td>
+                            <td>
+                                <button class="btn btn-solid" style="background:#facc15; padding:5px 10px;" onclick="editEvent('${ev.id}')">Edit</button>
+                                <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="deleteEvent('${ev.id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            };
+
+            // Global functions para clickable ang buttons sa table
+            window.deleteEvent = async (id) => {
+                if (confirm('Delete this event?')) {
+                    await supabase.from('events').delete().eq('id', id);
+                    fetchAdminEvents();
+                    showCustomAlert('System', 'Event deleted.');
+                }
+            };
+
+            window.editEvent = async (id) => {
+                const { data: ev } = await supabase.from('events').select('*').eq('id', id).single();
+                if(ev) {
+                    document.getElementById('event-id').value = ev.id;
+                    document.getElementById('title').value = ev.title;
+                    document.getElementById('campus').value = ev.campus;
+                    document.getElementById('date').value = ev.event_date;
+                    document.getElementById('price').value = ev.price;
+                    document.getElementById('desc').value = ev.description;
+                    document.getElementById('poster_url').value = ev.poster_url;
+                    document.getElementById('form-title').innerText = "Edit: " + ev.title;
+                    document.getElementById('cancel-edit').classList.remove('hidden');
+                }
+            };
+
+            fetchAdminEvents();
+        }
+    }
