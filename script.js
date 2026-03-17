@@ -429,5 +429,4 @@ document.addEventListener('DOMContentLoaded', async () => {
             fetchAdminEvents();
         }
     }
-
     
