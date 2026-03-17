@@ -1,0 +1,6 @@
+/* Custom Scrollbar para sa Terms & Conditions box */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #8B7A6A; border-radius: 4px; }
+
+body { background-color: #EAE5D9; }

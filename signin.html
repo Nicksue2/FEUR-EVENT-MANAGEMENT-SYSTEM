@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - FEU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'feu-green': '#3B5E3C' } } } }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="signinup.css">
+    <script src="script.js" defer></script>
+</head>
+<body class="h-screen flex justify-center items-center p-4 font-sans">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h2 class="text-3xl font-bold text-feu-green text-center mb-6">Sign In</h2>
+        <div class="space-y-4">
+            <input type="email" placeholder="School Email (@feuroosevelt.edu.ph)" class="w-full p-3 border rounded-lg outline-none focus:border-feu-green">
+            
+            <div class="relative">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full p-3 border rounded-lg outline-none focus:border-feu-green">
+                <i class="fa-solid fa-eye absolute right-4 top-4 cursor-pointer text-gray-400 toggle-pass" data-target="login-pass"></i>
+            </div>
+            
+            <div class="flex items-center space-x-2 text-sm">
+                <input type="checkbox" class="accent-feu-green cursor-pointer" id="remember">
+                <label for="remember" class="cursor-pointer">Remember me</label>
+            </div>
+            
+            <button onclick="window.location.href='dashboard.html'" class="w-full bg-feu-green text-white font-bold py-3 rounded-lg hover:bg-green-700 transition">Login</button>
+            <button onclick="window.location.href='index.html'" class="w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition">Continue as Guest</button>
+
+            <p class="text-center text-sm mt-4">No account yet? <a href="signup.html" class="text-feu-green font-bold hover:underline">Sign up</a></p>
+        </div>
+    </div>
+</body>
+</html>

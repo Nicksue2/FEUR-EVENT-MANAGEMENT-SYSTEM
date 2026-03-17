@@ -1,0 +1,24 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3B5E3C; border-radius: 10px; }
+
+/* Page Transitions */
+.hidden-page { display: none !important; }
+
+.content-page { 
+    opacity: 0; 
+    transform: translateY(10px); 
+    transition: all 0.3s ease; 
+}
+
+.content-page.active { 
+    opacity: 1; 
+    transform: translateY(0); 
+    display: block;
+}
+
+/* Sidebar Collapse Logic */
+#sidebar.collapsed { width: 5rem; }
+#sidebar.collapsed .sidebar-text { display: none; }
+#sidebar.collapsed .sidebar-header { justify-content: center; }
