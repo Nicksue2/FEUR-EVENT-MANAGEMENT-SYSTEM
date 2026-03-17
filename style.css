@@ -35,14 +35,15 @@ body { background-color: var(--bg-color); color: var(--text-color); transition: 
 .nav-left, .nav-right { display: flex; align-items: center; gap: 15px; z-index: 2; }
 
 /* --- LOGO STYLES (UPDATED) --- */
-.logo-container { display: flex; align-items: center; gap: 12px; z-index: 1; }
+.logo-container { z-index: 1; }
+.logo-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
 .logo-img { 
     width: 45px; 
     height: 45px; 
     border-radius: 50%; 
-    object-fit: contain; /* Ensures the whole logo is visible */
-    background: #ffffff; /* White bg makes transparent logos pop */
-    border: 2px solid var(--secondary); /* Yellow border to match FEU vibe */
+    object-fit: contain; 
+    background: #ffffff; 
+    border: 2px solid var(--secondary); 
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 .logo-text { font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; color: var(--nav-text); }
@@ -123,7 +124,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     /* Logo adjustments for mobile */
     .logo-container { position: absolute; left: 50%; transform: translateX(-50%); }
     .logo-img { width: 40px; height: 40px; }
-    .logo-text { display: none; } /* HIDDEN to avoid overlapping with Log In button */
+    .logo-text { display: none; } 
     
     .search-container { width: 40px; overflow: hidden; transition: width 0.3s; padding: 5px; cursor: pointer; }
     .search-container:focus-within { width: 150px; padding: 5px 10px; }
