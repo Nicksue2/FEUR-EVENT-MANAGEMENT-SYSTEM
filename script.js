@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
     let currentUser = null;
     let allEventsGlobal = [];
+    let currentSelectedEvent = null; // Stores event info for modal
 
     // --- REUSABLE SHOW PASSWORD ---
     const togglePassword = (checkboxId, ...inputIds) => {
@@ -35,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    const settingsBtns = document.querySelectorAll('#nav-settings, .mobile-settings-btn');
+    const settingsBtns = document.querySelectorAll('.nav-settings-btn');
     const settingsModal = document.getElementById('settings-modal');
     settingsBtns.forEach(btn => {
         btn.addEventListener('click', (e) => { e.preventDefault(); if(settingsModal) settingsModal.classList.remove('hidden'); });
@@ -50,7 +51,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sessionData && sessionData.session) {
         currentUser = sessionData.session.user;
         
-        // Hide Guest UI, Show User UI on Dashboard
         document.querySelectorAll('.guest-only').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.user-only').forEach(el => el.classList.remove('hidden'));
         
@@ -59,12 +59,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', currentUser.id).single();
             if (profile) greetingEl.innerText = `Welcome, ${profile.first_name} ${profile.last_name}!`;
         }
+
+        // Dummy Notifications Logic for Logged-In Users
+        const notifList = document.getElementById('notif-list');
+        if (notifList) {
+            notifList.innerHTML = `
+                <p class="notif-item">🔔 Welcome to FEUR Events! Explore upcoming activities.</p>
+                <p class="notif-item">✅ Email Outlook sync is enabled in settings.</p>
+            `;
+        }
+
     } else {
         document.querySelectorAll('.user-only').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.guest-only').forEach(el => el.classList.remove('hidden'));
     }
 
-    // Logout Action
     const logoutBtns = document.querySelectorAll('#logout-btn');
     logoutBtns.forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -128,10 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-            });
+            const { data, error } = await supabase.auth.signUp({ email: email, password: password });
 
             if (error) {
                 alert('Error: ' + error.message);
@@ -139,9 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 registerBtn.disabled = false;
             } else {
                 if (data.user) {
-                    await supabase.from('profiles').insert([
-                        { id: data.user.id, first_name: fname, last_name: lname, phone_number: phone, school_email: email }
-                    ]);
+                    await supabase.from('profiles').insert([{ id: data.user.id, first_name: fname, last_name: lname, phone_number: phone, school_email: email }]);
                 }
                 alert('Registration successful! You can now log in.');
                 window.location.href = 'signin.html';
@@ -163,10 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            const { error } = await supabase.auth.signInWithPassword({ email: email, password: password });
 
             if (error) {
                 alert('Login Failed: ' + error.message);
@@ -177,7 +178,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-
 
     // --- 5. GLOBAL UI (Sidebar, Modals) ---
     const burgerBtn = document.getElementById('burger-btn');
@@ -195,8 +195,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         notifBtn.addEventListener('click', () => notifModal.classList.toggle('hidden'));
     }
 
+    const closeAuthBtn = document.getElementById('close-auth-modal');
+    if(closeAuthBtn) closeAuthBtn.addEventListener('click', () => document.getElementById('auth-modal').classList.add('hidden'));
 
-    // --- 6. DASHBOARD LOGIC (Fetch, Search, Filter) ---
+    const eventDetailsModal = document.getElementById('event-details-modal');
+    const closeDetailsBtn = document.getElementById('close-details-modal');
+    if(closeDetailsBtn) closeDetailsBtn.addEventListener('click', () => eventDetailsModal.classList.add('hidden'));
+
+
+    // --- 6. DASHBOARD LOGIC (Fetch, Search, Filter & Modals) ---
     const eventsGrid = document.getElementById('events-grid');
     if (eventsGrid && (path === '/' || path.includes('index.html'))) {
         
@@ -226,6 +233,37 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderEvents(filtered);
             });
         }
+
+        // Setup the Register button INSIDE the modal
+        const modalRegBtn = document.getElementById('modal-register-btn');
+        if (modalRegBtn) {
+            modalRegBtn.addEventListener('click', async () => {
+                if (!currentUser) {
+                    eventDetailsModal.classList.add('hidden');
+                    document.getElementById('auth-modal').classList.remove('hidden');
+                    return;
+                }
+                
+                if (currentSelectedEvent.is_paid) {
+                    alert(`Redirecting to Payment Gateway for ₱${currentSelectedEvent.price}... (Feature Coming Soon)`);
+                    return;
+                }
+
+                modalRegBtn.innerText = 'Registering...';
+                modalRegBtn.disabled = true;
+
+                const { error } = await supabase.from('orders').insert([{ user_id: currentUser.id, event_id: currentSelectedEvent.id, status: 'Registered' }]);
+                
+                if(error) {
+                    alert('You might be already registered to this event!');
+                } else {
+                    alert('Successfully Registered! Check your Order List.');
+                    modalRegBtn.innerText = 'Registered';
+                    modalRegBtn.style.background = 'gray';
+                }
+                modalRegBtn.disabled = false;
+            });
+        }
     }
 
     function renderEvents(eventsToRender) {
@@ -240,6 +278,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isPaidText = event.is_paid ? `₱${event.price}` : 'FREE';
             const card = document.createElement('div');
             card.className = 'event-card';
+            // Store event id in data attribute to fetch it when clicked
+            card.setAttribute('data-id', event.id); 
             card.innerHTML = `
                 <img src="${event.poster_url || 'https://via.placeholder.com/300x160?text=FEUR+Event'}" class="event-img">
                 <div class="event-info">
@@ -247,41 +287,37 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="event-meta">
                         <span>📅 ${event.event_date || 'TBA'} | ${event.event_time || ''}</span>
                         <span>📍 FEU Roosevelt ${event.campus}</span>
-                        <span>🎟️ ${isPaidText}</span>
+                        <span>🎟️ <b style="color:var(--primary);">${isPaidText}</b></span>
                     </div>
-                    <button class="event-btn register-trigger" data-id="${event.id}">Register Now</button>
                 </div>
             `;
+            
+            // Open Details Modal on Card Click
+            card.addEventListener('click', () => {
+                currentSelectedEvent = event;
+                
+                document.getElementById('modal-event-img').src = event.poster_url || 'https://via.placeholder.com/500x200?text=FEUR+Event';
+                document.getElementById('modal-event-title').innerText = event.title;
+                document.getElementById('modal-event-meta').innerHTML = `📅 ${event.event_date || 'TBA'} at ${event.event_time || ''} <br>📍 FEU Roosevelt ${event.campus}`;
+                document.getElementById('modal-event-desc').innerText = event.description || 'No description available for this event.';
+                
+                const modalBtn = document.getElementById('modal-register-btn');
+                if (event.is_paid) {
+                    modalBtn.innerText = `Pay ₱${event.price}`;
+                    modalBtn.style.background = 'var(--secondary)';
+                    modalBtn.style.color = 'black';
+                } else {
+                    modalBtn.innerText = 'Register Now';
+                    modalBtn.style.background = 'var(--primary)';
+                    modalBtn.style.color = 'white';
+                }
+
+                eventDetailsModal.classList.remove('hidden');
+            });
+
             eventsGrid.appendChild(card);
         });
-
-        document.querySelectorAll('.register-trigger').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                if (!currentUser) {
-                    document.getElementById('auth-modal').classList.remove('hidden');
-                    return;
-                }
-                const eventId = e.target.getAttribute('data-id');
-                btn.innerText = 'Registering...';
-                btn.disabled = true;
-
-                const { error } = await supabase.from('orders').insert([{ user_id: currentUser.id, event_id: eventId, status: 'Registered' }]);
-                
-                if(error) {
-                    alert('You might be already registered to this event!');
-                    btn.innerText = 'Register Now';
-                    btn.disabled = false;
-                } else {
-                    alert('Successfully Registered! Check your Order List.');
-                    btn.innerText = 'Registered';
-                    btn.style.background = 'gray';
-                }
-            });
-        });
     }
-
-    const closeAuthBtn = document.getElementById('close-auth-modal');
-    if(closeAuthBtn) closeAuthBtn.addEventListener('click', () => document.getElementById('auth-modal').classList.add('hidden'));
 
 
     // --- 7. ORDER LIST LOGIC ---
@@ -311,7 +347,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <span>📅 ${event.event_date || 'TBA'} | ${event.event_time || ''}</span>
                             <span>📍 FEU Roosevelt ${event.campus}</span>
                         </div>
-                        <button class="event-btn" style="background:#000;">View QR Code</button>
+                        <button class="btn btn-solid w-100" style="margin-top:auto;" onclick="alert('QR Feature Coming Soon!')">View QR Code</button>
                     </div>
                 `;
                 ordersGrid.appendChild(card);
