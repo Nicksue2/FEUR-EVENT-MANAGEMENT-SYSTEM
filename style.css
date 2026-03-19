@@ -527,3 +527,39 @@ input:checked + .slider:before {
     color: white;
   }
 }
+
+/* --- ADMIN QR SCANNER STYLES --- */
+.qr-section {
+    margin-bottom: 25px;
+}
+
+.qr-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.qr-reader {
+    max-width: 400px;
+    margin: auto;
+    border: 2px dashed #006633;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.qr-result {
+    margin-top: 15px;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 6px;
+    background: #f4f6f8;
+    border: 1px solid #e0e0e0;
+}
+
+.form-title-spacing {
+    margin-bottom: 15px;
+}
+
+.alert-btn {
+    margin-top: 15px;
+    width: 100%;
+}
