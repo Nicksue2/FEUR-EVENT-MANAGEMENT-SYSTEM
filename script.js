@@ -426,7 +426,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         // Kung gusto mong i-test na, i-setup mo na ang EmailJS keys dito
         if (typeof emailjs !== "undefined") {
-            emailjs.send("ILAGAY_DITO_ANG_SERVICE_ID", "ILAGAY_DITO_ANG_TEMPLATE_ID", {
+            emailjs.send("Iservice_nczv2qc ", "ILAGAY_DITO_ANG_TEMPLATE_ID", {
                 to_email: currentUser.email,
                 user_name: userName,
                 event_title: currentSelectedEvent.title,
