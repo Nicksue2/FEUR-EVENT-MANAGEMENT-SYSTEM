@@ -318,7 +318,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
   }
 
-  async function renderEvents(eventsToRender) {
+ async function renderEvents(eventsToRender) {
     if (!eventsGrid) return;
     eventsGrid.innerHTML = "";
     if (eventsToRender.length === 0) {
@@ -345,16 +345,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       card.addEventListener("click", async () => {
         currentSelectedEvent = event;
-        document.getElementById("modal-event-img").src =
-          event.poster_url ||
-          "https://via.placeholder.com/500x200?text=FEUR+Event";
+        document.getElementById("modal-event-img").src = event.poster_url || "https://via.placeholder.com/500x200?text=FEUR+Event";
         document.getElementById("modal-event-title").innerText = event.title;
-        document.getElementById("modal-event-meta").innerHTML =
-          `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus}`;
-        document.getElementById("modal-event-desc").innerText =
-          event.description || "No description available for this event.";
-        //start
-        document
+        document.getElementById("modal-event-meta").innerHTML = `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus}`;
+        document.getElementById("modal-event-desc").innerText = event.description || "No description available for this event.";
+
+        const modalBtn = document.getElementById("modal-register-btn");
+        const registered = await isUserRegistered(event.id);
+
+        if (registered) {
+          modalBtn.innerText = "Registered";
+          modalBtn.style.background = "gray";
+          modalBtn.style.color = "white";
+          modalBtn.disabled = true;
+        } else {
+          if (event.price > 0) {
+            modalBtn.innerText = `Pay ₱${event.price}`;
+            modalBtn.style.background = "var(--secondary)";
+            modalBtn.style.color = "black";
+          } else {
+            modalBtn.innerText = "Register Now";
+            modalBtn.style.background = "var(--primary)";
+            modalBtn.style.color = "white";
+          }
+          modalBtn.disabled = false;
+        }
+        document.getElementById("event-details-modal").classList.remove("hidden");
+      });
+      eventsGrid.appendChild(card);
+    }
+  } // <-- ITO YUNG MGA BRACKETS NA NAWALA KANINA
+
+  // --- REGISTRATION & EMAILJS CODE ---
+  document
     .getElementById("modal-register-btn")
     ?.addEventListener("click", async () => {
       if (!currentUser) {
@@ -379,7 +402,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      // 1 at 2. FIX: May 'data' at may .select() sa dulo
       const { data, error } = await supabase.from("orders").insert([
         {
           user_id: currentUser.id,
@@ -392,12 +414,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         showCustomAlert("Error", "An error occurred during registration.");
         modalRegBtn.disabled = false;
       } else {
-        // --- START NG EMAILJS CODE ---
         const orderData = data[0]; 
         const greetingEl = document.getElementById("user-greeting");
         const userName = greetingEl ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "") : "Student";
         
-        // 3. FIX: Legit QR Ticket ID format
         const ticketID = `FEUR-TICKET-${orderData.id}`; 
         
         console.log("Naghahanda mag-send ng email sa:", currentUser.email);
@@ -423,9 +443,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("ERROR: Hindi nabasa ang EmailJS script!");
             alert("Hindi naka-connect ang EmailJS sa index.html mo.");
         }
-        // --- END NG EMAILJS CODE ---
 
-        // 4. FIX: Binalik ko yung success alert at mga closing brackets
         showCustomAlert(
           "Success",
           "Successfully Registered! A receipt with your QR Code has been sent to your email."
