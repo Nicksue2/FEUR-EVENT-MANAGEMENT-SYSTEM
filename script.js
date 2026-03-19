@@ -605,7 +605,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (path.includes("admin.html") && userRole === "admin") {
     const scannerElement = document.getElementById("reader");
     if (scannerElement) {
-        const html5QrCode = new Html5Qrcode("reader");
         const scannerResult = document.getElementById("scanner-result");
         let isScanning = false;
 
@@ -619,7 +618,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             console.log("Scanned QR:", decodedText);
 
-            // 1. Validation kung galing sa system natin ang QR
             if (!decodedText.startsWith("FEUR-TICKET-")) {
                 scannerResult.innerText = "INVALID: Not a FEUR ticket.";
                 scannerResult.style.background = "#fee2e2"; 
@@ -628,7 +626,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
-            // 2. Database Validation
             const orderID = decodedText.replace("FEUR-TICKET-", "");
             const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
 
@@ -637,13 +634,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 scannerResult.style.background = "#fee2e2"; 
                 scannerResult.style.color = "#991b1b";
             } else {
-                // 3. Double-Scan Prevention
                 if (data.status === "Attended") {
                     scannerResult.innerText = `DENIED: Already Scanned for ${data.events.title}.`;
                     scannerResult.style.background = "#fef3c7"; 
                     scannerResult.style.color = "#92400e";
                 } else {
-                    // 4. Mark as Attended sa database
                     await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
                     scannerResult.innerText = `SUCCESS! Checked-in for ${data.events.title}.`;
                     scannerResult.style.background = "#dcfce7"; 
@@ -651,7 +646,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             }
 
-            // Reset scanner after 3 seconds
             setTimeout(() => {
                 isScanning = false;
                 scannerResult.innerText = "Ready to scan.";
@@ -659,12 +653,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             }, 3000);
         };
 
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        // Ginamit na natin ang Html5QrcodeScanner para may UI button at madaling pumili ng camera
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            false
+        );
         
-        // Start Camera
-        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback).catch((err) => {
-            console.error("Camera error:", err);
-            scannerResult.innerText = "Camera error. Make sure permission is granted.";
-        });
+        html5QrcodeScanner.render(qrCodeSuccessCallback);
     }
   }
