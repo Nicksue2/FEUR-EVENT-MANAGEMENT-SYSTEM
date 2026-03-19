@@ -1,161 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - FEUR Events</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="admin-style.css" />
-
+    <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
-  </head>
-  <body class="admin-body">
-    <header class="top-nav">
-      <div class="nav-left">
-        <button id="burger-btn" class="icon-btn">☰</button>
-        <div class="logo-container">
-          <a href="index.html" class="logo-link">
-            <img src="images/feurlogo.png" alt="FEUR Logo" class="logo-img" />
-            <h2 class="logo-text">Admin Panel</h2>
-          </a>
-        </div>
-      </div>
-      <div class="nav-right">
-        <div id="user-greeting" class="user-greeting">Admin Mode</div>
-      </div>
-    </header>
-
-    <div class="layout-container">
-      <aside id="sidebar" class="sidebar">
-        <nav class="side-menu">
-          <a href="index.html">🏠 <span>Dashboard</span></a>
-          <a href="admin.html" class="active">🛡️ <span>Manage Events</span></a>
-          <a href="orderlist.html">📋 <span>Order List</span></a>
-          <a href="#" id="logout-btn" class="nav-logout"
-            >🚪 <span>Logout</span></a
-          >
-        </nav>
-      </aside>
-
-      <main class="admin-main">
-        <div class="admin-header">
-          <h2>Event Management</h2>
-          <button id="cancel-edit" class="btn btn-outline hidden">
-            Create New Event
-          </button>
-        </div>
-
-        <div class="stats-container">
-          <div class="stat-box">
-            <h3 id="stat-events">0</h3>
-            <p>Total Events</p>
-          </div>
-          <div class="stat-box">
-            <h3 id="stat-orders">0</h3>
-            <p>Total Orders</p>
-          </div>
-        </div>
-
-        <section class="admin-section card-style" style="margin-bottom: 25px;">
-    <div class="admin-header">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-        <h3>QR Ticket Scanner</h3>
-    </div>
-    <div style="text-align: center; padding: 20px;">
-        <div id="reader" style="max-width: 400px; margin: auto; border: 2px dashed #006633; border-radius: 8px;"></div>
-        <div id="scanner-result" style="margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 6px;">Ready to scan.</div>
-    </div>
-</section>
-
-        <div class="admin-card">
-          <h3 id="form-title" style="margin-bottom: 15px">Add New Event</h3>
-          <form id="event-form" class="event-form">
-            <input type="hidden" id="event-id" />
-
-            <div class="form-control">
-              <label>Event Title</label>
-              <input type="text" id="title" required />
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <a href="index.html">
+                    <img src="images/feurlogo.png" alt="Logo">
+                </a>
+                <h2>FEUR Events</h2>
             </div>
+            <nav class="side-menu">
+                <a href="index.html">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="orderlist.html">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Order List</span>
+                </a>
+                <a href="admin.html" class="active" id="admin-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Admin Panel</span>
+                </a>
+                <a href="#" id="logout-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
 
-            <div class="form-control">
-              <label>Campus</label>
-              <select id="campus">
-                <option value="Cainta">Cainta</option>
-                <option value="Marikina">Marikina</option>
-                <option value="Rodriguez">Rodriguez</option>
-              </select>
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button id="burger-btn" class="icon-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <h2>Admin Panel</h2>
+                </div>
+                <div class="header-right">
+                    <span id="user-greeting" style="font-weight: bold; color: white;">Welcome, Admin!</span>
+                </div>
+            </header>
+
+            <div class="content-padding">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">Event Management</h3>
+                
+                <div class="stats-grid" style="display: flex; gap: 20px; margin-bottom: 25px;">
+                    <div class="stat-card" style="flex: 1; background: #006633; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <h2 id="stat-events" style="font-size: 36px; margin: 0;">0</h2>
+                        <p style="margin: 5px 0 0 0;">Total Events</p>
+                    </div>
+                    <div class="stat-card" style="flex: 1; background: #006633; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <h2 id="stat-orders" style="font-size: 36px; margin: 0;">0</h2>
+                        <p style="margin: 5px 0 0 0;">Total Orders</p>
+                    </div>
+                </div>
+
+                <section class="admin-section card-style" style="margin-bottom: 25px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div class="admin-header" style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: #006633; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+                            QR Ticket Scanner
+                        </h3>
+                    </div>
+                    <div style="text-align: center;">
+                        <div id="reader" style="max-width: 400px; margin: auto; border: 2px dashed #006633; border-radius: 8px; overflow: hidden; background: #f9f9f9;"></div>
+                        <div id="scanner-result" style="margin-top: 15px; font-weight: bold; padding: 12px; border-radius: 6px; border: 1px solid #e0e0e0; background: #f4f6f8;">
+                            Ready to scan.
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-section card-style" style="margin-bottom: 25px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 id="form-title" style="margin-bottom: 20px; color: #006633;">Add New Event</h3>
+                    <form id="event-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <input type="hidden" id="event-id">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Event Title</label>
+                            <input type="text" id="title" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Campus</label>
+                            <select id="campus" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
+                                <option value="Marikina">Marikina</option>
+                                <option value="Cainta">Cainta</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Date</label>
+                            <input type="date" id="date" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Price (0 for Free)</label>
+                            <input type="number" id="price" value="0" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Poster Image URL</label>
+                            <input type="text" id="poster_url" placeholder="https://..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Description</label>
+                            <textarea id="desc" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical;" required></textarea>
+                        </div>
+                        <div style="grid-column: 1 / -1; display: flex; gap: 10px;">
+                            <button type="submit" class="btn btn-solid" style="background: #006633; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Save Event</button>
+                            <button type="button" id="cancel-edit" class="btn hidden" style="background: gray; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cancel Edit</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="admin-section card-style" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="margin-bottom: 15px; color: #006633;">Event List</h3>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                            <thead>
+                                <tr style="background: #f4f6f8; border-bottom: 2px solid #ddd;">
+                                    <th style="padding: 12px;">Title</th>
+                                    <th style="padding: 12px;">Campus</th>
+                                    <th style="padding: 12px;">Date</th>
+                                    <th style="padding: 12px;">Price</th>
+                                    <th style="padding: 12px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-event-list">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
-
-            <div class="form-control">
-              <label>Date</label>
-              <input type="date" id="date" required />
-            </div>
-
-            <div class="form-control">
-              <label>Time</label>
-              <input type="time" id="time" required />
-            </div>
-
-            <div class="form-control">
-              <label>Price (0 for Free)</label>
-              <input type="number" id="price" value="0" />
-            </div>
-
-            <div class="form-control">
-              <label>Poster URL</label>
-              <input
-                type="text"
-                id="poster_url"
-                placeholder="images/sample.jpg"
-              />
-            </div>
-
-            <div class="form-control full-width">
-              <label>Description</label>
-              <textarea id="desc" rows="3"></textarea>
-            </div>
-
-            <button
-              type="submit"
-              id="save-btn"
-              class="btn btn-solid full-width"
-            >
-              Save Event
-            </button>
-          </form>
-        </div>
-
-        <div class="admin-card">
-          <h3>Event List</h3>
-          <div class="table-wrapper">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Event</th>
-                  <th>Campus</th>
-                  <th>Date</th>
-                  <th>Price</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="admin-event-list"></tbody>
-            </table>
-          </div>
-        </div>
-      </main>
+        </main>
     </div>
 
     <div id="custom-alert" class="modal-overlay hidden">
-      <div class="modal-box alert-box">
-        <h3 id="alert-title">System</h3>
-        <p id="alert-message"></p>
-        <button id="close-alert" class="btn btn-solid" style="margin-top: 15px">
-          OK
-        </button>
-      </div>
+        <div class="modal-box" style="text-align: center; max-width: 350px;">
+            <h3 id="alert-title" style="color: #006633;">System</h3>
+            <p id="alert-message" style="margin: 15px 0; color: #333;"></p>
+            <button id="close-alert" style="background: #006633; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">OK</button>
+        </div>
     </div>
 
     <script type="module" src="script.js"></script>
-  </body>
+</body>
 </html>
