@@ -426,10 +426,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         // Kung gusto mong i-test na, i-setup mo na ang EmailJS keys dito
         if (typeof emailjs !== "undefined") {
-            emailjs.send("Iservice_nczv2qc ", "ILAGAY_DITO_ANG_TEMPLATE_ID", {
+            emailjs.send("Iservice_nczv2qc", "service_nczv2qc ", {
                 to_email: currentUser.email,
                 user_name: userName,
-                event_title: currentSelectedEvent.title,
+                event_title: currentSelectedEvent.tiAtle,
                 event_date: currentSelectedEvent.event_date || "TBA",
                 campus: currentSelectedEvent.campus,
                 qr_data: ticketID
