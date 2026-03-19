@@ -424,7 +424,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const userName = greetingEl ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "") : "Student";
         const ticketID = `FEUR-${currentUser.id.substring(0,5)}-${currentSelectedEvent.id.substring(0,5)}`;
         
-        // Kung gusto mong i-test na, i-setup mo na ang EmailJS keys dito
+        console.log("Naghahanda mag-send ng email sa:", currentUser.email);
+
         if (typeof emailjs !== "undefined") {
             emailjs.send("service_nczv2qc", "template_uiwfmsd", {
                 to_email: currentUser.email,
@@ -433,7 +434,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                 event_date: currentSelectedEvent.event_date || "TBA",
                 campus: currentSelectedEvent.campus,
                 qr_data: ticketID
-            }).then(() => console.log("Receipt sent!")).catch((err) => console.error("EmailJS error:", err));
+            }).then(
+                function(response) {
+                    console.log("SUCCESS! Na-send ang email.", response.status, response.text);
+                }, 
+                function(error) {
+                    console.error("FAILED! Hindi na-send ang email.", error);
+                    alert("May error sa EmailJS. Check F12 Console.");
+                }
+            );
+        } else {
+            console.error("ERROR: Hindi nabasa ang EmailJS script!");
+            alert("Hindi naka-connect ang EmailJS sa index.html mo.");
         }
         // --- END NG EMAILJS CODE ---
 
