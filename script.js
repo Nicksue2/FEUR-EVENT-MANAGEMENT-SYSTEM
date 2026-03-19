@@ -182,29 +182,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tcCheckbox = document.getElementById("tc-checkbox");
     const registerBtn = document.getElementById("register-btn");
 
-    // Pag pinindot ang button, lalabas ang Terms & Conditions
     if (openTcBtn && tcModal) {
       openTcBtn.addEventListener("click", () => {
         tcModal.classList.remove("hidden");
       });
     }
 
-    // Scroll detection na may 20px allowance para hindi pumalya sa phones
     if (tcBox && ackBtn) {
       tcBox.addEventListener("scroll", () => {
         if (tcBox.scrollTop + tcBox.clientHeight >= tcBox.scrollHeight - 20) {
-          ackBtn.disabled = false; // Magiging clickable na ang Acknowledge
+          ackBtn.disabled = false;
         }
       });
     }
 
-    // Pag pinindot ang Acknowledge, auto-check at enable ang Sign Up
     if (ackBtn && tcModal && tcCheckbox && registerBtn) {
       ackBtn.addEventListener("click", () => {
-        tcModal.classList.add("hidden"); // Isasara ang modal
+        tcModal.classList.add("hidden"); 
         tcCheckbox.disabled = false;
-        tcCheckbox.checked = true; // Auto-check
-        registerBtn.disabled = false; // Pwede na mag-Sign Up
+        tcCheckbox.checked = true; 
+        registerBtn.disabled = false; 
       });
     }
 
@@ -245,7 +242,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           showCustomAlert(
             "Success",
-            "Registration successful! You can now log in."
+            "Registration successful! Please confirm your email before logging in."
           );
           setTimeout(() => {
             window.location.href = "signin.html";
@@ -422,9 +419,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         showCustomAlert("Error", "An error occurred during registration.");
         modalRegBtn.disabled = false;
       } else {
+        // --- START NG EMAILJS CODE ---
+        const greetingEl = document.getElementById("user-greeting");
+        const userName = greetingEl ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "") : "Student";
+        const ticketID = `FEUR-${currentUser.id.substring(0,5)}-${currentSelectedEvent.id.substring(0,5)}`;
+        
+        // Kung gusto mong i-test na, i-setup mo na ang EmailJS keys dito
+        if (typeof emailjs !== "undefined") {
+            emailjs.send("ILAGAY_DITO_ANG_SERVICE_ID", "ILAGAY_DITO_ANG_TEMPLATE_ID", {
+                to_email: currentUser.email,
+                user_name: userName,
+                event_title: currentSelectedEvent.title,
+                event_date: currentSelectedEvent.event_date || "TBA",
+                campus: currentSelectedEvent.campus,
+                qr_data: ticketID
+            }).then(() => console.log("Receipt sent!")).catch((err) => console.error("EmailJS error:", err));
+        }
+        // --- END NG EMAILJS CODE ---
+
         showCustomAlert(
           "Success",
-          "Successfully Registered! Check your Order List."
+          "Successfully Registered! A receipt with your QR Code has been sent to your email."
         );
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
