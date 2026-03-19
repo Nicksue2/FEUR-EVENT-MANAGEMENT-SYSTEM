@@ -407,24 +407,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      const { error } = await supabase.from("orders").insert([
+      // FIX 1: Nilagyan ng 'data' at .select() sa dulo
+      const { data, error } = await supabase.from("orders").insert([
         {
           user_id: currentUser.id,
           event_id: currentSelectedEvent.id,
           status: "Registered",
         },
-      ]);
+      ]).select(); 
 
-      if (error) {
+      // FIX 2: Check kung walang data
+      if (error || !data) {
         showCustomAlert("Error", "An error occurred during registration.");
         modalRegBtn.disabled = false;
       } else {
         // --- START NG EMAILJS CODE ---
+        const orderData = data[0]; // Kukunin ang totoong ID sa DB
         const greetingEl = document.getElementById("user-greeting");
         const userName = greetingEl ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "") : "Student";
-        const ticketID = `FEUR-${currentUser.id.substring(0,5)}-${currentSelectedEvent.id.substring(0,5)}`;
         
-        console.log("Naghahanda mag-send ng email sa:", currentUser.email);
+        // FIX 3: Exact format para mabasa ng admin scanner
+        const ticketID = `FEUR-TICKET-${orderData.id}`; 
+        
+        console.log("Naghahanda mag-send ng email sa:", currentUser.email, "Ticket:", ticketID);
 
         if (typeof emailjs !== "undefined") {
             emailjs.send("service_nczv2qc", "template_uiwfmsd", {
@@ -448,6 +453,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert("Hindi naka-connect ang EmailJS sa index.html mo.");
         }
         // --- END NG EMAILJS CODE ---
+
+        showCustomAlert(
+          "Success",
+          "Successfully Registered! A receipt with your QR Code has been sent to your email."
+        );
+        modalRegBtn.innerText = "Registered";
+        modalRegBtn.style.background = "gray";
+        modalRegBtn.style.color = "white";
+      }
+    });
 
         showCustomAlert(
           "Success",
