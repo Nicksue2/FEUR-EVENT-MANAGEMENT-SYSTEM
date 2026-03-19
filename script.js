@@ -602,64 +602,76 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // --- 9. ADMIN QR SCANNER LOGIC ---
-  if (path.includes("admin.html") && userRole === "admin") {
+  if (path.includes("admin.html")) { // FIX: Tinanggal natin yung mahigpit na userRole check para sure na mag-load
+    console.log("Admin page detected. Initializing scanner...");
+    
     const scannerElement = document.getElementById("reader");
     if (scannerElement) {
-        const scannerResult = document.getElementById("scanner-result");
-        let isScanning = false;
+        try {
+            const scannerResult = document.getElementById("scanner-result");
+            let isScanning = false;
 
-        const qrCodeSuccessCallback = async (decodedText, decodedResult) => {
-            if (isScanning) return; 
-            isScanning = true;
-            
-            scannerResult.innerText = "Validating ticket...";
-            scannerResult.style.background = "#e0f2fe"; 
-            scannerResult.style.color = "#075985";
+            const qrCodeSuccessCallback = async (decodedText, decodedResult) => {
+                if (isScanning) return; 
+                isScanning = true;
+                
+                scannerResult.innerText = "Validating ticket...";
+                scannerResult.style.background = "#e0f2fe"; 
+                scannerResult.style.color = "#075985";
 
-            console.log("Scanned QR:", decodedText);
+                console.log("Scanned QR:", decodedText);
 
-            if (!decodedText.startsWith("FEUR-TICKET-")) {
-                scannerResult.innerText = "INVALID: Not a FEUR ticket.";
-                scannerResult.style.background = "#fee2e2"; 
-                scannerResult.style.color = "#991b1b";
-                setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "transparent"; }, 2000);
-                return;
-            }
-
-            const orderID = decodedText.replace("FEUR-TICKET-", "");
-            const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
-
-            if (error || !data) {
-                scannerResult.innerText = "INVALID: Ticket not found in database.";
-                scannerResult.style.background = "#fee2e2"; 
-                scannerResult.style.color = "#991b1b";
-            } else {
-                if (data.status === "Attended") {
-                    scannerResult.innerText = `DENIED: Already Scanned for ${data.events.title}.`;
-                    scannerResult.style.background = "#fef3c7"; 
-                    scannerResult.style.color = "#92400e";
-                } else {
-                    await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
-                    scannerResult.innerText = `SUCCESS! Checked-in for ${data.events.title}.`;
-                    scannerResult.style.background = "#dcfce7"; 
-                    scannerResult.style.color = "#166534";
+                // 1. Check if FEUR ticket
+                if (!decodedText.startsWith("FEUR-TICKET-")) {
+                    scannerResult.innerText = "INVALID: Not a FEUR ticket.";
+                    scannerResult.style.background = "#fee2e2"; 
+                    scannerResult.style.color = "#991b1b";
+                    setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "transparent"; }, 2000);
+                    return;
                 }
-            }
 
-            setTimeout(() => {
-                isScanning = false;
-                scannerResult.innerText = "Ready to scan.";
-                scannerResult.style.background = "transparent";
-            }, 3000);
-        };
+                // 2. Database check
+                const orderID = decodedText.replace("FEUR-TICKET-", "");
+                const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
 
-        // Ginamit na natin ang Html5QrcodeScanner para may UI button at madaling pumili ng camera
-        const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader",
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            false
-        );
-        
-        html5QrcodeScanner.render(qrCodeSuccessCallback);
+                if (error || !data) {
+                    scannerResult.innerText = "INVALID: Ticket not found in database.";
+                    scannerResult.style.background = "#fee2e2"; 
+                    scannerResult.style.color = "#991b1b";
+                } else {
+                    // 3. Status check
+                    if (data.status === "Attended") {
+                        scannerResult.innerText = `DENIED: Already Scanned for ${data.events.title}.`;
+                        scannerResult.style.background = "#fef3c7"; 
+                        scannerResult.style.color = "#92400e";
+                    } else {
+                        // 4. Update status
+                        await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
+                        scannerResult.innerText = `SUCCESS! Checked-in for ${data.events.title}.`;
+                        scannerResult.style.background = "#dcfce7"; 
+                        scannerResult.style.color = "#166534";
+                    }
+                }
+
+                setTimeout(() => {
+                    isScanning = false;
+                    scannerResult.innerText = "Ready to scan.";
+                    scannerResult.style.background = "transparent";
+                }, 3000);
+            };
+
+            // Piliting i-render yung UI button ng camera
+            const html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                false
+            );
+            html5QrcodeScanner.render(qrCodeSuccessCallback);
+            console.log("Scanner button successfully injected!");
+
+        } catch (err) {
+            console.error("Error loading scanner:", err);
+            document.getElementById("scanner-result").innerText = "Error loading camera. Check F12 Console.";
+        }
     }
   }
