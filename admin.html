@@ -6,6 +6,9 @@
     <title>Admin Panel - FEUR Events</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="admin-style.css" />
+
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
   </head>
   <body class="admin-body">
     <header class="top-nav">
@@ -53,6 +56,17 @@
             <p>Total Orders</p>
           </div>
         </div>
+
+        <section class="admin-section card-style" style="margin-bottom: 25px;">
+    <div class="admin-header">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+        <h3>QR Ticket Scanner</h3>
+    </div>
+    <div style="text-align: center; padding: 20px;">
+        <div id="reader" style="max-width: 400px; margin: auto; border: 2px dashed #006633; border-radius: 8px;"></div>
+        <div id="scanner-result" style="margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 6px;">Ready to scan.</div>
+    </div>
+</section>
 
         <div class="admin-card">
           <h3 id="form-title" style="margin-bottom: 15px">Add New Event</h3>

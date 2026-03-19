@@ -600,3 +600,71 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 });
+
+// --- 9. ADMIN QR SCANNER LOGIC ---
+  if (path.includes("admin.html") && userRole === "admin") {
+    const scannerElement = document.getElementById("reader");
+    if (scannerElement) {
+        const html5QrCode = new Html5Qrcode("reader");
+        const scannerResult = document.getElementById("scanner-result");
+        let isScanning = false;
+
+        const qrCodeSuccessCallback = async (decodedText, decodedResult) => {
+            if (isScanning) return; 
+            isScanning = true;
+            
+            scannerResult.innerText = "Validating ticket...";
+            scannerResult.style.background = "#e0f2fe"; 
+            scannerResult.style.color = "#075985";
+
+            console.log("Scanned QR:", decodedText);
+
+            // 1. Validation kung galing sa system natin ang QR
+            if (!decodedText.startsWith("FEUR-TICKET-")) {
+                scannerResult.innerText = "INVALID: Not a FEUR ticket.";
+                scannerResult.style.background = "#fee2e2"; 
+                scannerResult.style.color = "#991b1b";
+                setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "transparent"; }, 2000);
+                return;
+            }
+
+            // 2. Database Validation
+            const orderID = decodedText.replace("FEUR-TICKET-", "");
+            const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
+
+            if (error || !data) {
+                scannerResult.innerText = "INVALID: Ticket not found in database.";
+                scannerResult.style.background = "#fee2e2"; 
+                scannerResult.style.color = "#991b1b";
+            } else {
+                // 3. Double-Scan Prevention
+                if (data.status === "Attended") {
+                    scannerResult.innerText = `DENIED: Already Scanned for ${data.events.title}.`;
+                    scannerResult.style.background = "#fef3c7"; 
+                    scannerResult.style.color = "#92400e";
+                } else {
+                    // 4. Mark as Attended sa database
+                    await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
+                    scannerResult.innerText = `SUCCESS! Checked-in for ${data.events.title}.`;
+                    scannerResult.style.background = "#dcfce7"; 
+                    scannerResult.style.color = "#166534";
+                }
+            }
+
+            // Reset scanner after 3 seconds
+            setTimeout(() => {
+                isScanning = false;
+                scannerResult.innerText = "Ready to scan.";
+                scannerResult.style.background = "transparent";
+            }, 3000);
+        };
+
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        
+        // Start Camera
+        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback).catch((err) => {
+            console.error("Camera error:", err);
+            scannerResult.innerText = "Camera error. Make sure permission is granted.";
+        });
+    }
+  }
