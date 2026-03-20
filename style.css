@@ -591,32 +591,29 @@ input:checked + .slider:before {
     border: 2px solid #e5e7eb;
 }
 
-/* --- HEADER ALIGNMENT & MOBILE FIXES --- */
+/* --- HEADER ALIGNMENT PERFECT CENTER --- */
 .top-nav {
+    position: relative; /* Kailangan ito para sa absolute centering */
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.nav-left, .nav-right {
-    flex: 1; 
-    display: flex;
-    align-items: center;
-}
-
-.nav-right {
-    justify-content: flex-end;
-    gap: 15px; 
+    width: 100%;
 }
 
 .logo-container {
-    flex: 0 1 auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     justify-content: center;
 }
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
+    .logo-container {
+        position: static; /* Babalik sa normal flow sa mobile para di pumatong */
+        transform: none;
+    }
     .nav-right { gap: 8px; }
-    .logo-text { display: none; } 
+    .logo-text { display: none; }
 }

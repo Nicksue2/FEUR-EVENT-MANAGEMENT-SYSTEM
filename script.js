@@ -145,14 +145,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Error fetching profile:", err);
     }
 
-    const notifList = document.getElementById("notif-list");
-    if (notifList) {
-      notifList.innerHTML = `
-                <p class="notif-item">🔔 Welcome to FEUR Events!</p>
-                <p class="notif-item">✅ Email Outlook sync is enabled.</p>
-            `;
-    }
-
     // SECURITY FIX: I-block ang mga normal users sa admin at scanner pages
     if (
       (path.includes("admin") || path.includes("scanner")) &&
@@ -803,39 +795,54 @@ if (currentPath.includes("scanner")) {
     }
   }, 1000);
   // --- DYNAMIC NOTIFICATIONS LOGIC ---
-  window.loadNotifications = async function() {
-      const notifContainer = document.getElementById("notif-list");
-      if (!notifContainer) return;
+  window.loadNotifications = async function () {
+    const notifContainer = document.getElementById("notif-list");
+    if (!notifContainer) return;
 
-      let notifs = [];
-      try {
-          const { data: latestEvent } = await supabase.from("events").select("title").order("id", { ascending: false }).limit(1);
-          if (latestEvent && latestEvent.length > 0) {
-              notifs.push(`<div class="notif-item">📢 <b>New Event:</b> ${latestEvent[0].title} is now open!</div>`);
-          }
-
-          if (currentUser) {
-              const { data: myOrders } = await supabase.from("orders").select("status, events(title)").eq("user_id", currentUser.id).order("id", { ascending: false }).limit(2);
-              if (myOrders) {
-                  myOrders.forEach(order => {
-                      if (order.status === "Registered") {
-                          notifs.push(`<div class="notif-item">✅ <b>Ticket Secured:</b> See you at ${order.events.title}.</div>`);
-                      } else if (order.status === "Attended") {
-                          notifs.push(`<div class="notif-item">🎓 <b>Attended:</b> Thanks for joining ${order.events.title}!</div>`);
-                      }
-                  });
-              }
-          }
-
-          if (notifs.length === 0) {
-              notifContainer.innerHTML = `<div class="notif-item loading-text">No new notifications.</div>`;
-          } else {
-              notifContainer.innerHTML = notifs.join("");
-          }
-      } catch (err) {
-          console.error("Error loading notifications:", err);
+    let notifs = [];
+    try {
+      const { data: latestEvent } = await supabase
+        .from("events")
+        .select("title")
+        .order("id", { ascending: false })
+        .limit(1);
+      if (latestEvent && latestEvent.length > 0) {
+        notifs.push(
+          `<div class="notif-item">📢 <b>New Event:</b> ${latestEvent[0].title} is now open!</div>`,
+        );
       }
-  }
-  
+
+      if (currentUser) {
+        const { data: myOrders } = await supabase
+          .from("orders")
+          .select("status, events(title)")
+          .eq("user_id", currentUser.id)
+          .order("id", { ascending: false })
+          .limit(2);
+        if (myOrders) {
+          myOrders.forEach((order) => {
+            if (order.status === "Registered") {
+              notifs.push(
+                `<div class="notif-item">✅ <b>Ticket Secured:</b> See you at ${order.events.title}.</div>`,
+              );
+            } else if (order.status === "Attended") {
+              notifs.push(
+                `<div class="notif-item">🎓 <b>Attended:</b> Thanks for joining ${order.events.title}!</div>`,
+              );
+            }
+          });
+        }
+      }
+
+      if (notifs.length === 0) {
+        notifContainer.innerHTML = `<div class="notif-item loading-text">No new notifications.</div>`;
+      } else {
+        notifContainer.innerHTML = notifs.join("");
+      }
+    } catch (err) {
+      console.error("Error loading notifications:", err);
+    }
+  };
+
   loadNotifications();
 }
