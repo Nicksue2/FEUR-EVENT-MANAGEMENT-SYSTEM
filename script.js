@@ -521,9 +521,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     fetchAdminEvents();
   }
 
-  // --- 7. ORDER LIST LOGIC ---
+ // --- 7. ORDER LIST LOGIC ---
   const ordersGrid = document.getElementById("orders-grid");
-  if (ordersGrid && path.includes("orderlist.html")) {
+  if (ordersGrid && path.includes("orderlist")) {
     const { data: orders, error } = await supabase
       .from("orders")
       .select(`id, status, events ( title, event_date, campus, poster_url )`)
@@ -537,6 +537,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const event = order.events;
         const card = document.createElement("div");
         card.className = "event-card";
+        
+        // Tinanggal yung inline styles sa HTML at pinalitan ng class
         card.innerHTML = `
                     <img src="${event.poster_url || "https://via.placeholder.com/300x160?text=FEUR+Ticket"}" class="event-img">
                     <div class="event-info">
@@ -546,10 +548,45 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <span>📅 ${event.event_date || "TBA"}</span>
                             <span>📍 FEU Roosevelt ${event.campus}</span>
                         </div>
-                        <button class="btn btn-solid w-100" style="margin-top:auto;" onclick="alert('QR Feature Coming Soon!')">View QR Code</button>
+                        <button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}">View QR Code</button>
                     </div>
                 `;
         ordersGrid.appendChild(card);
+      });
+
+      // Logic para mag-generate at magpakita ng QR Code pag kinlick ang button
+      document.querySelectorAll(".qr-code-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const orderId = btn.getAttribute("data-order-id");
+          const eventTitle = btn.getAttribute("data-event-title");
+          
+          document.getElementById("qr-event-title").innerText = eventTitle;
+          
+          const qrContainer = document.getElementById("qr-code-image");
+          qrContainer.innerHTML = ""; // Clear lumang QR
+          
+          const ticketID = `FEUR-TICKET-${orderId}`; 
+          
+          if (typeof QRCode !== 'undefined') {
+              new QRCode(qrContainer, {
+                  text: ticketID,
+                  width: 250,
+                  height: 250,
+                  colorDark : "#000000",
+                  colorLight : "#ffffff",
+                  correctLevel : QRCode.CorrectLevel.H
+              });
+          } else {
+              console.error("ERROR: QRCode library hindi nag-load!");
+          }
+          
+          document.getElementById("qr-modal").classList.remove("hidden");
+        });
+      });
+
+      // Logic para isara yung QR modal
+      document.getElementById("close-qr-modal")?.addEventListener("click", () => {
+        document.getElementById("qr-modal").classList.add("hidden");
       });
     }
   }
