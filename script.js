@@ -141,33 +141,35 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? notifs.join("")
         : '<div class="notif-empty">No notifications</div>';
 
-      // --- 3. BADGE LOGIC (Line 144 pataas) ---
+      // --- 3. BADGE LOGIC ---
       const lastCount = parseInt(localStorage.getItem("lastNotifCount") || "0");
       const bellIconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>`;
 
       if (notifs.length > lastCount) {
         const unreadCount = notifs.length - lastCount;
-        notifBtn.innerHTML = `${bellIconSVG}<span class="notif-badge">${unreadCount}</span>`;
+        notifBtn.innerHTML = `${bellIconSVG}<span class="notif-badge" style="pointer-events: none;">${unreadCount}</span>`;
       } else {
         notifBtn.innerHTML = bellIconSVG;
       }
 
-      // --- 4. CLICK LOGIC (Line 158 pataas) ---
-      notifBtn.onclick = (e) => {
+      // --- 4. STABLE CLICK LOGIC ---
+      const newNotifBtn = notifBtn.cloneNode(true);
+      notifBtn.parentNode.replaceChild(newNotifBtn, notifBtn);
+
+      newNotifBtn.addEventListener("click", (e) => {
         e.preventDefault();
+        e.stopPropagation();
         const modal = document.getElementById("notif-modal");
         if (!modal) return;
 
-        // Toggle modal visibility
         const isHidden = modal.classList.toggle("hidden");
 
-        // Pag binuksan (hindi hidden), mark as read
         if (!isHidden) {
           localStorage.setItem("lastNotifCount", notifs.length);
-          const badge = notifBtn.querySelector(".notif-badge");
+          const badge = newNotifBtn.querySelector(".notif-badge");
           if (badge) badge.remove();
         }
-      };
+      });
     } catch (err) {
       console.error(err);
     }
