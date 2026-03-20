@@ -646,3 +646,73 @@ input:checked + .slider:before {
     display: none;
   } /* Tinago ang pangalan sa mobile para di masikip */
 }
+
+/* --- HEADER & NOTIF ALIGNMENT FIX --- */
+.nav-auth-view {
+  display: flex !important;
+  align-items: center;
+  gap: 15px;
+}
+
+#notif-modal {
+  right: 0;
+  left: auto;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+/* Mobile Fix: Siguraduhin na hindi nagtatago ang Notif Button */
+@media (max-width: 768px) {
+  .nav-auth-view {
+    gap: 10px;
+  }
+
+  .logo-text {
+    display: none; /* Itago ang text para kumasya ang logo at bell */
+  }
+
+  #user-greeting {
+    display: none; /* Itago ang 'Welcome, Name' sa mobile para lumitaw ang bell */
+  }
+
+  #notif-btn {
+    display: block !important; /* Siguradong kita ang bell */
+  }
+}
+
+.n/* Siguraduhin na ang modal ay laging nasa ibaba ng bell */
+.notif-container {
+  position: relative;
+}
+
+#notif-modal {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 280px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  z-index: 9999; /* Para laging nasa ibabaw */
+}
+
+/* Red dot adjustment */
+.notif-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary);
+}

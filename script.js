@@ -6,7 +6,7 @@ const supabaseKey =
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const path = window.location.pathname;
+  const path = window.location.pathname.toLowerCase();
   let currentUser = null;
   let allEventsGlobal = [];
   let currentSelectedEvent = null;
@@ -23,10 +23,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const closeAlertBtn = document.getElementById("close-alert");
-  if (closeAlertBtn)
+  if (closeAlertBtn) {
     closeAlertBtn.addEventListener("click", () =>
       document.getElementById("custom-alert").classList.add("hidden"),
     );
+  }
 
   const togglePassword = (checkboxId, ...inputIds) => {
     const checkbox = document.getElementById(checkboxId);
@@ -40,7 +41,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
-  // --- CLICK OUTSIDE MODAL TO CLOSE ---
   window.addEventListener("click", (e) => {
     if (e.target.classList.contains("modal-overlay")) {
       e.target.classList.add("hidden");
@@ -60,50 +60,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Mobile Search Focus Fix
-  const searchContainerDom = document.querySelector(".search-container");
-  const searchInputDom = document.getElementById("search-input");
-  if (searchContainerDom && searchInputDom) {
-    searchContainerDom.addEventListener("click", () => {
-      searchInputDom.focus();
-    });
-  }
-
-  document.querySelectorAll(".nav-settings-btn").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      document.getElementById("settings-modal")?.classList.remove("hidden");
-    });
-  });
-  document
-    .getElementById("close-settings")
-    ?.addEventListener("click", () =>
-      document.getElementById("settings-modal").classList.add("hidden"),
-    );
-  document
-    .getElementById("burger-btn")
-    ?.addEventListener("click", () =>
-      document
-        .getElementById("sidebar")
-        .classList.toggle(window.innerWidth <= 768 ? "open" : "minimized"),
-    );
-  document
-    .getElementById("notif-btn")
-    ?.addEventListener("click", () =>
-      document.getElementById("notif-modal").classList.toggle("hidden"),
-    );
-  document
-    .getElementById("close-auth-modal")
-    ?.addEventListener("click", () =>
-      document.getElementById("auth-modal").classList.add("hidden"),
-    );
-  document
-    .getElementById("close-details-modal")
-    ?.addEventListener("click", () =>
-      document.getElementById("event-details-modal").classList.add("hidden"),
-    );
-
-  // --- SETTINGS TOGGLE LOGIC ---
   const emailToggle = document.getElementById("email-notif-toggle");
   if (emailToggle) {
     emailToggle.checked = localStorage.getItem("emailSync") !== "false";
@@ -112,17 +68,112 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Idagdag din natin ang closing function para sa settings modal kung wala pa
+  const searchContainerDom = document.querySelector(".search-container");
+  const searchInputDom = document.getElementById("search-input");
+  if (searchContainerDom && searchInputDom) {
+    searchContainerDom.addEventListener("click", () => searchInputDom.focus());
+  }
+
+  document.querySelectorAll(".nav-settings-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("settings-modal")?.classList.remove("hidden");
+    });
+  });
+
   document.getElementById("close-settings")?.addEventListener("click", () => {
     document.getElementById("settings-modal").classList.add("hidden");
   });
-  document.querySelectorAll(".nav-settings-btn").forEach((btn) => {
-    btn.addEventListener("click", () =>
-      document.getElementById("settings-modal").classList.remove("hidden"),
-    );
+
+  document.getElementById("burger-btn")?.addEventListener("click", () => {
+    document
+      .getElementById("sidebar")
+      ?.classList.toggle(window.innerWidth <= 768 ? "open" : "minimized");
   });
 
-  // --- 3. SESSION & DATABASE ROLE CHECK ---
+  document.getElementById("notif-btn")?.addEventListener("click", () => {
+    document.getElementById("notif-modal")?.classList.toggle("hidden");
+  });
+
+  document.getElementById("close-auth-modal")?.addEventListener("click", () => {
+    document.getElementById("auth-modal")?.classList.add("hidden");
+  });
+
+  document
+    .getElementById("close-details-modal")
+    ?.addEventListener("click", () => {
+      document.getElementById("event-details-modal")?.classList.add("hidden");
+    });
+
+  // --- 3. DYNAMIC NOTIFICATIONS LOGIC ---
+  async function loadNotifications() {
+    const notifContainer = document.getElementById("notif-list");
+    const notifBtn = document.getElementById("notif-btn");
+    if (!notifContainer || !notifBtn) return;
+
+    try {
+      let notifs = [];
+      const { data: eventsData } = await supabase
+        .from("events")
+        .select("title")
+        .limit(1);
+      if (eventsData?.length > 0) {
+        notifs.push(
+          `<div class="notif-item">📢 <b>New Event:</b> ${eventsData[0].title}</div>`,
+        );
+      }
+
+      if (currentUser) {
+        const { data: myOrders } = await supabase
+          .from("orders")
+          .select("status, events(title)")
+          .eq("user_id", currentUser.id)
+          .limit(2);
+        myOrders?.forEach((order) => {
+          const title = order.events?.title || "Event";
+          notifs.push(
+            `<div class="notif-item">${order.status === "Registered" ? "✅" : "🎓"} <b>${order.status}:</b> ${title}</div>`,
+          );
+        });
+      }
+
+      notifContainer.innerHTML = notifs.length
+        ? notifs.join("")
+        : '<div class="notif-empty">No notifications</div>';
+
+      // --- 3. BADGE LOGIC (Line 144 pataas) ---
+      const lastCount = parseInt(localStorage.getItem("lastNotifCount") || "0");
+      const bellIconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>`;
+
+      if (notifs.length > lastCount) {
+        const unreadCount = notifs.length - lastCount;
+        notifBtn.innerHTML = `${bellIconSVG}<span class="notif-badge">${unreadCount}</span>`;
+      } else {
+        notifBtn.innerHTML = bellIconSVG;
+      }
+
+      // --- 4. CLICK LOGIC (Line 158 pataas) ---
+      notifBtn.onclick = (e) => {
+        e.preventDefault();
+        const modal = document.getElementById("notif-modal");
+        if (!modal) return;
+
+        // Toggle modal visibility
+        const isHidden = modal.classList.toggle("hidden");
+
+        // Pag binuksan (hindi hidden), mark as read
+        if (!isHidden) {
+          localStorage.setItem("lastNotifCount", notifs.length);
+          const badge = notifBtn.querySelector(".notif-badge");
+          if (badge) badge.remove();
+        }
+      };
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // --- 4. SESSION & DATABASE ROLE CHECK ---
   const { data: sessionData } = await supabase.auth.getSession();
 
   if (sessionData && sessionData.session) {
@@ -134,18 +185,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         .select("first_name, last_name, role")
         .eq("id", currentUser.id)
         .single();
-
       if (profile) {
         userRole = profile.role || "user";
         const greetingEl = document.getElementById("user-greeting");
         if (greetingEl)
-          greetingEl.innerText = `Welcome, ${profile.first_name} ${profile.last_name}!`;
+          greetingEl.innerText = `Welcome, ${profile.first_name.toUpperCase()}!`;
       }
     } catch (err) {
       console.error("Error fetching profile:", err);
     }
 
-    // SECURITY FIX: I-block ang mga normal users sa admin at scanner pages
     if (
       (path.includes("admin") || path.includes("scanner")) &&
       userRole !== "admin"
@@ -182,7 +231,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       .querySelectorAll(".user-only")
       .forEach((el) => el.classList.remove("hidden"));
   } else {
-    if (path.includes("admin.html") || path.includes("orderlist.html")) {
+    if (
+      path.includes("admin.html") ||
+      path.includes("orderlist.html") ||
+      path.includes("scanner.html")
+    ) {
       window.location.href = "signin.html";
       return;
     }
@@ -193,12 +246,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       .querySelectorAll(".guest-only")
       .forEach((el) => el.classList.remove("hidden"));
   }
-  
 
-  // --- 4. SIGN IN & SIGN UP LOGIC ---
-  if (path.includes("signup.html")) {
+  loadNotifications(); // <--- TATAWAGIN NA DITO NANG LIGTAS
+
+  // --- 5. SIGN IN & SIGN UP LOGIC ---
+  if (path.includes("signup")) {
     togglePassword("show-password-signup", "password", "confirm-password");
-
     const tcModal = document.getElementById("tc-modal");
     const openTcBtn = document.getElementById("open-tc");
     const tcBox = document.getElementById("tc-box");
@@ -206,17 +259,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tcCheckbox = document.getElementById("tc-checkbox");
     const registerBtn = document.getElementById("register-btn");
 
-    if (openTcBtn && tcModal) {
-      openTcBtn.addEventListener("click", () => {
-        tcModal.classList.remove("hidden");
-      });
-    }
+    if (openTcBtn && tcModal)
+      openTcBtn.addEventListener("click", () =>
+        tcModal.classList.remove("hidden"),
+      );
 
     if (tcBox && ackBtn) {
       tcBox.addEventListener("scroll", () => {
-        if (tcBox.scrollTop + tcBox.clientHeight >= tcBox.scrollHeight - 20) {
+        if (tcBox.scrollTop + tcBox.clientHeight >= tcBox.scrollHeight - 20)
           ackBtn.disabled = false;
-        }
       });
     }
 
@@ -275,7 +326,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
   }
 
-  if (path.includes("signin.html")) {
+  if (path.includes("signin")) {
     togglePassword("show-password-signin", "password");
     document
       .getElementById("signin-form")
@@ -304,7 +355,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
   }
 
-  // --- 5. DASHBOARD EVENTS LOGIC ---
+  // --- 6. DASHBOARD EVENTS & REGISTRATION LOGIC ---
   const isUserRegistered = async (eventId) => {
     if (!currentUser) return false;
     const { data } = await supabase
@@ -316,7 +367,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const eventsGrid = document.getElementById("events-grid");
-  if (eventsGrid && (path === "/" || path.includes("index.html"))) {
+  if (
+    eventsGrid &&
+    (path === "/" || path.includes("index.html") || path === "")
+  ) {
     const { data: events } = await supabase.from("events").select("*");
     if (events) {
       allEventsGlobal = events;
@@ -379,40 +433,40 @@ document.addEventListener("DOMContentLoaded", async () => {
           event.description || "No description available for this event.";
 
         const modalBtn = document.getElementById("modal-register-btn");
-        const registered = await isUserRegistered(event.id);
-
-        if (registered) {
-          modalBtn.innerText = "Registered";
-          modalBtn.style.background = "gray";
-          modalBtn.style.color = "white";
-          modalBtn.disabled = true;
-        } else {
-          if (event.price > 0) {
-            modalBtn.innerText = `Pay ₱${event.price}`;
-            modalBtn.style.background = "var(--secondary)";
-            modalBtn.style.color = "black";
-          } else {
-            modalBtn.innerText = "Register Now";
-            modalBtn.style.background = "var(--primary)";
+        if (modalBtn) {
+          const registered = await isUserRegistered(event.id);
+          if (registered) {
+            modalBtn.innerText = "Registered";
+            modalBtn.style.background = "gray";
             modalBtn.style.color = "white";
+            modalBtn.disabled = true;
+          } else {
+            if (event.price > 0) {
+              modalBtn.innerText = `Pay ₱${event.price}`;
+              modalBtn.style.background = "var(--secondary)";
+              modalBtn.style.color = "black";
+            } else {
+              modalBtn.innerText = "Register Now";
+              modalBtn.style.background = "var(--primary)";
+              modalBtn.style.color = "white";
+            }
+            modalBtn.disabled = false;
           }
-          modalBtn.disabled = false;
         }
         document
           .getElementById("event-details-modal")
-          .classList.remove("hidden");
+          ?.classList.remove("hidden");
       });
       eventsGrid.appendChild(card);
     }
   }
 
-  // --- REGISTRATION & EMAILJS LOGIC ---
   document
     .getElementById("modal-register-btn")
     ?.addEventListener("click", async () => {
       if (!currentUser) {
-        document.getElementById("event-details-modal").classList.add("hidden");
-        document.getElementById("auth-modal").classList.remove("hidden");
+        document.getElementById("event-details-modal")?.classList.add("hidden");
+        document.getElementById("auth-modal")?.classList.remove("hidden");
         return;
       }
 
@@ -454,25 +508,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           : "Student";
         const ticketID = `FEUR-TICKET-${orderData.id}`;
 
-        // EMAIL SETTINGS CHECKER
-        if (localStorage.getItem("emailSync") !== "false") {
-          if (typeof emailjs !== "undefined") {
-            emailjs
-              .send("service_nczv2qc", "template_uiwfmsd", {
-                to_email: currentUser.email,
-                user_name: userName,
-                event_title: currentSelectedEvent.title,
-                event_date: currentSelectedEvent.event_date || "TBA",
-                campus: currentSelectedEvent.campus,
-                qr_data: ticketID,
-              })
-              .then(() => console.log("Receipt sent!"))
-              .catch((err) => console.error("EmailJS error:", err));
-          }
-        } else {
-          console.log("Email notifications disabled by user.");
+        // Hanapin ang part na ito sa script.js (Section: modal-register-btn click)
+        if (typeof emailjs !== "undefined") {
+          emailjs
+            .send("service_nczv2qc", "template_uiwfmsd", {
+              to_email: currentUser.email, // DITO NATIN KUKUNIN ANG EMAIL NG NAKA-LOGIN NA USER
+              user_name: userName,
+              event_title: currentSelectedEvent.title,
+              event_date: currentSelectedEvent.event_date || "TBA",
+              campus: currentSelectedEvent.campus,
+              qr_data: ticketID,
+            })
+            .then(() => console.log("Ticket sent!"))
+            .catch((err) => console.error("Email error:", err));
         }
-
         showCustomAlert(
           "Success",
           "Successfully Registered! You can view your QR ticket in the Order List.",
@@ -480,37 +529,31 @@ document.addEventListener("DOMContentLoaded", async () => {
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
         modalRegBtn.style.color = "white";
-
-        if (typeof loadNotifications === "function") loadNotifications();
+        loadNotifications(); // Update Notifications instantly
       }
     });
 
-  // --- 6. ADMIN DASHBOARD CRUD ---
-  if (path.includes("admin.html") && userRole === "admin") {
+  // --- 7. ADMIN DASHBOARD CRUD ---
+  if (path.includes("admin") && userRole === "admin") {
     const fetchAdminEvents = async () => {
-      const { data: events, error } = await supabase.from("events").select("*");
+      const { data: events } = await supabase.from("events").select("*");
       const list = document.getElementById("admin-event-list");
       if (list && events) {
         list.innerHTML = events
           .map(
             (ev) => `
-                    <tr>
-                        <td>${ev.title}</td>
-                        <td>${ev.campus}</td>
-                        <td>${ev.event_date}</td>
-                        <td>${ev.price > 0 ? "₱" + ev.price : "FREE"}</td>
-                        <td>
-                            <button class="btn btn-solid" style="background:#facc15; padding:5px 10px; color:black;" onclick="window.editEvent('${ev.id}')">Edit</button>
-                            <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="window.deleteEvent('${ev.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `,
+            <tr>
+                <td>${ev.title}</td><td>${ev.campus}</td><td>${ev.event_date}</td><td>${ev.price > 0 ? "₱" + ev.price : "FREE"}</td>
+                <td>
+                    <button class="btn btn-solid" style="background:#facc15; padding:5px 10px; color:black;" onclick="window.editEvent('${ev.id}')">Edit</button>
+                    <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="window.deleteEvent('${ev.id}')">Delete</button>
+                </td>
+            </tr>`,
           )
           .join("");
         if (document.getElementById("stat-events"))
           document.getElementById("stat-events").innerText = events.length;
       }
-
       const { count } = await supabase
         .from("orders")
         .select("*", { count: "exact", head: true });
@@ -541,7 +584,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("desc").value = ev.description;
         document.getElementById("poster_url").value = ev.poster_url;
         document.getElementById("form-title").innerText = "Edit: " + ev.title;
-        document.getElementById("cancel-edit").classList.remove("hidden");
+        document.getElementById("cancel-edit")?.classList.remove("hidden");
       }
     };
 
@@ -566,10 +609,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           await supabase.from("events").insert([eventData]);
           showCustomAlert("Success", "Event Created!");
         }
-
         document.getElementById("event-form").reset();
         document.getElementById("event-id").value = "";
-        document.getElementById("cancel-edit").classList.add("hidden");
+        document.getElementById("cancel-edit")?.classList.add("hidden");
         document.getElementById("form-title").innerText = "Add New Event";
         fetchAdminEvents();
       });
@@ -578,20 +620,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("event-form").reset();
       document.getElementById("event-id").value = "";
       document.getElementById("form-title").innerText = "Add New Event";
-      document.getElementById("cancel-edit").classList.add("hidden");
+      document.getElementById("cancel-edit")?.classList.add("hidden");
     });
-
     fetchAdminEvents();
   }
 
-  // --- 7. ORDER LIST LOGIC ---
+  // --- 8. ORDER LIST LOGIC ---
   const ordersGrid = document.getElementById("orders-grid");
   if (ordersGrid && path.includes("orderlist")) {
     const { data: orders, error } = await supabase
       .from("orders")
       .select(`id, status, events ( title, event_date, campus, poster_url )`)
       .eq("user_id", currentUser.id);
-
     ordersGrid.innerHTML = "";
     if (error || !orders || orders.length === 0) {
       ordersGrid.innerHTML = "<p>You have no registered events yet.</p>";
@@ -600,8 +640,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const event = order.events;
         const card = document.createElement("div");
         card.className = "event-card";
-
-        // Tinanggal yung inline styles sa HTML at pinalitan ng class
         card.innerHTML = `
                     <img src="${event.poster_url || "https://via.placeholder.com/300x160?text=FEUR+Ticket"}" class="event-img">
                     <div class="event-info">
@@ -612,27 +650,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <span>📍 FEU Roosevelt ${event.campus}</span>
                         </div>
                         <button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}">View QR Code</button>
-                    </div>
-                `;
+                    </div>`;
         ordersGrid.appendChild(card);
       });
 
-      // Logic para mag-generate at magpakita ng QR Code pag kinlick ang button
       document.querySelectorAll(".qr-code-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
           const orderId = btn.getAttribute("data-order-id");
           const eventTitle = btn.getAttribute("data-event-title");
-
           document.getElementById("qr-event-title").innerText = eventTitle;
-
           const qrContainer = document.getElementById("qr-code-image");
-          qrContainer.innerHTML = ""; // Clear lumang QR
-
-          const ticketID = `FEUR-TICKET-${orderId}`;
-
+          qrContainer.innerHTML = "";
           if (typeof QRCode !== "undefined") {
             new QRCode(qrContainer, {
-              text: ticketID,
+              text: `FEUR-TICKET-${orderId}`,
               width: 250,
               height: 250,
               colorDark: "#000000",
@@ -642,21 +673,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           } else {
             console.error("ERROR: QRCode library hindi nag-load!");
           }
-
-          document.getElementById("qr-modal").classList.remove("hidden");
+          document.getElementById("qr-modal")?.classList.remove("hidden");
         });
       });
 
-      // Logic para isara yung QR modal
       document
         .getElementById("close-qr-modal")
         ?.addEventListener("click", () => {
-          document.getElementById("qr-modal").classList.add("hidden");
+          document.getElementById("qr-modal")?.classList.add("hidden");
         });
     }
   }
 
-  // --- 8. LOGOUT LOGIC ---
+  // --- 9. LOGOUT LOGIC ---
   document.querySelectorAll("#logout-btn, .nav-logout").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.preventDefault();
@@ -664,202 +693,121 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.href = "index.html";
     });
   });
-});
 
-// --- 9. ADMIN & ADMISSION QR SCANNER LOGIC ---
-const currentPath = window.location.pathname.toLowerCase();
-
-// A. VALIDATOR LOGIC (admin.html)
-if (currentPath.includes("admin")) {
-  setTimeout(() => {
-    const scannerElement = document.getElementById("reader");
-    if (scannerElement) {
-      const scannerResult = document.getElementById("scanner-result");
-      let isScanning = false;
-
-      const qrCodeSuccessCallback = async (decodedText) => {
-        if (isScanning) return;
-        isScanning = true;
-        scannerResult.innerText = "Checking record...";
-
-        if (!decodedText.startsWith("FEUR-TICKET-")) {
-          scannerResult.innerText = "INVALID: Not a FEUR ticket.";
-          scannerResult.style.background = "#fee2e2";
-          scannerResult.style.color = "#991b1b";
+  // --- 10. ADMIN & ADMISSION QR SCANNER LOGIC ---
+  if (path.includes("admin")) {
+    setTimeout(() => {
+      const scannerElement = document.getElementById("reader");
+      if (scannerElement) {
+        const scannerResult = document.getElementById("scanner-result");
+        let isScanning = false;
+        const qrCodeSuccessCallback = async (decodedText) => {
+          if (isScanning) return;
+          isScanning = true;
+          scannerResult.innerText = "Checking record...";
+          if (!decodedText.startsWith("FEUR-TICKET-")) {
+            scannerResult.innerText = "INVALID: Not a FEUR ticket.";
+            scannerResult.style.background = "#fee2e2";
+            scannerResult.style.color = "#991b1b";
+            setTimeout(() => {
+              isScanning = false;
+              scannerResult.innerText = "Ready to check ticket.";
+              scannerResult.style.background = "#f4f6f8";
+            }, 2000);
+            return;
+          }
+          const orderID = decodedText.replace("FEUR-TICKET-", "");
+          const { data, error } = await supabase
+            .from("orders")
+            .select(`status, events ( title )`)
+            .eq("id", orderID)
+            .single();
+          if (error || !data) {
+            scannerResult.innerText = "INVALID: Ticket not found in DB.";
+            scannerResult.style.background = "#fee2e2";
+            scannerResult.style.color = "#991b1b";
+          } else {
+            scannerResult.innerText = `LEGIT TICKET! Event: ${data.events.title} | Status: ${data.status}`;
+            scannerResult.style.background = "#dcfce7";
+            scannerResult.style.color = "#166534";
+          }
           setTimeout(() => {
             isScanning = false;
             scannerResult.innerText = "Ready to check ticket.";
             scannerResult.style.background = "#f4f6f8";
-          }, 2000);
-          return;
-        }
+            scannerResult.style.color = "#333";
+          }, 4000);
+        };
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+          "reader",
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          false,
+        );
+        html5QrcodeScanner.render(qrCodeSuccessCallback);
+      }
+    }, 1000);
+  }
 
-        const orderID = decodedText.replace("FEUR-TICKET-", "");
-        const { data, error } = await supabase
-          .from("orders")
-          .select(`status, events ( title )`)
-          .eq("id", orderID)
-          .single();
-
-        if (error || !data) {
-          scannerResult.innerText = "INVALID: Ticket not found in DB.";
-          scannerResult.style.background = "#fee2e2";
-          scannerResult.style.color = "#991b1b";
-        } else {
-          scannerResult.innerText = `LEGIT TICKET! Event: ${data.events.title} | Status: ${data.status}`;
-          scannerResult.style.background = "#dcfce7";
-          scannerResult.style.color = "#166534";
-        }
-        setTimeout(() => {
-          isScanning = false;
-          scannerResult.innerText = "Ready to check ticket.";
-          scannerResult.style.background = "#f4f6f8";
-          scannerResult.style.color = "#333";
-        }, 4000);
-      };
-
-      const html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader",
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        false,
-      );
-      html5QrcodeScanner.render(qrCodeSuccessCallback);
-    }
-  }, 1000);
-}
-
-// B. LIVE ADMISSION LOGIC (scanner.html)
-if (currentPath.includes("scanner")) {
-  setTimeout(() => {
-    const entryElement = document.getElementById("entry-reader");
-    if (entryElement) {
-      const entryResult = document.getElementById("entry-result");
-      let isEntryScanning = false;
-
-      const entrySuccessCallback = async (decodedText) => {
-        if (isEntryScanning) return;
-        isEntryScanning = true;
-        entryResult.innerText = "Validating Admission...";
-
-        if (!decodedText.startsWith("FEUR-TICKET-")) {
-          entryResult.innerText = "❌ DENIED: Invalid QR Format.";
-          entryResult.style.background = "#fee2e2";
-          entryResult.style.color = "#991b1b";
+  if (path.includes("scanner")) {
+    setTimeout(() => {
+      const entryElement = document.getElementById("entry-reader");
+      if (entryElement) {
+        const entryResult = document.getElementById("entry-result");
+        let isEntryScanning = false;
+        const entrySuccessCallback = async (decodedText) => {
+          if (isEntryScanning) return;
+          isEntryScanning = true;
+          entryResult.innerText = "Validating Admission...";
+          if (!decodedText.startsWith("FEUR-TICKET-")) {
+            entryResult.innerText = "❌ DENIED: Invalid QR Format.";
+            entryResult.style.background = "#fee2e2";
+            entryResult.style.color = "#991b1b";
+            setTimeout(() => {
+              isEntryScanning = false;
+              entryResult.innerText = "Waiting for ticket...";
+              entryResult.style.background = "#f4f6f8";
+            }, 2000);
+            return;
+          }
+          const orderID = decodedText.replace("FEUR-TICKET-", "");
+          const { data, error } = await supabase
+            .from("orders")
+            .select(`status, events ( title )`)
+            .eq("id", orderID)
+            .single();
+          if (error || !data) {
+            entryResult.innerText = "❌ DENIED: Ticket Not Found.";
+            entryResult.style.background = "#fee2e2";
+            entryResult.style.color = "#991b1b";
+          } else {
+            if (data.status === "Attended") {
+              entryResult.innerText = `⚠️ ALREADY SCANNED for ${data.events.title}.`;
+              entryResult.style.background = "#fef3c7";
+              entryResult.style.color = "#92400e";
+            } else {
+              await supabase
+                .from("orders")
+                .update({ status: "Attended" })
+                .eq("id", orderID);
+              entryResult.innerText = `✅ ADMITTED! Welcome to ${data.events.title}.`;
+              entryResult.style.background = "#dcfce7";
+              entryResult.style.color = "#166534";
+            }
+          }
           setTimeout(() => {
             isEntryScanning = false;
             entryResult.innerText = "Waiting for ticket...";
             entryResult.style.background = "#f4f6f8";
-          }, 2000);
-          return;
-        }
-
-        const orderID = decodedText.replace("FEUR-TICKET-", "");
-        const { data, error } = await supabase
-          .from("orders")
-          .select(`status, events ( title )`)
-          .eq("id", orderID)
-          .single();
-
-        if (error || !data) {
-          entryResult.innerText = "❌ DENIED: Ticket Not Found.";
-          entryResult.style.background = "#fee2e2";
-          entryResult.style.color = "#991b1b";
-        } else {
-          if (data.status === "Attended") {
-            entryResult.innerText = `⚠️ ALREADY SCANNED for ${data.events.title}.`;
-            entryResult.style.background = "#fef3c7";
-            entryResult.style.color = "#92400e";
-          } else {
-            await supabase
-              .from("orders")
-              .update({ status: "Attended" })
-              .eq("id", orderID);
-            entryResult.innerText = `✅ ADMITTED! Welcome to ${data.events.title}.`;
-            entryResult.style.background = "#dcfce7";
-            entryResult.style.color = "#166534";
-          }
-        }
-        setTimeout(() => {
-          isEntryScanning = false;
-          entryResult.innerText = "Waiting for ticket...";
-          entryResult.style.background = "#f4f6f8";
-          entryResult.style.color = "#333";
-        }, 3000);
-      };
-
-      const entryScanner = new Html5QrcodeScanner(
-        "entry-reader",
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        false,
-      );
-      entryScanner.render(entrySuccessCallback);
-    }
-  }, 1000);
-  // --- 10. DYNAMIC NOTIFICATIONS LOGIC ---
-  async function loadNotifications() {
-    const notifContainer = document.getElementById("notif-list");
-    if (!notifContainer) return;
-
-    try {
-      let notifs = [];
-
-      // A. Kunin ang latest event
-      try {
-        const { data: eventsData, error: eventError } = await supabase
-          .from("events")
-          .select("title")
-          .order("id", { ascending: false }) // Palitan ng 'created_at' kung mayroon kang column na 'created_at'
-          .limit(1);
-
-        if (eventsData && eventsData.length > 0) {
-          notifs.push(
-            `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem;">📢 <b>New Event:</b> ${eventsData[0].title} is now open!</div>`,
-          );
-        }
-      } catch (err) {
-        console.error("Error fetching latest event for notif:", err);
+            entryResult.style.color = "#333";
+          }, 3000);
+        };
+        const entryScanner = new Html5QrcodeScanner(
+          "entry-reader",
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          false,
+        );
+        entryScanner.render(entrySuccessCallback);
       }
-
-      // B. Kunin ang latest order status ng User
-      if (currentUser) {
-        try {
-          const { data: myOrders, error: orderError } = await supabase
-            .from("orders")
-            .select("status, events(title)")
-            .eq("user_id", currentUser.id)
-            .order("id", { ascending: false }) // Palitan ng 'created_at' kung mayroon kang column na 'created_at'
-            .limit(2);
-
-          if (myOrders && myOrders.length > 0) {
-            myOrders.forEach((order) => {
-              // Kailangan natin i-check kung may 'events' object dahil minsan null ito kung na-delete yung event
-              const eventTitle = order.events ? order.events.title : "an Event";
-
-              if (order.status === "Registered") {
-                notifs.push(
-                  `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #006633;">✅ <b>Ticket Secured:</b> See you at ${eventTitle}.</div>`,
-                );
-              } else if (order.status === "Attended") {
-                notifs.push(
-                  `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: gray;">🎓 <b>Attended:</b> Thanks for joining ${eventTitle}!</div>`,
-                );
-              }
-            });
-          }
-        } catch (err) {
-          console.error("Error fetching user orders for notif:", err);
-        }
-      }
-
-      // C. Render
-      if (notifs.length === 0) {
-        notifContainer.innerHTML = `<div style="padding: 15px; color: gray; font-size: 0.9rem; text-align: center;">No new notifications.</div>`;
-      } else {
-        notifContainer.innerHTML = notifs.join("");
-      }
-    } catch (err) {
-      console.error("Fatal Error loading notifications:", err);
-      notifContainer.innerHTML = `<div style="padding: 15px; color: red; font-size: 0.9rem; text-align: center;">Failed to load. Check console.</div>`;
-    }
+    }, 1000);
   }
-}
+}); // <--- ITO ANG NAG-IISANG CLOSING BRACKET NG BUONG SCRIPT!
