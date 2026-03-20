@@ -140,16 +140,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    if (userRole === "admin") {
+   if (userRole === "admin") {
       const sideMenu = document.querySelector(".side-menu");
       if (sideMenu && !document.getElementById("admin-link")) {
-        const a = document.createElement("a");
-        a.id = "admin-link";
-        a.href = "admin.html";
-        a.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>Admin Panel</span>`;
+        const adminBtn = document.createElement("a");
+        adminBtn.id = "admin-link";
+        adminBtn.href = "admin.html";
+        adminBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>Manage Events</span>`;
+        
+        const scannerBtn = document.createElement("a");
+        scannerBtn.id = "scanner-link";
+        scannerBtn.href = "scanner.html";
+        scannerBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg> <span>Entry Scanner</span>`;
+
         const logoutBtnNode = document.getElementById("logout-btn");
-        if (logoutBtnNode) sideMenu.insertBefore(a, logoutBtnNode);
-        else sideMenu.appendChild(a);
+        if (logoutBtnNode) {
+            sideMenu.insertBefore(adminBtn, logoutBtnNode);
+            sideMenu.insertBefore(scannerBtn, logoutBtnNode);
+        }
       }
     }
 
@@ -635,9 +643,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // --- 9. ADMIN & ADMISSION QR SCANNER LOGIC ---
-  
-  // A. VALIDATOR LOGIC (Para lang sa admin.html - walang database update)
-  if (path.includes("admin.html")) { 
+  const currentPath = window.location.pathname.toLowerCase();
+
+  // A. VALIDATOR LOGIC (admin.html)
+  if (currentPath.includes("admin")) { 
     setTimeout(() => {
         const scannerElement = document.getElementById("reader");
         if (scannerElement) {
@@ -653,7 +662,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     scannerResult.innerText = "INVALID: Not a FEUR ticket.";
                     scannerResult.style.background = "#fee2e2"; 
                     scannerResult.style.color = "#991b1b";
-                    setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "#f4f6f8"; }, 2000);
+                    setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to check ticket."; scannerResult.style.background = "#f4f6f8"; }, 2000);
                     return;
                 }
 
@@ -665,12 +674,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     scannerResult.style.background = "#fee2e2"; 
                     scannerResult.style.color = "#991b1b";
                 } else {
-                    scannerResult.innerText = `LEGIT TICKET! Event: ${data.events.title} | Current Status: ${data.status}`;
+                    scannerResult.innerText = `LEGIT TICKET! Event: ${data.events.title} | Status: ${data.status}`;
                     scannerResult.style.background = "#dcfce7"; 
                     scannerResult.style.color = "#166534";
                 }
-
-                setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "#f4f6f8"; scannerResult.style.color = "#333"; }, 4000);
+                setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to check ticket."; scannerResult.style.background = "#f4f6f8"; scannerResult.style.color = "#333"; }, 4000);
             };
 
             const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
@@ -679,8 +687,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 1000);
   }
 
-  // B. LIVE ADMISSION LOGIC (Para sa scanner.html - ito yung mag-uupdate ng database)
-  if (path.includes("scanner.html")) { 
+  // B. LIVE ADMISSION LOGIC (scanner.html)
+  if (currentPath.includes("scanner")) { 
     setTimeout(() => {
         const entryElement = document.getElementById("entry-reader");
         if (entryElement) {
@@ -710,17 +718,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                         entryResult.innerText = `⚠️ ALREADY SCANNED for ${data.events.title}.`;
                         entryResult.style.background = "#fef3c7"; entryResult.style.color = "#92400e";
                     } else {
-                        // UPDATE DATABASE TO ATTENDED
                         await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
                         entryResult.innerText = `✅ ADMITTED! Welcome to ${data.events.title}.`;
                         entryResult.style.background = "#dcfce7"; entryResult.style.color = "#166534";
                     }
                 }
-
                 setTimeout(() => { isEntryScanning = false; entryResult.innerText = "Waiting for ticket..."; entryResult.style.background = "#f4f6f8"; entryResult.style.color = "#333"; }, 3000);
             };
 
-            const entryScanner = new Html5QrcodeScanner("entry-reader", { fps: 10, qrbox: { width: 300, height: 300 } }, false);
+            const entryScanner = new Html5QrcodeScanner("entry-reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
             entryScanner.render(entrySuccessCallback);
         }
     }, 1000);

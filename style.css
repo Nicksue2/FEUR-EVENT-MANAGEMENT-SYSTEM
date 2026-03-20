@@ -569,3 +569,24 @@ input:checked + .slider:before {
 .qr-close-btn:hover {
     background: #4b5563;
 }
+
+/* --- QR SCANNER RESPONSIVE UI --- */
+.qr-scanner-wrapper {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.qr-status-box {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f4f6f8;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.1rem;
+    border: 2px solid #e5e7eb;
+}
