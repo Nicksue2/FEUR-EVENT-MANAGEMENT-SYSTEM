@@ -794,55 +794,61 @@ if (currentPath.includes("scanner")) {
       entryScanner.render(entrySuccessCallback);
     }
   }, 1000);
-  // --- DYNAMIC NOTIFICATIONS LOGIC ---
-  window.loadNotifications = async function () {
+  // --- 10. DYNAMIC NOTIFICATIONS LOGIC (BULLETPROOF) ---
+  async function loadNotifications() {
     const notifContainer = document.getElementById("notif-list");
     if (!notifContainer) return;
 
-    let notifs = [];
+    console.log("Loading notifications..."); // Makikita mo sa F12 Console kung nag-trigger
+
     try {
-      const { data: latestEvent } = await supabase
+      let notifs = [];
+
+      // 1. Kunin ang latest event (Ligtas na fetch)
+      const { data: eventsData } = await supabase
         .from("events")
         .select("title")
-        .order("id", { ascending: false })
         .limit(1);
-      if (latestEvent && latestEvent.length > 0) {
+      if (eventsData && eventsData.length > 0) {
         notifs.push(
-          `<div class="notif-item">📢 <b>New Event:</b> ${latestEvent[0].title} is now open!</div>`,
+          `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem;">📢 <b>New Event:</b> ${eventsData[0].title} is now open!</div>`,
         );
       }
 
+      // 2. Kunin ang orders ng User kung naka-login
       if (currentUser) {
         const { data: myOrders } = await supabase
           .from("orders")
           .select("status, events(title)")
           .eq("user_id", currentUser.id)
-          .order("id", { ascending: false })
           .limit(2);
-        if (myOrders) {
+        if (myOrders && myOrders.length > 0) {
           myOrders.forEach((order) => {
             if (order.status === "Registered") {
               notifs.push(
-                `<div class="notif-item">✅ <b>Ticket Secured:</b> See you at ${order.events.title}.</div>`,
+                `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #006633;">✅ <b>Ticket Secured:</b> See you at ${order.events.title}.</div>`,
               );
             } else if (order.status === "Attended") {
               notifs.push(
-                `<div class="notif-item">🎓 <b>Attended:</b> Thanks for joining ${order.events.title}!</div>`,
+                `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: gray;">🎓 <b>Attended:</b> Thanks for joining ${order.events.title}!</div>`,
               );
             }
           });
         }
       }
 
+      // 3. I-display sa UI
       if (notifs.length === 0) {
-        notifContainer.innerHTML = `<div class="notif-item loading-text">No new notifications.</div>`;
+        notifContainer.innerHTML = `<div style="padding: 15px; color: gray; font-size: 0.9rem; text-align: center;">No new notifications.</div>`;
       } else {
         notifContainer.innerHTML = notifs.join("");
       }
     } catch (err) {
       console.error("Error loading notifications:", err);
+      notifContainer.innerHTML = `<div style="padding: 15px; color: red; font-size: 0.9rem; text-align: center;">Failed to load.</div>`;
     }
-  };
+  }
 
-  loadNotifications();
+  // I-run nang safe pagkatapos ng 500ms para iwas block
+  setTimeout(loadNotifications, 500);
 }
