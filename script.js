@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const closeAlertBtn = document.getElementById("close-alert");
   if (closeAlertBtn)
     closeAlertBtn.addEventListener("click", () =>
-      document.getElementById("custom-alert").classList.add("hidden")
+      document.getElementById("custom-alert").classList.add("hidden"),
     );
 
   const togglePassword = (checkboxId, ...inputIds) => {
@@ -78,30 +78,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   document
     .getElementById("close-settings")
     ?.addEventListener("click", () =>
-      document.getElementById("settings-modal").classList.add("hidden")
+      document.getElementById("settings-modal").classList.add("hidden"),
     );
   document
     .getElementById("burger-btn")
     ?.addEventListener("click", () =>
       document
         .getElementById("sidebar")
-        .classList.toggle(window.innerWidth <= 768 ? "open" : "minimized")
+        .classList.toggle(window.innerWidth <= 768 ? "open" : "minimized"),
     );
   document
     .getElementById("notif-btn")
     ?.addEventListener("click", () =>
-      document.getElementById("notif-modal").classList.toggle("hidden")
+      document.getElementById("notif-modal").classList.toggle("hidden"),
     );
   document
     .getElementById("close-auth-modal")
     ?.addEventListener("click", () =>
-      document.getElementById("auth-modal").classList.add("hidden")
+      document.getElementById("auth-modal").classList.add("hidden"),
     );
   document
     .getElementById("close-details-modal")
     ?.addEventListener("click", () =>
-      document.getElementById("event-details-modal").classList.add("hidden")
+      document.getElementById("event-details-modal").classList.add("hidden"),
     );
+
+  // --- SETTINGS TOGGLE LOGIC ---
+  const emailToggle = document.getElementById("email-notif-toggle");
+  if (emailToggle) {
+    emailToggle.checked = localStorage.getItem("emailSync") !== "false";
+    emailToggle.addEventListener("change", (e) => {
+      localStorage.setItem("emailSync", e.target.checked);
+    });
+  }
+
+  // Idagdag din natin ang closing function para sa settings modal kung wala pa
+  document.getElementById("close-settings")?.addEventListener("click", () => {
+    document.getElementById("settings-modal").classList.add("hidden");
+  });
+  document.querySelectorAll(".nav-settings-btn").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      document.getElementById("settings-modal").classList.remove("hidden"),
+    );
+  });
 
   // --- 3. SESSION & DATABASE ROLE CHECK ---
   const { data: sessionData } = await supabase.auth.getSession();
@@ -135,19 +154,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // SECURITY FIX: I-block ang mga normal users sa admin at scanner pages
-    if ((path.includes("admin") || path.includes("scanner")) && userRole !== "admin") {
+    if (
+      (path.includes("admin") || path.includes("scanner")) &&
+      userRole !== "admin"
+    ) {
       window.location.href = "index.html";
       return;
     }
 
-   if (userRole === "admin") {
+    if (userRole === "admin") {
       const sideMenu = document.querySelector(".side-menu");
       if (sideMenu && !document.getElementById("admin-link")) {
         const adminBtn = document.createElement("a");
         adminBtn.id = "admin-link";
         adminBtn.href = "admin.html";
         adminBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>Manage Events</span>`;
-        
+
         const scannerBtn = document.createElement("a");
         scannerBtn.id = "scanner-link";
         scannerBtn.href = "scanner.html";
@@ -155,8 +177,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const logoutBtnNode = document.getElementById("logout-btn");
         if (logoutBtnNode) {
-            sideMenu.insertBefore(adminBtn, logoutBtnNode);
-            sideMenu.insertBefore(scannerBtn, logoutBtnNode);
+          sideMenu.insertBefore(adminBtn, logoutBtnNode);
+          sideMenu.insertBefore(scannerBtn, logoutBtnNode);
         }
       }
     }
@@ -183,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- 4. SIGN IN & SIGN UP LOGIC ---
   if (path.includes("signup.html")) {
     togglePassword("show-password-signup", "password", "confirm-password");
-    
+
     const tcModal = document.getElementById("tc-modal");
     const openTcBtn = document.getElementById("open-tc");
     const tcBox = document.getElementById("tc-box");
@@ -207,10 +229,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (ackBtn && tcModal && tcCheckbox && registerBtn) {
       ackBtn.addEventListener("click", () => {
-        tcModal.classList.add("hidden"); 
+        tcModal.classList.add("hidden");
         tcCheckbox.disabled = false;
-        tcCheckbox.checked = true; 
-        registerBtn.disabled = false; 
+        tcCheckbox.checked = true;
+        registerBtn.disabled = false;
       });
     }
 
@@ -251,7 +273,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           showCustomAlert(
             "Success",
-            "Registration successful! Please confirm your email before logging in."
+            "Registration successful! Please confirm your email before logging in.",
           );
           setTimeout(() => {
             window.location.href = "signin.html";
@@ -311,7 +333,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("search-input")?.addEventListener("input", (e) => {
       const term = e.target.value.toLowerCase();
       renderEvents(
-        allEventsGlobal.filter((ev) => ev.title.toLowerCase().includes(term))
+        allEventsGlobal.filter((ev) => ev.title.toLowerCase().includes(term)),
       );
     });
 
@@ -322,12 +344,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderEvents(
           campus === "All"
             ? allEventsGlobal
-            : allEventsGlobal.filter((ev) => ev.campus === campus)
+            : allEventsGlobal.filter((ev) => ev.campus === campus),
         );
       });
   }
 
- async function renderEvents(eventsToRender) {
+  async function renderEvents(eventsToRender) {
     if (!eventsGrid) return;
     eventsGrid.innerHTML = "";
     if (eventsToRender.length === 0) {
@@ -354,10 +376,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       card.addEventListener("click", async () => {
         currentSelectedEvent = event;
-        document.getElementById("modal-event-img").src = event.poster_url || "https://via.placeholder.com/500x200?text=FEUR+Event";
+        document.getElementById("modal-event-img").src =
+          event.poster_url ||
+          "https://via.placeholder.com/500x200?text=FEUR+Event";
         document.getElementById("modal-event-title").innerText = event.title;
-        document.getElementById("modal-event-meta").innerHTML = `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus}`;
-        document.getElementById("modal-event-desc").innerText = event.description || "No description available for this event.";
+        document.getElementById("modal-event-meta").innerHTML =
+          `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus}`;
+        document.getElementById("modal-event-desc").innerText =
+          event.description || "No description available for this event.";
 
         const modalBtn = document.getElementById("modal-register-btn");
         const registered = await isUserRegistered(event.id);
@@ -379,13 +405,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           modalBtn.disabled = false;
         }
-        document.getElementById("event-details-modal").classList.remove("hidden");
+        document
+          .getElementById("event-details-modal")
+          .classList.remove("hidden");
       });
       eventsGrid.appendChild(card);
     }
-  } // <-- ITO YUNG MGA BRACKETS NA NAWALA KANINA
+  }
 
-  // --- REGISTRATION & EMAILJS CODE ---
+  // --- REGISTRATION & EMAILJS LOGIC ---
   document
     .getElementById("modal-register-btn")
     ?.addEventListener("click", async () => {
@@ -403,7 +431,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (alreadyIn) {
         showCustomAlert(
           "Notification",
-          "You are already registered for this event!"
+          "You are already registered for this event!",
         );
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
@@ -411,55 +439,56 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      const { data, error } = await supabase.from("orders").insert([
-        {
-          user_id: currentUser.id,
-          event_id: currentSelectedEvent.id,
-          status: "Registered",
-        },
-      ]).select(); 
+      const { data, error } = await supabase
+        .from("orders")
+        .insert([
+          {
+            user_id: currentUser.id,
+            event_id: currentSelectedEvent.id,
+            status: "Registered",
+          },
+        ])
+        .select();
 
       if (error || !data) {
         showCustomAlert("Error", "An error occurred during registration.");
         modalRegBtn.disabled = false;
       } else {
-        const orderData = data[0]; 
+        const orderData = data[0];
         const greetingEl = document.getElementById("user-greeting");
-        const userName = greetingEl ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "") : "Student";
-        
-        const ticketID = `FEUR-TICKET-${orderData.id}`; 
-        
-        console.log("Naghahanda mag-send ng email sa:", currentUser.email);
+        const userName = greetingEl
+          ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "")
+          : "Student";
+        const ticketID = `FEUR-TICKET-${orderData.id}`;
 
-        if (typeof emailjs !== "undefined") {
-            emailjs.send("service_nczv2qc", "template_uiwfmsd", {
+        // EMAIL SETTINGS CHECKER
+        if (localStorage.getItem("emailSync") !== "false") {
+          if (typeof emailjs !== "undefined") {
+            emailjs
+              .send("service_nczv2qc", "template_uiwfmsd", {
                 to_email: currentUser.email,
                 user_name: userName,
                 event_title: currentSelectedEvent.title,
                 event_date: currentSelectedEvent.event_date || "TBA",
                 campus: currentSelectedEvent.campus,
-                qr_data: ticketID
-            }).then(
-                function(response) {
-                    console.log("SUCCESS! Na-send ang email.", response.status, response.text);
-                }, 
-                function(error) {
-                    console.error("FAILED! Hindi na-send ang email.", error);
-                    alert("May error sa EmailJS. Check F12 Console.");
-                }
-            );
+                qr_data: ticketID,
+              })
+              .then(() => console.log("Receipt sent!"))
+              .catch((err) => console.error("EmailJS error:", err));
+          }
         } else {
-            console.error("ERROR: Hindi nabasa ang EmailJS script!");
-            alert("Hindi naka-connect ang EmailJS sa index.html mo.");
+          console.log("Email notifications disabled by user.");
         }
 
         showCustomAlert(
           "Success",
-          "Successfully Registered! A receipt with your QR Code has been sent to your email."
+          "Successfully Registered! You can view your QR ticket in the Order List.",
         );
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
         modalRegBtn.style.color = "white";
+
+        if (typeof loadNotifications === "function") loadNotifications();
       }
     });
 
@@ -482,7 +511,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="window.deleteEvent('${ev.id}')">Delete</button>
                         </td>
                     </tr>
-                `
+                `,
           )
           .join("");
         if (document.getElementById("stat-events"))
@@ -562,7 +591,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     fetchAdminEvents();
   }
 
- // --- 7. ORDER LIST LOGIC ---
+  // --- 7. ORDER LIST LOGIC ---
   const ordersGrid = document.getElementById("orders-grid");
   if (ordersGrid && path.includes("orderlist")) {
     const { data: orders, error } = await supabase
@@ -578,7 +607,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const event = order.events;
         const card = document.createElement("div");
         card.className = "event-card";
-        
+
         // Tinanggal yung inline styles sa HTML at pinalitan ng class
         card.innerHTML = `
                     <img src="${event.poster_url || "https://via.placeholder.com/300x160?text=FEUR+Ticket"}" class="event-img">
@@ -600,35 +629,37 @@ document.addEventListener("DOMContentLoaded", async () => {
         btn.addEventListener("click", () => {
           const orderId = btn.getAttribute("data-order-id");
           const eventTitle = btn.getAttribute("data-event-title");
-          
+
           document.getElementById("qr-event-title").innerText = eventTitle;
-          
+
           const qrContainer = document.getElementById("qr-code-image");
           qrContainer.innerHTML = ""; // Clear lumang QR
-          
-          const ticketID = `FEUR-TICKET-${orderId}`; 
-          
-          if (typeof QRCode !== 'undefined') {
-              new QRCode(qrContainer, {
-                  text: ticketID,
-                  width: 250,
-                  height: 250,
-                  colorDark : "#000000",
-                  colorLight : "#ffffff",
-                  correctLevel : QRCode.CorrectLevel.H
-              });
+
+          const ticketID = `FEUR-TICKET-${orderId}`;
+
+          if (typeof QRCode !== "undefined") {
+            new QRCode(qrContainer, {
+              text: ticketID,
+              width: 250,
+              height: 250,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H,
+            });
           } else {
-              console.error("ERROR: QRCode library hindi nag-load!");
+            console.error("ERROR: QRCode library hindi nag-load!");
           }
-          
+
           document.getElementById("qr-modal").classList.remove("hidden");
         });
       });
 
       // Logic para isara yung QR modal
-      document.getElementById("close-qr-modal")?.addEventListener("click", () => {
-        document.getElementById("qr-modal").classList.add("hidden");
-      });
+      document
+        .getElementById("close-qr-modal")
+        ?.addEventListener("click", () => {
+          document.getElementById("qr-modal").classList.add("hidden");
+        });
     }
   }
 
@@ -643,91 +674,168 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // --- 9. ADMIN & ADMISSION QR SCANNER LOGIC ---
-  const currentPath = window.location.pathname.toLowerCase();
+const currentPath = window.location.pathname.toLowerCase();
 
-  // A. VALIDATOR LOGIC (admin.html)
-  if (currentPath.includes("admin")) { 
-    setTimeout(() => {
-        const scannerElement = document.getElementById("reader");
-        if (scannerElement) {
-            const scannerResult = document.getElementById("scanner-result");
-            let isScanning = false;
+// A. VALIDATOR LOGIC (admin.html)
+if (currentPath.includes("admin")) {
+  setTimeout(() => {
+    const scannerElement = document.getElementById("reader");
+    if (scannerElement) {
+      const scannerResult = document.getElementById("scanner-result");
+      let isScanning = false;
 
-            const qrCodeSuccessCallback = async (decodedText) => {
-                if (isScanning) return; 
-                isScanning = true;
-                scannerResult.innerText = "Checking record...";
-                
-                if (!decodedText.startsWith("FEUR-TICKET-")) {
-                    scannerResult.innerText = "INVALID: Not a FEUR ticket.";
-                    scannerResult.style.background = "#fee2e2"; 
-                    scannerResult.style.color = "#991b1b";
-                    setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to check ticket."; scannerResult.style.background = "#f4f6f8"; }, 2000);
-                    return;
-                }
+      const qrCodeSuccessCallback = async (decodedText) => {
+        if (isScanning) return;
+        isScanning = true;
+        scannerResult.innerText = "Checking record...";
 
-                const orderID = decodedText.replace("FEUR-TICKET-", "");
-                const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
-
-                if (error || !data) {
-                    scannerResult.innerText = "INVALID: Ticket not found in DB.";
-                    scannerResult.style.background = "#fee2e2"; 
-                    scannerResult.style.color = "#991b1b";
-                } else {
-                    scannerResult.innerText = `LEGIT TICKET! Event: ${data.events.title} | Status: ${data.status}`;
-                    scannerResult.style.background = "#dcfce7"; 
-                    scannerResult.style.color = "#166534";
-                }
-                setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to check ticket."; scannerResult.style.background = "#f4f6f8"; scannerResult.style.color = "#333"; }, 4000);
-            };
-
-            const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
-            html5QrcodeScanner.render(qrCodeSuccessCallback);
+        if (!decodedText.startsWith("FEUR-TICKET-")) {
+          scannerResult.innerText = "INVALID: Not a FEUR ticket.";
+          scannerResult.style.background = "#fee2e2";
+          scannerResult.style.color = "#991b1b";
+          setTimeout(() => {
+            isScanning = false;
+            scannerResult.innerText = "Ready to check ticket.";
+            scannerResult.style.background = "#f4f6f8";
+          }, 2000);
+          return;
         }
-    }, 1000);
-  }
 
-  // B. LIVE ADMISSION LOGIC (scanner.html)
-  if (currentPath.includes("scanner")) { 
-    setTimeout(() => {
-        const entryElement = document.getElementById("entry-reader");
-        if (entryElement) {
-            const entryResult = document.getElementById("entry-result");
-            let isEntryScanning = false;
+        const orderID = decodedText.replace("FEUR-TICKET-", "");
+        const { data, error } = await supabase
+          .from("orders")
+          .select(`status, events ( title )`)
+          .eq("id", orderID)
+          .single();
 
-            const entrySuccessCallback = async (decodedText) => {
-                if (isEntryScanning) return; 
-                isEntryScanning = true;
-                entryResult.innerText = "Validating Admission...";
-                
-                if (!decodedText.startsWith("FEUR-TICKET-")) {
-                    entryResult.innerText = "❌ DENIED: Invalid QR Format.";
-                    entryResult.style.background = "#fee2e2"; entryResult.style.color = "#991b1b";
-                    setTimeout(() => { isEntryScanning = false; entryResult.innerText = "Waiting for ticket..."; entryResult.style.background = "#f4f6f8"; }, 2000);
-                    return;
-                }
-
-                const orderID = decodedText.replace("FEUR-TICKET-", "");
-                const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
-
-                if (error || !data) {
-                    entryResult.innerText = "❌ DENIED: Ticket Not Found.";
-                    entryResult.style.background = "#fee2e2"; entryResult.style.color = "#991b1b";
-                } else {
-                    if (data.status === "Attended") {
-                        entryResult.innerText = `⚠️ ALREADY SCANNED for ${data.events.title}.`;
-                        entryResult.style.background = "#fef3c7"; entryResult.style.color = "#92400e";
-                    } else {
-                        await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
-                        entryResult.innerText = `✅ ADMITTED! Welcome to ${data.events.title}.`;
-                        entryResult.style.background = "#dcfce7"; entryResult.style.color = "#166534";
-                    }
-                }
-                setTimeout(() => { isEntryScanning = false; entryResult.innerText = "Waiting for ticket..."; entryResult.style.background = "#f4f6f8"; entryResult.style.color = "#333"; }, 3000);
-            };
-
-            const entryScanner = new Html5QrcodeScanner("entry-reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
-            entryScanner.render(entrySuccessCallback);
+        if (error || !data) {
+          scannerResult.innerText = "INVALID: Ticket not found in DB.";
+          scannerResult.style.background = "#fee2e2";
+          scannerResult.style.color = "#991b1b";
+        } else {
+          scannerResult.innerText = `LEGIT TICKET! Event: ${data.events.title} | Status: ${data.status}`;
+          scannerResult.style.background = "#dcfce7";
+          scannerResult.style.color = "#166534";
         }
-    }, 1000);
+        setTimeout(() => {
+          isScanning = false;
+          scannerResult.innerText = "Ready to check ticket.";
+          scannerResult.style.background = "#f4f6f8";
+          scannerResult.style.color = "#333";
+        }, 4000);
+      };
+
+      const html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader",
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false,
+      );
+      html5QrcodeScanner.render(qrCodeSuccessCallback);
+    }
+  }, 1000);
+}
+
+// B. LIVE ADMISSION LOGIC (scanner.html)
+if (currentPath.includes("scanner")) {
+  setTimeout(() => {
+    const entryElement = document.getElementById("entry-reader");
+    if (entryElement) {
+      const entryResult = document.getElementById("entry-result");
+      let isEntryScanning = false;
+
+      const entrySuccessCallback = async (decodedText) => {
+        if (isEntryScanning) return;
+        isEntryScanning = true;
+        entryResult.innerText = "Validating Admission...";
+
+        if (!decodedText.startsWith("FEUR-TICKET-")) {
+          entryResult.innerText = "❌ DENIED: Invalid QR Format.";
+          entryResult.style.background = "#fee2e2";
+          entryResult.style.color = "#991b1b";
+          setTimeout(() => {
+            isEntryScanning = false;
+            entryResult.innerText = "Waiting for ticket...";
+            entryResult.style.background = "#f4f6f8";
+          }, 2000);
+          return;
+        }
+
+        const orderID = decodedText.replace("FEUR-TICKET-", "");
+        const { data, error } = await supabase
+          .from("orders")
+          .select(`status, events ( title )`)
+          .eq("id", orderID)
+          .single();
+
+        if (error || !data) {
+          entryResult.innerText = "❌ DENIED: Ticket Not Found.";
+          entryResult.style.background = "#fee2e2";
+          entryResult.style.color = "#991b1b";
+        } else {
+          if (data.status === "Attended") {
+            entryResult.innerText = `⚠️ ALREADY SCANNED for ${data.events.title}.`;
+            entryResult.style.background = "#fef3c7";
+            entryResult.style.color = "#92400e";
+          } else {
+            await supabase
+              .from("orders")
+              .update({ status: "Attended" })
+              .eq("id", orderID);
+            entryResult.innerText = `✅ ADMITTED! Welcome to ${data.events.title}.`;
+            entryResult.style.background = "#dcfce7";
+            entryResult.style.color = "#166534";
+          }
+        }
+        setTimeout(() => {
+          isEntryScanning = false;
+          entryResult.innerText = "Waiting for ticket...";
+          entryResult.style.background = "#f4f6f8";
+          entryResult.style.color = "#333";
+        }, 3000);
+      };
+
+      const entryScanner = new Html5QrcodeScanner(
+        "entry-reader",
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false,
+      );
+      entryScanner.render(entrySuccessCallback);
+    }
+  }, 1000);
+  // --- DYNAMIC NOTIFICATIONS LOGIC ---
+  window.loadNotifications = async function() {
+      const notifContainer = document.getElementById("notif-list");
+      if (!notifContainer) return;
+
+      let notifs = [];
+      try {
+          const { data: latestEvent } = await supabase.from("events").select("title").order("id", { ascending: false }).limit(1);
+          if (latestEvent && latestEvent.length > 0) {
+              notifs.push(`<div class="notif-item">📢 <b>New Event:</b> ${latestEvent[0].title} is now open!</div>`);
+          }
+
+          if (currentUser) {
+              const { data: myOrders } = await supabase.from("orders").select("status, events(title)").eq("user_id", currentUser.id).order("id", { ascending: false }).limit(2);
+              if (myOrders) {
+                  myOrders.forEach(order => {
+                      if (order.status === "Registered") {
+                          notifs.push(`<div class="notif-item">✅ <b>Ticket Secured:</b> See you at ${order.events.title}.</div>`);
+                      } else if (order.status === "Attended") {
+                          notifs.push(`<div class="notif-item">🎓 <b>Attended:</b> Thanks for joining ${order.events.title}!</div>`);
+                      }
+                  });
+              }
+          }
+
+          if (notifs.length === 0) {
+              notifContainer.innerHTML = `<div class="notif-item loading-text">No new notifications.</div>`;
+          } else {
+              notifContainer.innerHTML = notifs.join("");
+          }
+      } catch (err) {
+          console.error("Error loading notifications:", err);
+      }
   }
+  
+  loadNotifications();
+}
