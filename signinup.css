@@ -1,10 +1,12 @@
 body.auth-page {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* FIX: Pinalitan mula center para hindi kainin yung taas */
     min-height: 100vh;
     background-color: var(--bg-color, #f4f6f8);
     margin: 0;
+    padding: 50px 20px; /* FIX: Nilakihan yung space sa taas at baba para sa scrolling */
+    box-sizing: border-box;
     font-family: "Segoe UI", sans-serif;
 }
 
@@ -15,7 +17,12 @@ body.auth-page {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     width: 100%;
     max-width: 400px;
-    text-align: center; /* Centers the logo and text */
+    text-align: center;
+    margin: auto; /* MAGIC FIX: Para nasa gitna palagi kung malaki ang screen, pero scrollable kung maliit */
+}
+
+.logo-wrapper {
+    margin-bottom: 20px;
 }
 
 .auth-container img {
@@ -25,6 +32,7 @@ body.auth-page {
     border: 2px solid #facc15;
     margin-bottom: 15px;
     object-fit: contain;
+    background: #ffffff;
 }
 
 .auth-container h2 {
@@ -80,15 +88,41 @@ body.auth-page {
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
-    transition: background 0.2s;
+    transition: background 0.2s, opacity 0.2s;
 }
 
-.btn-auth:hover { background: #004d26; }
-.btn-auth:disabled { background: #cccccc; cursor: not-allowed; }
+.btn-auth:hover { 
+    background: #004d26; 
+}
+
+.btn-auth:disabled { 
+    background: #cccccc; 
+    cursor: not-allowed; 
+    opacity: 0.6;
+}
+
+.btn-tc {
+    background: #e0e0e0;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.btn-tc:hover {
+    background: #d4d4d4;
+}
 
 .switch-link { margin-top: 20px; font-size: 14px; }
 .switch-link a { color: #006633; text-decoration: none; font-weight: bold; }
 .switch-link a:hover { text-decoration: underline; }
+
+.tc-modal-box {
+    text-align: left;
+}
+
+.tc-modal-title {
+    color: var(--primary, #006633);
+    margin-bottom: 10px;
+}
 
 .tc-box {
     height: 150px;
@@ -100,5 +134,14 @@ body.auth-page {
     background: #f9f9f9;
     text-align: left;
     border-radius: 6px;
+    color: #333;
+}
+
+.alert-box-auth {
+    text-align: center;
+}
+
+.alert-message-auth {
+    margin: 15px 0;
     color: #333;
 }

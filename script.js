@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const closeAlertBtn = document.getElementById("close-alert");
   if (closeAlertBtn)
     closeAlertBtn.addEventListener("click", () =>
-      document.getElementById("custom-alert").classList.add("hidden"),
+      document.getElementById("custom-alert").classList.add("hidden")
     );
 
   const togglePassword = (checkboxId, ...inputIds) => {
@@ -78,29 +78,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   document
     .getElementById("close-settings")
     ?.addEventListener("click", () =>
-      document.getElementById("settings-modal").classList.add("hidden"),
+      document.getElementById("settings-modal").classList.add("hidden")
     );
   document
     .getElementById("burger-btn")
     ?.addEventListener("click", () =>
       document
         .getElementById("sidebar")
-        .classList.toggle(window.innerWidth <= 768 ? "open" : "minimized"),
+        .classList.toggle(window.innerWidth <= 768 ? "open" : "minimized")
     );
   document
     .getElementById("notif-btn")
     ?.addEventListener("click", () =>
-      document.getElementById("notif-modal").classList.toggle("hidden"),
+      document.getElementById("notif-modal").classList.toggle("hidden")
     );
   document
     .getElementById("close-auth-modal")
     ?.addEventListener("click", () =>
-      document.getElementById("auth-modal").classList.add("hidden"),
+      document.getElementById("auth-modal").classList.add("hidden")
     );
   document
     .getElementById("close-details-modal")
     ?.addEventListener("click", () =>
-      document.getElementById("event-details-modal").classList.add("hidden"),
+      document.getElementById("event-details-modal").classList.add("hidden")
     );
 
   // --- 3. SESSION & DATABASE ROLE CHECK ---
@@ -174,6 +174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- 4. SIGN IN & SIGN UP LOGIC ---
   if (path.includes("signup.html")) {
     togglePassword("show-password-signup", "password", "confirm-password");
+    
     const tcModal = document.getElementById("tc-modal");
     const openTcBtn = document.getElementById("open-tc");
     const tcBox = document.getElementById("tc-box");
@@ -181,22 +182,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tcCheckbox = document.getElementById("tc-checkbox");
     const registerBtn = document.getElementById("register-btn");
 
-    if (openTcBtn)
+    if (openTcBtn && tcModal) {
       openTcBtn.addEventListener("click", () => {
-        tcModal.style.display = "flex";
+        tcModal.classList.remove("hidden");
       });
-    if (tcBox)
+    }
+
+    if (tcBox && ackBtn) {
       tcBox.addEventListener("scroll", () => {
-        if (tcBox.scrollHeight - tcBox.scrollTop <= tcBox.clientHeight + 2)
+        if (tcBox.scrollTop + tcBox.clientHeight >= tcBox.scrollHeight - 20) {
           ackBtn.disabled = false;
+        }
       });
-    if (ackBtn)
+    }
+
+    if (ackBtn && tcModal && tcCheckbox && registerBtn) {
       ackBtn.addEventListener("click", () => {
-        tcModal.style.display = "none";
+        tcModal.classList.add("hidden"); 
         tcCheckbox.disabled = false;
-        tcCheckbox.checked = true;
-        registerBtn.disabled = false;
+        tcCheckbox.checked = true; 
+        registerBtn.disabled = false; 
       });
+    }
 
     document
       .getElementById("signup-form")
@@ -235,7 +242,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           showCustomAlert(
             "Success",
-            "Registration successful! You can now log in.",
+            "Registration successful! Please confirm your email before logging in."
           );
           setTimeout(() => {
             window.location.href = "signin.html";
@@ -295,7 +302,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("search-input")?.addEventListener("input", (e) => {
       const term = e.target.value.toLowerCase();
       renderEvents(
-        allEventsGlobal.filter((ev) => ev.title.toLowerCase().includes(term)),
+        allEventsGlobal.filter((ev) => ev.title.toLowerCase().includes(term))
       );
     });
 
@@ -306,12 +313,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderEvents(
           campus === "All"
             ? allEventsGlobal
-            : allEventsGlobal.filter((ev) => ev.campus === campus),
+            : allEventsGlobal.filter((ev) => ev.campus === campus)
         );
       });
   }
 
-  async function renderEvents(eventsToRender) {
+ async function renderEvents(eventsToRender) {
     if (!eventsGrid) return;
     eventsGrid.innerHTML = "";
     if (eventsToRender.length === 0) {
@@ -338,14 +345,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       card.addEventListener("click", async () => {
         currentSelectedEvent = event;
-        document.getElementById("modal-event-img").src =
-          event.poster_url ||
-          "https://via.placeholder.com/500x200?text=FEUR+Event";
+        document.getElementById("modal-event-img").src = event.poster_url || "https://via.placeholder.com/500x200?text=FEUR+Event";
         document.getElementById("modal-event-title").innerText = event.title;
-        document.getElementById("modal-event-meta").innerHTML =
-          `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus}`;
-        document.getElementById("modal-event-desc").innerText =
-          event.description || "No description available for this event.";
+        document.getElementById("modal-event-meta").innerHTML = `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus}`;
+        document.getElementById("modal-event-desc").innerText = event.description || "No description available for this event.";
 
         const modalBtn = document.getElementById("modal-register-btn");
         const registered = await isUserRegistered(event.id);
@@ -367,14 +370,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           modalBtn.disabled = false;
         }
-        document
-          .getElementById("event-details-modal")
-          .classList.remove("hidden");
+        document.getElementById("event-details-modal").classList.remove("hidden");
       });
       eventsGrid.appendChild(card);
     }
-  }
+  } // <-- ITO YUNG MGA BRACKETS NA NAWALA KANINA
 
+  // --- REGISTRATION & EMAILJS CODE ---
   document
     .getElementById("modal-register-btn")
     ?.addEventListener("click", async () => {
@@ -392,7 +394,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (alreadyIn) {
         showCustomAlert(
           "Notification",
-          "You are already registered for this event!",
+          "You are already registered for this event!"
         );
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
@@ -400,21 +402,51 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      const { error } = await supabase.from("orders").insert([
+      const { data, error } = await supabase.from("orders").insert([
         {
           user_id: currentUser.id,
           event_id: currentSelectedEvent.id,
           status: "Registered",
         },
-      ]);
+      ]).select(); 
 
-      if (error) {
+      if (error || !data) {
         showCustomAlert("Error", "An error occurred during registration.");
         modalRegBtn.disabled = false;
       } else {
+        const orderData = data[0]; 
+        const greetingEl = document.getElementById("user-greeting");
+        const userName = greetingEl ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "") : "Student";
+        
+        const ticketID = `FEUR-TICKET-${orderData.id}`; 
+        
+        console.log("Naghahanda mag-send ng email sa:", currentUser.email);
+
+        if (typeof emailjs !== "undefined") {
+            emailjs.send("service_nczv2qc", "template_uiwfmsd", {
+                to_email: currentUser.email,
+                user_name: userName,
+                event_title: currentSelectedEvent.title,
+                event_date: currentSelectedEvent.event_date || "TBA",
+                campus: currentSelectedEvent.campus,
+                qr_data: ticketID
+            }).then(
+                function(response) {
+                    console.log("SUCCESS! Na-send ang email.", response.status, response.text);
+                }, 
+                function(error) {
+                    console.error("FAILED! Hindi na-send ang email.", error);
+                    alert("May error sa EmailJS. Check F12 Console.");
+                }
+            );
+        } else {
+            console.error("ERROR: Hindi nabasa ang EmailJS script!");
+            alert("Hindi naka-connect ang EmailJS sa index.html mo.");
+        }
+
         showCustomAlert(
           "Success",
-          "Successfully Registered! Check your Order List.",
+          "Successfully Registered! A receipt with your QR Code has been sent to your email."
         );
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
@@ -441,7 +473,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="window.deleteEvent('${ev.id}')">Delete</button>
                         </td>
                     </tr>
-                `,
+                `
           )
           .join("");
         if (document.getElementById("stat-events"))
@@ -600,3 +632,85 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 });
+
+// --- 9. ADMIN QR SCANNER LOGIC ---
+  if (window.location.pathname.includes("admin")) { // FIX 1: Tinanggal ang .html para basahin sa Vercel
+    console.log("Admin page detected! Loading Scanner UI...");
+    
+    // FIX 2: Hintay ng 1 second para sure na nag-load na yung buong HTML
+    setTimeout(() => {
+        const scannerElement = document.getElementById("reader");
+        
+        if (scannerElement) {
+            try {
+                const scannerResult = document.getElementById("scanner-result");
+                let isScanning = false;
+
+                const qrCodeSuccessCallback = async (decodedText) => {
+                    if (isScanning) return; 
+                    isScanning = true;
+                    
+                    scannerResult.innerText = "Validating ticket...";
+                    scannerResult.style.background = "#e0f2fe"; 
+                    scannerResult.style.color = "#075985";
+
+                    console.log("Scanned QR:", decodedText);
+
+                    // 1. Check if FEUR ticket
+                    if (!decodedText.startsWith("FEUR-TICKET-")) {
+                        scannerResult.innerText = "INVALID: Not a FEUR ticket.";
+                        scannerResult.style.background = "#fee2e2"; 
+                        scannerResult.style.color = "#991b1b";
+                        setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "#f4f6f8"; scannerResult.style.color = "#333"; }, 2000);
+                        return;
+                    }
+
+                    // 2. Database check
+                    const orderID = decodedText.replace("FEUR-TICKET-", "");
+                    const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
+
+                    if (error || !data) {
+                        scannerResult.innerText = "INVALID: Ticket not found in database.";
+                        scannerResult.style.background = "#fee2e2"; 
+                        scannerResult.style.color = "#991b1b";
+                    } else {
+                        // 3. Status check
+                        if (data.status === "Attended") {
+                            scannerResult.innerText = `DENIED: Already Scanned for ${data.events.title}.`;
+                            scannerResult.style.background = "#fef3c7"; 
+                            scannerResult.style.color = "#92400e";
+                        } else {
+                            // 4. Update status
+                            await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
+                            scannerResult.innerText = `SUCCESS! Checked-in for ${data.events.title}.`;
+                            scannerResult.style.background = "#dcfce7"; 
+                            scannerResult.style.color = "#166534";
+                        }
+                    }
+
+                    setTimeout(() => {
+                        isScanning = false;
+                        scannerResult.innerText = "Ready to scan.";
+                        scannerResult.style.background = "#f4f6f8";
+                        scannerResult.style.color = "#333";
+                    }, 3000);
+                };
+
+                // I-render ang button
+                const html5QrcodeScanner = new Html5QrcodeScanner(
+                    "reader",
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    false
+                );
+                html5QrcodeScanner.render(qrCodeSuccessCallback);
+                console.log("Scanner button successfully injected!");
+
+            } catch (err) {
+                console.error("Error loading scanner:", err);
+                document.getElementById("scanner-result").innerText = "Error loading camera. Check F12 Console.";
+            }
+        } else {
+            console.error("Hindi mahanap ang <div id='reader'> sa HTML!");
+        }
+    }, 1000);
+  }
