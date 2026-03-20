@@ -193,86 +193,90 @@ document.addEventListener("DOMContentLoaded", async () => {
       .querySelectorAll(".guest-only")
       .forEach((el) => el.classList.remove("hidden"));
   }
+  loadNotifications();
+  if (path.includes("signup.html"))
+    if (path.includes("signup.html")) {
+      // --- 4. SIGN IN & SIGN UP LOGIC ---
+      togglePassword("show-password-signup", "password", "confirm-password");
 
-  // --- 4. SIGN IN & SIGN UP LOGIC ---
-  if (path.includes("signup.html")) {
-    togglePassword("show-password-signup", "password", "confirm-password");
+      const tcModal = document.getElementById("tc-modal");
+      const openTcBtn = document.getElementById("open-tc");
+      const tcBox = document.getElementById("tc-box");
+      const ackBtn = document.getElementById("acknowledge-btn");
+      const tcCheckbox = document.getElementById("tc-checkbox");
+      const registerBtn = document.getElementById("register-btn");
 
-    const tcModal = document.getElementById("tc-modal");
-    const openTcBtn = document.getElementById("open-tc");
-    const tcBox = document.getElementById("tc-box");
-    const ackBtn = document.getElementById("acknowledge-btn");
-    const tcCheckbox = document.getElementById("tc-checkbox");
-    const registerBtn = document.getElementById("register-btn");
+      if (openTcBtn && tcModal) {
+        openTcBtn.addEventListener("click", () => {
+          tcModal.classList.remove("hidden");
+        });
+      }
 
-    if (openTcBtn && tcModal) {
-      openTcBtn.addEventListener("click", () => {
-        tcModal.classList.remove("hidden");
-      });
-    }
-
-    if (tcBox && ackBtn) {
-      tcBox.addEventListener("scroll", () => {
-        if (tcBox.scrollTop + tcBox.clientHeight >= tcBox.scrollHeight - 20) {
-          ackBtn.disabled = false;
-        }
-      });
-    }
-
-    if (ackBtn && tcModal && tcCheckbox && registerBtn) {
-      ackBtn.addEventListener("click", () => {
-        tcModal.classList.add("hidden");
-        tcCheckbox.disabled = false;
-        tcCheckbox.checked = true;
-        registerBtn.disabled = false;
-      });
-    }
-
-    document
-      .getElementById("signup-form")
-      ?.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        registerBtn.innerText = "Processing...";
-        registerBtn.disabled = true;
-
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        if (password !== document.getElementById("confirm-password").value) {
-          showCustomAlert("Error", "Passwords do not match.");
-          registerBtn.innerText = "Sign Up";
-          registerBtn.disabled = false;
-          return;
-        }
-
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) {
-          showCustomAlert("Error", error.message);
-          registerBtn.innerText = "Sign Up";
-          registerBtn.disabled = false;
-        } else {
-          if (data.user) {
-            await supabase.from("profiles").insert([
-              {
-                id: data.user.id,
-                first_name: document.getElementById("fname").value,
-                last_name: document.getElementById("lname").value,
-                phone_number: document.getElementById("phone").value,
-                school_email: email,
-                role: "user",
-              },
-            ]);
+      if (tcBox && ackBtn) {
+        tcBox.addEventListener("scroll", () => {
+          if (tcBox.scrollTop + tcBox.clientHeight >= tcBox.scrollHeight - 20) {
+            ackBtn.disabled = false;
           }
-          showCustomAlert(
-            "Success",
-            "Registration successful! Please confirm your email before logging in.",
-          );
-          setTimeout(() => {
-            window.location.href = "signin.html";
-          }, 1500);
-        }
-      });
-  }
+        });
+      }
+
+      if (ackBtn && tcModal && tcCheckbox && registerBtn) {
+        ackBtn.addEventListener("click", () => {
+          tcModal.classList.add("hidden");
+          tcCheckbox.disabled = false;
+          tcCheckbox.checked = true;
+          registerBtn.disabled = false;
+        });
+      }
+
+      document
+        .getElementById("signup-form")
+        ?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          registerBtn.innerText = "Processing...";
+          registerBtn.disabled = true;
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          if (password !== document.getElementById("confirm-password").value) {
+            showCustomAlert("Error", "Passwords do not match.");
+            registerBtn.innerText = "Sign Up";
+            registerBtn.disabled = false;
+            return;
+          }
+
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+          });
+          if (error) {
+            showCustomAlert("Error", error.message);
+            registerBtn.innerText = "Sign Up";
+            registerBtn.disabled = false;
+          } else {
+            if (data.user) {
+              await supabase.from("profiles").insert([
+                {
+                  id: data.user.id,
+                  first_name: document.getElementById("fname").value,
+                  last_name: document.getElementById("lname").value,
+                  phone_number: document.getElementById("phone").value,
+                  school_email: email,
+                  role: "user",
+                },
+              ]);
+            }
+            showCustomAlert(
+              "Success",
+              "Registration successful! Please confirm your email before logging in.",
+            );
+            setTimeout(() => {
+              window.location.href = "signin.html";
+            }, 1500);
+          }
+        });
+    }
 
   if (path.includes("signin.html")) {
     togglePassword("show-password-signin", "password");
@@ -794,7 +798,7 @@ if (currentPath.includes("scanner")) {
       entryScanner.render(entrySuccessCallback);
     }
   }, 1000);
-  // --- 10. DYNAMIC NOTIFICATIONS LOGIC ---
+  // --- 10. DYNAMIC NOTIFICATIONS LOGIC (BULLETPROOF) ---
   async function loadNotifications() {
     const notifContainer = document.getElementById("notif-list");
     if (!notifContainer) return;
@@ -802,63 +806,48 @@ if (currentPath.includes("scanner")) {
     try {
       let notifs = [];
 
-      // A. Kunin ang latest event
-      try {
-        const { data: eventsData, error: eventError } = await supabase
-          .from("events")
-          .select("title")
-          .order("id", { ascending: false }) // Palitan ng 'created_at' kung mayroon kang column na 'created_at'
-          .limit(1);
-
-        if (eventsData && eventsData.length > 0) {
-          notifs.push(
-            `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem;">📢 <b>New Event:</b> ${eventsData[0].title} is now open!</div>`,
-          );
-        }
-      } catch (err) {
-        console.error("Error fetching latest event for notif:", err);
+      // 1. Kunin ang latest event (Ligtas na fetch nang walang sorting error)
+      const { data: eventsData } = await supabase
+        .from("events")
+        .select("title")
+        .limit(1);
+      if (eventsData && eventsData.length > 0) {
+        notifs.push(
+          `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem;">📢 <b>New Event:</b> ${eventsData[0].title} is now open!</div>`,
+        );
       }
 
-      // B. Kunin ang latest order status ng User
+      // 2. Kunin ang orders ng User kung naka-login
       if (currentUser) {
-        try {
-          const { data: myOrders, error: orderError } = await supabase
-            .from("orders")
-            .select("status, events(title)")
-            .eq("user_id", currentUser.id)
-            .order("id", { ascending: false }) // Palitan ng 'created_at' kung mayroon kang column na 'created_at'
-            .limit(2);
-
-          if (myOrders && myOrders.length > 0) {
-            myOrders.forEach((order) => {
-              // Kailangan natin i-check kung may 'events' object dahil minsan null ito kung na-delete yung event
-              const eventTitle = order.events ? order.events.title : "an Event";
-
-              if (order.status === "Registered") {
-                notifs.push(
-                  `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #006633;">✅ <b>Ticket Secured:</b> See you at ${eventTitle}.</div>`,
-                );
-              } else if (order.status === "Attended") {
-                notifs.push(
-                  `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: gray;">🎓 <b>Attended:</b> Thanks for joining ${eventTitle}!</div>`,
-                );
-              }
-            });
-          }
-        } catch (err) {
-          console.error("Error fetching user orders for notif:", err);
+        const { data: myOrders } = await supabase
+          .from("orders")
+          .select("status, events(title)")
+          .eq("user_id", currentUser.id)
+          .limit(2);
+        if (myOrders && myOrders.length > 0) {
+          myOrders.forEach((order) => {
+            if (order.status === "Registered") {
+              notifs.push(
+                `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #006633;">✅ <b>Ticket Secured:</b> See you at ${order.events.title}.</div>`,
+              );
+            } else if (order.status === "Attended") {
+              notifs.push(
+                `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: gray;">🎓 <b>Attended:</b> Thanks for joining ${order.events.title}!</div>`,
+              );
+            }
+          });
         }
       }
 
-      // C. Render
+      // 3. I-display sa UI
       if (notifs.length === 0) {
         notifContainer.innerHTML = `<div style="padding: 15px; color: gray; font-size: 0.9rem; text-align: center;">No new notifications.</div>`;
       } else {
         notifContainer.innerHTML = notifs.join("");
       }
     } catch (err) {
-      console.error("Fatal Error loading notifications:", err);
-      notifContainer.innerHTML = `<div style="padding: 15px; color: red; font-size: 0.9rem; text-align: center;">Failed to load. Check console.</div>`;
+      console.error("Error loading notifications:", err);
+      notifContainer.innerHTML = `<div style="padding: 15px; color: red; font-size: 0.9rem; text-align: center;">Failed to load.</div>`;
     }
   }
 }
