@@ -794,61 +794,71 @@ if (currentPath.includes("scanner")) {
       entryScanner.render(entrySuccessCallback);
     }
   }, 1000);
-  // --- 10. DYNAMIC NOTIFICATIONS LOGIC (BULLETPROOF) ---
+  // --- 10. DYNAMIC NOTIFICATIONS LOGIC ---
   async function loadNotifications() {
     const notifContainer = document.getElementById("notif-list");
     if (!notifContainer) return;
 
-    console.log("Loading notifications..."); // Makikita mo sa F12 Console kung nag-trigger
-
     try {
       let notifs = [];
 
-      // 1. Kunin ang latest event (Ligtas na fetch)
-      const { data: eventsData } = await supabase
-        .from("events")
-        .select("title")
-        .limit(1);
-      if (eventsData && eventsData.length > 0) {
-        notifs.push(
-          `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem;">📢 <b>New Event:</b> ${eventsData[0].title} is now open!</div>`,
-        );
+      // A. Kunin ang latest event
+      try {
+        const { data: eventsData, error: eventError } = await supabase
+          .from("events")
+          .select("title")
+          .order("id", { ascending: false }) // Palitan ng 'created_at' kung mayroon kang column na 'created_at'
+          .limit(1);
+
+        if (eventsData && eventsData.length > 0) {
+          notifs.push(
+            `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem;">📢 <b>New Event:</b> ${eventsData[0].title} is now open!</div>`,
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching latest event for notif:", err);
       }
 
-      // 2. Kunin ang orders ng User kung naka-login
+      // B. Kunin ang latest order status ng User
       if (currentUser) {
-        const { data: myOrders } = await supabase
-          .from("orders")
-          .select("status, events(title)")
-          .eq("user_id", currentUser.id)
-          .limit(2);
-        if (myOrders && myOrders.length > 0) {
-          myOrders.forEach((order) => {
-            if (order.status === "Registered") {
-              notifs.push(
-                `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #006633;">✅ <b>Ticket Secured:</b> See you at ${order.events.title}.</div>`,
-              );
-            } else if (order.status === "Attended") {
-              notifs.push(
-                `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: gray;">🎓 <b>Attended:</b> Thanks for joining ${order.events.title}!</div>`,
-              );
-            }
-          });
+        try {
+          const { data: myOrders, error: orderError } = await supabase
+            .from("orders")
+            .select("status, events(title)")
+            .eq("user_id", currentUser.id)
+            .order("id", { ascending: false }) // Palitan ng 'created_at' kung mayroon kang column na 'created_at'
+            .limit(2);
+
+          if (myOrders && myOrders.length > 0) {
+            myOrders.forEach((order) => {
+              // Kailangan natin i-check kung may 'events' object dahil minsan null ito kung na-delete yung event
+              const eventTitle = order.events ? order.events.title : "an Event";
+
+              if (order.status === "Registered") {
+                notifs.push(
+                  `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #006633;">✅ <b>Ticket Secured:</b> See you at ${eventTitle}.</div>`,
+                );
+              } else if (order.status === "Attended") {
+                notifs.push(
+                  `<div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: gray;">🎓 <b>Attended:</b> Thanks for joining ${eventTitle}!</div>`,
+                );
+              }
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching user orders for notif:", err);
         }
       }
 
-      // 3. I-display sa UI
+      // C. Render
       if (notifs.length === 0) {
         notifContainer.innerHTML = `<div style="padding: 15px; color: gray; font-size: 0.9rem; text-align: center;">No new notifications.</div>`;
       } else {
         notifContainer.innerHTML = notifs.join("");
       }
     } catch (err) {
-      console.error("Error loading notifications:", err);
-      notifContainer.innerHTML = `<div style="padding: 15px; color: red; font-size: 0.9rem; text-align: center;">Failed to load.</div>`;
+      console.error("Fatal Error loading notifications:", err);
+      notifContainer.innerHTML = `<div style="padding: 15px; color: red; font-size: 0.9rem; text-align: center;">Failed to load. Check console.</div>`;
     }
   }
-
-  // I-run nang safe pagkatapos ng 500ms para iwas block
-  setTimeout(loadNotifications, 500);
 }
