@@ -193,8 +193,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       .querySelectorAll(".guest-only")
       .forEach((el) => el.classList.remove("hidden"));
   }
-   loadNotifications();
-  if (path.includes("signup.html"))
+  
 
   // --- 4. SIGN IN & SIGN UP LOGIC ---
   if (path.includes("signup.html")) {
