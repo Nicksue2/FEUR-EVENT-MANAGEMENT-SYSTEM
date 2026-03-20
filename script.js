@@ -134,7 +134,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             `;
     }
 
-    if (path.includes("admin.html") && userRole !== "admin") {
+    // SECURITY FIX: I-block ang mga normal users sa admin at scanner pages
+    if ((path.includes("admin") || path.includes("scanner")) && userRole !== "admin") {
       window.location.href = "index.html";
       return;
     }
@@ -633,84 +634,94 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// --- 9. ADMIN QR SCANNER LOGIC ---
-  if (window.location.pathname.includes("admin")) { // FIX 1: Tinanggal ang .html para basahin sa Vercel
-    console.log("Admin page detected! Loading Scanner UI...");
-    
-    // FIX 2: Hintay ng 1 second para sure na nag-load na yung buong HTML
+// --- 9. ADMIN & ADMISSION QR SCANNER LOGIC ---
+  
+  // A. VALIDATOR LOGIC (Para lang sa admin.html - walang database update)
+  if (path.includes("admin.html")) { 
     setTimeout(() => {
         const scannerElement = document.getElementById("reader");
-        
         if (scannerElement) {
-            try {
-                const scannerResult = document.getElementById("scanner-result");
-                let isScanning = false;
+            const scannerResult = document.getElementById("scanner-result");
+            let isScanning = false;
 
-                const qrCodeSuccessCallback = async (decodedText) => {
-                    if (isScanning) return; 
-                    isScanning = true;
-                    
-                    scannerResult.innerText = "Validating ticket...";
-                    scannerResult.style.background = "#e0f2fe"; 
-                    scannerResult.style.color = "#075985";
+            const qrCodeSuccessCallback = async (decodedText) => {
+                if (isScanning) return; 
+                isScanning = true;
+                scannerResult.innerText = "Checking record...";
+                
+                if (!decodedText.startsWith("FEUR-TICKET-")) {
+                    scannerResult.innerText = "INVALID: Not a FEUR ticket.";
+                    scannerResult.style.background = "#fee2e2"; 
+                    scannerResult.style.color = "#991b1b";
+                    setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "#f4f6f8"; }, 2000);
+                    return;
+                }
 
-                    console.log("Scanned QR:", decodedText);
+                const orderID = decodedText.replace("FEUR-TICKET-", "");
+                const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
 
-                    // 1. Check if FEUR ticket
-                    if (!decodedText.startsWith("FEUR-TICKET-")) {
-                        scannerResult.innerText = "INVALID: Not a FEUR ticket.";
-                        scannerResult.style.background = "#fee2e2"; 
-                        scannerResult.style.color = "#991b1b";
-                        setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "#f4f6f8"; scannerResult.style.color = "#333"; }, 2000);
-                        return;
-                    }
+                if (error || !data) {
+                    scannerResult.innerText = "INVALID: Ticket not found in DB.";
+                    scannerResult.style.background = "#fee2e2"; 
+                    scannerResult.style.color = "#991b1b";
+                } else {
+                    scannerResult.innerText = `LEGIT TICKET! Event: ${data.events.title} | Current Status: ${data.status}`;
+                    scannerResult.style.background = "#dcfce7"; 
+                    scannerResult.style.color = "#166534";
+                }
 
-                    // 2. Database check
-                    const orderID = decodedText.replace("FEUR-TICKET-", "");
-                    const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
+                setTimeout(() => { isScanning = false; scannerResult.innerText = "Ready to scan."; scannerResult.style.background = "#f4f6f8"; scannerResult.style.color = "#333"; }, 4000);
+            };
 
-                    if (error || !data) {
-                        scannerResult.innerText = "INVALID: Ticket not found in database.";
-                        scannerResult.style.background = "#fee2e2"; 
-                        scannerResult.style.color = "#991b1b";
+            const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
+            html5QrcodeScanner.render(qrCodeSuccessCallback);
+        }
+    }, 1000);
+  }
+
+  // B. LIVE ADMISSION LOGIC (Para sa scanner.html - ito yung mag-uupdate ng database)
+  if (path.includes("scanner.html")) { 
+    setTimeout(() => {
+        const entryElement = document.getElementById("entry-reader");
+        if (entryElement) {
+            const entryResult = document.getElementById("entry-result");
+            let isEntryScanning = false;
+
+            const entrySuccessCallback = async (decodedText) => {
+                if (isEntryScanning) return; 
+                isEntryScanning = true;
+                entryResult.innerText = "Validating Admission...";
+                
+                if (!decodedText.startsWith("FEUR-TICKET-")) {
+                    entryResult.innerText = "❌ DENIED: Invalid QR Format.";
+                    entryResult.style.background = "#fee2e2"; entryResult.style.color = "#991b1b";
+                    setTimeout(() => { isEntryScanning = false; entryResult.innerText = "Waiting for ticket..."; entryResult.style.background = "#f4f6f8"; }, 2000);
+                    return;
+                }
+
+                const orderID = decodedText.replace("FEUR-TICKET-", "");
+                const { data, error } = await supabase.from("orders").select(`status, events ( title )`).eq("id", orderID).single();
+
+                if (error || !data) {
+                    entryResult.innerText = "❌ DENIED: Ticket Not Found.";
+                    entryResult.style.background = "#fee2e2"; entryResult.style.color = "#991b1b";
+                } else {
+                    if (data.status === "Attended") {
+                        entryResult.innerText = `⚠️ ALREADY SCANNED for ${data.events.title}.`;
+                        entryResult.style.background = "#fef3c7"; entryResult.style.color = "#92400e";
                     } else {
-                        // 3. Status check
-                        if (data.status === "Attended") {
-                            scannerResult.innerText = `DENIED: Already Scanned for ${data.events.title}.`;
-                            scannerResult.style.background = "#fef3c7"; 
-                            scannerResult.style.color = "#92400e";
-                        } else {
-                            // 4. Update status
-                            await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
-                            scannerResult.innerText = `SUCCESS! Checked-in for ${data.events.title}.`;
-                            scannerResult.style.background = "#dcfce7"; 
-                            scannerResult.style.color = "#166534";
-                        }
+                        // UPDATE DATABASE TO ATTENDED
+                        await supabase.from("orders").update({ status: "Attended" }).eq("id", orderID);
+                        entryResult.innerText = `✅ ADMITTED! Welcome to ${data.events.title}.`;
+                        entryResult.style.background = "#dcfce7"; entryResult.style.color = "#166534";
                     }
+                }
 
-                    setTimeout(() => {
-                        isScanning = false;
-                        scannerResult.innerText = "Ready to scan.";
-                        scannerResult.style.background = "#f4f6f8";
-                        scannerResult.style.color = "#333";
-                    }, 3000);
-                };
+                setTimeout(() => { isEntryScanning = false; entryResult.innerText = "Waiting for ticket..."; entryResult.style.background = "#f4f6f8"; entryResult.style.color = "#333"; }, 3000);
+            };
 
-                // I-render ang button
-                const html5QrcodeScanner = new Html5QrcodeScanner(
-                    "reader",
-                    { fps: 10, qrbox: { width: 250, height: 250 } },
-                    false
-                );
-                html5QrcodeScanner.render(qrCodeSuccessCallback);
-                console.log("Scanner button successfully injected!");
-
-            } catch (err) {
-                console.error("Error loading scanner:", err);
-                document.getElementById("scanner-result").innerText = "Error loading camera. Check F12 Console.";
-            }
-        } else {
-            console.error("Hindi mahanap ang <div id='reader'> sa HTML!");
+            const entryScanner = new Html5QrcodeScanner("entry-reader", { fps: 10, qrbox: { width: 300, height: 300 } }, false);
+            entryScanner.render(entrySuccessCallback);
         }
     }, 1000);
   }
