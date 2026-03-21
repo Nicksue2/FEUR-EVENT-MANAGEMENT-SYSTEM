@@ -116,7 +116,48 @@
             </table>
           </div>
         </div>
+        <div class="admin-card" style="margin-top: 30px;">
+          <h3>User Management</h3>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Actions</th></tr></thead>
+              <tbody id="admin-user-list"></tbody>
+            </table>
+          </div>
+        </div>
+      </main> </div> <div id="user-management-modal" class="modal-overlay hidden">
+      <div class="modal-box event-modal-box" style="max-width: 600px;">
+        <span class="close-modal" id="close-user-modal">&times;</span>
+        <h3 id="user-modal-title" style="margin-bottom: 15px; color: var(--primary);">Manage User</h3>
+        
+        <form id="edit-user-form" class="event-form">
+          <input type="hidden" id="edit-user-id" />
+          <div class="form-control"><label>First Name</label><input type="text" id="edit-user-fname" required /></div>
+          <div class="form-control"><label>Last Name</label><input type="text" id="edit-user-lname" required /></div>
+          <div class="form-control"><label>Phone Number</label><input type="text" id="edit-user-phone" required /></div>
+          <div class="form-control">
+            <label>Role</label>
+            <select id="edit-user-role">
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-solid full-width" style="margin-top: 10px;">Save Profile Changes</button>
+        </form>
+
+        <hr style="margin: 25px 0; border: 0; border-top: 1px solid var(--border-color);" />
+
+        <h4 style="margin-bottom: 10px;">Event Registration History</h4>
+        <div class="table-wrapper" style="max-height: 200px; overflow-y: auto;">
+          <table class="admin-table" style="font-size: 13px;">
+            <thead><tr><th>Event Title</th><th>Status</th></tr></thead>
+            <tbody id="user-orders-list"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
       </main>
+      
     </div>
 
     <div id="custom-alert" class="modal-overlay hidden">

@@ -248,6 +248,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadNotifications();
 
   // --- 5. SIGN IN & SIGN UP LOGIC ---
+
   if (path.includes("signup")) {
     togglePassword("show-password-signup", "password", "confirm-password");
     const tcModal = document.getElementById("tc-modal");
@@ -658,152 +659,124 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- 7. ADMIN DASHBOARD CRUD ---
   if (path.includes("admin") && userRole === "admin") {
-    const fetchAdminEvents = async () => {
-      const { data: events } = await supabase.from("events").select("*");
-      const list = document.getElementById("admin-event-list");
-      if (list && events) {
-        list.innerHTML = events
+    // --- USER MANAGEMENT LOGIC ---
+    const fetchAdminUsers = async () => {
+      const { data: profiles, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("first_name", { ascending: true });
+      const list = document.getElementById("admin-user-list");
+      if (list && profiles) {
+        list.innerHTML = profiles
           .map(
-            (ev) => `
-            <tr>
-                <td>${ev.title}</td><td>${ev.campus}</td><td>${ev.event_date}</td><td>${ev.price > 0 ? "₱" + ev.price : "FREE"}</td>
-                <td style="display:flex; gap:5px;">
-                    <button class="btn btn-solid" style="background:#3b82f6; color:white; padding:5px 10px;" onclick="window.exportEvent('${ev.id}', '${ev.title.replace(/'/g, "\\'")}')">Export</button>
-                    <button class="btn btn-solid" style="background:#facc15; padding:5px 10px; color:black;" onclick="window.editEvent('${ev.id}')">Edit</button>
-                    <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="window.deleteEvent('${ev.id}')">Delete</button>
-                </td>
-            </tr>`,
+            (p) => `
+          <tr>
+            <td><b>${p.first_name} ${p.last_name}</b></td>
+            <td>${p.school_email}</td>
+            <td>${p.phone_number}</td>
+            <td><span class="status-badge" style="background:${p.role === "admin" ? "#fef08a" : "#e5e7eb"}; color:black;">${p.role}</span></td>
+            <td>
+              <button class="btn btn-solid" style="background:#facc15; padding:5px 15px; color:black;" onclick="window.manageUser('${p.id}')">Manage</button>
+            </td>
+          </tr>
+        `,
           )
           .join("");
-        if (document.getElementById("stat-events"))
-          document.getElementById("stat-events").innerText = events.length;
       }
-
-      // Update Total Orders
-      const { count: orderCount } = await supabase
-        .from("orders")
-        .select("*", { count: "exact", head: true });
-      if (document.getElementById("stat-orders"))
-        document.getElementById("stat-orders").innerText = orderCount || 0;
-
-      // Update Total Attended (Analytics)
-      const { count: attendedCount } = await supabase
-        .from("orders")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "Attended");
-      if (document.getElementById("stat-attended"))
-        document.getElementById("stat-attended").innerText = attendedCount || 0;
     };
 
-    // EXPORT TO CSV LOGIC (UPDATED & SAFE)
-    window.exportEvent = async (eventId, eventTitle) => {
-      // 1. Kunin muna ang orders ng event na ito
-      const { data: ordersData, error: ordersError } = await supabase
-        .from("orders")
-        .select("user_id, status")
-        .eq("event_id", eventId);
-
-      if (ordersError || !ordersData || ordersData.length === 0) {
-        showCustomAlert("Notice", "No attendees found for this event.");
-        return;
-      }
-
-      // 2. Kunin ang user IDs
-      const userIds = ordersData.map((order) => order.user_id);
-
-      // 3. Kunin ang profiles gamit ang mga user IDs
-      const { data: profilesData, error: profilesError } = await supabase
+    window.manageUser = async (userId) => {
+      // 1. Ilagay ang Profile Data sa Modal
+      const { data: profile } = await supabase
         .from("profiles")
-        .select("id, first_name, last_name, school_email")
-        .in("id", userIds);
-
-      // 4. Buuin ang CSV
-      let csvContent = "data:text/csv;charset=utf-8,";
-      csvContent += "First Name,Last Name,Email,Status\n";
-
-      ordersData.forEach((order) => {
-        const profile = profilesData?.find((p) => p.id === order.user_id) || {};
-        const fname = profile.first_name || "N/A";
-        const lname = profile.last_name || "N/A";
-        const email = profile.school_email || "N/A";
-        csvContent += `${fname},${lname},${email},${order.status}\n`;
-      });
-
-      // 5. I-download ang file
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute(
-        "download",
-        `${eventTitle.replace(/\s+/g, "_")}_Attendance.csv`,
-      );
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-
-    window.deleteEvent = async (id) => {
-      if (confirm("Delete this event?")) {
-        await supabase.from("events").delete().eq("id", id);
-        fetchAdminEvents();
-        showCustomAlert("System", "Event deleted.");
-      }
-    };
-
-    window.editEvent = async (id) => {
-      const { data: ev } = await supabase
-        .from("events")
         .select("*")
-        .eq("id", id)
+        .eq("id", userId)
         .single();
-      if (ev) {
-        document.getElementById("event-id").value = ev.id;
-        document.getElementById("title").value = ev.title;
-        document.getElementById("campus").value = ev.campus;
-        document.getElementById("date").value = ev.event_date;
-        document.getElementById("price").value = ev.price || 0;
-        document.getElementById("desc").value = ev.description;
-        document.getElementById("poster_url").value = ev.poster_url;
-        document.getElementById("form-title").innerText = "Edit: " + ev.title;
-        document.getElementById("cancel-edit")?.classList.remove("hidden");
+      if (profile) {
+        document.getElementById("edit-user-id").value = profile.id;
+        document.getElementById("edit-user-fname").value = profile.first_name;
+        document.getElementById("edit-user-lname").value = profile.last_name;
+        document.getElementById("edit-user-phone").value = profile.phone_number;
+        document.getElementById("edit-user-role").value = profile.role;
+        document.getElementById("user-modal-title").innerText =
+          `Manage: ${profile.school_email}`;
       }
+
+      // 2. Kunin ang Orders History ng User
+      const { data: orders } = await supabase
+        .from("orders")
+        .select("status, events(title)")
+        .eq("user_id", userId);
+      const ordersList = document.getElementById("user-orders-list");
+      if (ordersList) {
+        if (orders && orders.length > 0) {
+          ordersList.innerHTML = orders
+            .map(
+              (o) => `
+            <tr>
+              <td>${o.events?.title || "Unknown Event"}</td>
+              <td><span class="status-badge">${o.status}</span></td>
+            </tr>
+          `,
+            )
+            .join("");
+        } else {
+          ordersList.innerHTML = `<tr><td colspan="2" style="text-align:center;">No event records found.</td></tr>`;
+        }
+      }
+      document
+        .getElementById("user-management-modal")
+        .classList.remove("hidden");
     };
 
+    // 3. I-save ang Profile Changes
     document
-      .getElementById("event-form")
+      .getElementById("edit-user-form")
       ?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const id = document.getElementById("event-id").value;
-        const eventData = {
-          title: document.getElementById("title").value,
-          campus: document.getElementById("campus").value,
-          event_date: document.getElementById("date").value,
-          price: document.getElementById("price").value,
-          description: document.getElementById("desc").value,
-          poster_url: document.getElementById("poster_url").value,
+        const userId = document.getElementById("edit-user-id").value;
+        const updates = {
+          first_name: document.getElementById("edit-user-fname").value,
+          last_name: document.getElementById("edit-user-lname").value,
+          phone_number: document.getElementById("edit-user-phone").value,
+          role: document.getElementById("edit-user-role").value,
         };
 
-        if (id) {
-          await supabase.from("events").update(eventData).eq("id", id);
-          showCustomAlert("Success", "Event Updated!");
+        const btn = e.submitter;
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        const { error } = await supabase
+          .from("profiles")
+          .update(updates)
+          .eq("id", userId);
+
+        if (error) {
+          showCustomAlert(
+            "Error",
+            "Failed to update profile. " + error.message,
+          );
         } else {
-          await supabase.from("events").insert([eventData]);
-          showCustomAlert("Success", "Event Created!");
+          showCustomAlert("Success", "User profile updated successfully!");
+          document
+            .getElementById("user-management-modal")
+            .classList.add("hidden");
+          fetchAdminUsers(); // I-refresh ang listahan
         }
-        document.getElementById("event-form").reset();
-        document.getElementById("event-id").value = "";
-        document.getElementById("cancel-edit")?.classList.add("hidden");
-        document.getElementById("form-title").innerText = "Add New Event";
-        fetchAdminEvents();
+        btn.innerText = "Save Profile Changes";
+        btn.disabled = false;
       });
 
-    document.getElementById("cancel-edit")?.addEventListener("click", () => {
-      document.getElementById("event-form").reset();
-      document.getElementById("event-id").value = "";
-      document.getElementById("form-title").innerText = "Add New Event";
-      document.getElementById("cancel-edit")?.classList.add("hidden");
-    });
-    fetchAdminEvents();
+    document
+      .getElementById("close-user-modal")
+      ?.addEventListener("click", () => {
+        document
+          .getElementById("user-management-modal")
+          .classList.add("hidden");
+      });
+
+    // Tawagin para mag-load agad pagkabukas ng page
+    fetchAdminUsers();
   }
 
   // --- 8. ORDER LIST LOGIC ---
