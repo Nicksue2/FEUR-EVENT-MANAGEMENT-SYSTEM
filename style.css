@@ -716,3 +716,30 @@ input:checked + .slider:before {
   justify-content: center;
   border: 2px solid var(--primary);
 }
+
+/* --- HELP PAGE STYLES --- */
+.faq-container {
+  margin-top: 15px;
+}
+.faq-item {
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+}
+.faq-item summary {
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+}
+.faq-item p {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.4;
+}
+.faq-item[open] {
+  background: #fff;
+  border-color: var(--primary);
+}

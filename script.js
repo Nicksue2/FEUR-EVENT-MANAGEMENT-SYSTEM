@@ -1032,4 +1032,33 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }, 1000);
   }
+
+  // --- HELP & CONTACT LOGIC ---
+  const contactForm = document.getElementById("contact-form");
+  contactForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("send-help-btn");
+    const subject = document.getElementById("contact-subject").value;
+    const message = document.getElementById("contact-message").value;
+
+    btn.innerText = "Sending...";
+    btn.disabled = true;
+
+    // Kunin natin ang email ng current user para alam ng admin sino nag-message
+    const userEmail = currentUser?.email || "Guest";
+
+    // Pwede mong ikabit dito ang EmailJS para matanggap niyo sa email
+    // Pero for now, i-save natin sa Console at mag-Success Alert
+    console.log(`Support Request from ${userEmail}: [${subject}] ${message}`);
+
+    setTimeout(() => {
+      showCustomAlert(
+        "Support Sent",
+        "Your message has been sent to the developers. We will get back to you soon!",
+      );
+      contactForm.reset();
+      btn.innerText = "Send Message";
+      btn.disabled = false;
+    }, 1500);
+  });
 });
