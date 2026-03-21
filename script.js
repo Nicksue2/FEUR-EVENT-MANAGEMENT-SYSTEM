@@ -141,7 +141,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? notifs.join("")
         : '<div class="notif-empty">No notifications</div>';
 
-      // --- 3. BADGE LOGIC ---
       const lastCount = parseInt(localStorage.getItem("lastNotifCount") || "0");
       const bellIconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>`;
 
@@ -152,7 +151,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         notifBtn.innerHTML = bellIconSVG;
       }
 
-      // --- 4. STABLE CLICK LOGIC ---
       const newNotifBtn = notifBtn.cloneNode(true);
       notifBtn.parentNode.replaceChild(newNotifBtn, notifBtn);
 
@@ -161,9 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         e.stopPropagation();
         const modal = document.getElementById("notif-modal");
         if (!modal) return;
-
         const isHidden = modal.classList.toggle("hidden");
-
         if (!isHidden) {
           localStorage.setItem("lastNotifCount", notifs.length);
           const badge = newNotifBtn.querySelector(".notif-badge");
@@ -249,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       .forEach((el) => el.classList.remove("hidden"));
   }
 
-  loadNotifications(); // <--- TATAWAGIN NA DITO NANG LIGTAS
+  loadNotifications();
 
   // --- 5. SIGN IN & SIGN UP LOGIC ---
   if (path.includes("signup")) {
@@ -328,8 +324,44 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
   }
 
+  // --- LOGIN LOGIC ---
   if (path.includes("signin")) {
     togglePassword("show-password-signin", "password");
+
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    if (savedEmail) {
+      document.getElementById("email").value = savedEmail;
+      const rmCheckbox = document.getElementById("remember-me");
+      if (rmCheckbox) rmCheckbox.checked = true;
+    }
+
+    document
+      .getElementById("forgot-password-link")
+      ?.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById("email").value;
+        if (!emailInput) {
+          showCustomAlert(
+            "Error",
+            "Please type your email address first to reset password.",
+          );
+          return;
+        }
+
+        // I-se-set natin ang redirect URL sa reset-password.html
+        const { error } = await supabase.auth.resetPasswordForEmail(
+          emailInput,
+          {
+            redirectTo: window.location.origin + "/reset-password.html",
+          },
+        );
+        if (error) {
+          showCustomAlert("Error", error.message);
+        } else {
+          showCustomAlert("Success", "Password reset link sent to your email!");
+        }
+      });
+
     document
       .getElementById("signin-form")
       ?.addEventListener("submit", async (e) => {
@@ -340,11 +372,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           btn.disabled = true;
         }
 
-        const { error } = await supabase.auth.signInWithPassword({
-          email: document.getElementById("email").value,
-          password: document.getElementById("password").value,
-        });
+        const emailVal = document.getElementById("email").value;
+        const passVal = document.getElementById("password").value;
+        const rmCheckbox = document.getElementById("remember-me");
 
+        if (rmCheckbox && rmCheckbox.checked) {
+          localStorage.setItem("rememberedEmail", emailVal);
+        } else {
+          localStorage.removeItem("rememberedEmail");
+        }
+
+        const { error } = await supabase.auth.signInWithPassword({
+          email: emailVal,
+          password: passVal,
+        });
         if (error) {
           showCustomAlert("Login Failed", error.message);
           if (btn) {
@@ -357,6 +398,42 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
   }
 
+  // --- RESET PASSWORD LOGIC ---
+  if (path.includes("reset-password")) {
+    togglePassword("show-new-password", "new-password");
+
+    // Supabase automatically handles the hash in the URL on this page load
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event == "PASSWORD_RECOVERY") {
+        // Show the form
+        document
+          .getElementById("reset-password-form")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const newPassword = document.getElementById("new-password").value;
+            const btn = document.getElementById("update-pwd-btn");
+            btn.innerText = "Updating...";
+            btn.disabled = true;
+
+            const { error } = await supabase.auth.updateUser({
+              password: newPassword,
+            });
+
+            if (error) {
+              showCustomAlert("Error", error.message);
+              btn.innerText = "Update Password";
+              btn.disabled = false;
+            } else {
+              showCustomAlert("Success", "Password updated successfully!");
+              setTimeout(() => {
+                window.location.href = "signin.html";
+              }, 2000);
+            }
+          });
+      }
+    });
+  }
+
   // --- 6. DASHBOARD EVENTS & REGISTRATION LOGIC ---
   const isUserRegistered = async (eventId) => {
     if (!currentUser) return false;
@@ -364,7 +441,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       .from("orders")
       .select("id")
       .eq("user_id", currentUser.id)
-      .eq("event_id", eventId);
+      .eq("event_id", eventId)
+      .not("status", "eq", "Cancelled"); // Ignore cancelled orders when checking if registered
     return data && data.length > 0;
   };
 
@@ -408,6 +486,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     for (const event of eventsToRender) {
       const isPaidText = event.price > 0 ? `₱${event.price}` : "FREE";
+
+      // Fetch available slots for display on card
+      const { count } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", event.id)
+        .not("status", "eq", "Cancelled");
+
+      const currentCount = count || 0;
+      const maxCap = event.max_capacity || 100;
+      const slotsLeft = Math.max(0, maxCap - currentCount);
+      const slotsText =
+        slotsLeft === 0
+          ? `<b style="color:red;">Sold Out</b>`
+          : `<b>${slotsLeft}</b> slots left`;
+
       const card = document.createElement("div");
       card.className = "event-card";
       card.setAttribute("data-id", event.id);
@@ -419,6 +513,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         <span>📅 ${event.event_date || "TBA"} | ${event.event_time || ""}</span>
                         <span>📍 FEU Roosevelt ${event.campus}</span>
                         <span>🎟️ <b style="color:var(--primary);">${isPaidText}</b></span>
+                        <span style="font-size:12px; margin-top:5px;">📊 ${slotsText}</span>
                     </div>
                 </div>
             `;
@@ -430,16 +525,25 @@ document.addEventListener("DOMContentLoaded", async () => {
           "https://via.placeholder.com/500x200?text=FEUR+Event";
         document.getElementById("modal-event-title").innerText = event.title;
         document.getElementById("modal-event-meta").innerHTML =
-          `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus}`;
+          `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus} <br><br>📊 <b>Available Slots:</b> ${slotsLeft} / ${maxCap}`;
         document.getElementById("modal-event-desc").innerText =
           event.description || "No description available for this event.";
 
         const modalBtn = document.getElementById("modal-register-btn");
         if (modalBtn) {
+          modalBtn.innerText = "Checking...";
+          modalBtn.disabled = true;
+
           const registered = await isUserRegistered(event.id);
+
           if (registered) {
             modalBtn.innerText = "Registered";
             modalBtn.style.background = "gray";
+            modalBtn.style.color = "white";
+            modalBtn.disabled = true;
+          } else if (slotsLeft <= 0) {
+            modalBtn.innerText = "Sold Out";
+            modalBtn.style.background = "#ef4444";
             modalBtn.style.color = "white";
             modalBtn.disabled = true;
           } else {
@@ -488,6 +592,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      const { count } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", currentSelectedEvent.id)
+        .not("status", "eq", "Cancelled");
+      const maxCap = currentSelectedEvent.max_capacity || 100;
+      if ((count || 0) >= maxCap) {
+        showCustomAlert("Error", "Sorry, this event is already sold out.");
+        modalRegBtn.innerText = "Sold Out";
+        modalRegBtn.style.background = "#ef4444";
+        return;
+      }
+
       const { data, error } = await supabase
         .from("orders")
         .insert([
@@ -510,11 +627,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           : "Student";
         const ticketID = `FEUR-TICKET-${orderData.id}`;
 
-        // Hanapin ang part na ito sa script.js (Section: modal-register-btn click)
         if (typeof emailjs !== "undefined") {
           emailjs
             .send("service_nczv2qc", "template_uiwfmsd", {
-              to_email: currentUser.email, // DITO NATIN KUKUNIN ANG EMAIL NG NAKA-LOGIN NA USER
+              to_email: currentUser.email,
               user_name: userName,
               event_title: currentSelectedEvent.title,
               event_date: currentSelectedEvent.event_date || "TBA",
@@ -531,7 +647,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
         modalRegBtn.style.color = "white";
-        loadNotifications(); // Update Notifications instantly
+        loadNotifications();
+
+        // Refresh event grid to update slot count
+        if (allEventsGlobal.length > 0) {
+          renderEvents(allEventsGlobal);
+        }
       }
     });
 
@@ -546,7 +667,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             (ev) => `
             <tr>
                 <td>${ev.title}</td><td>${ev.campus}</td><td>${ev.event_date}</td><td>${ev.price > 0 ? "₱" + ev.price : "FREE"}</td>
-                <td>
+                <td style="display:flex; gap:5px;">
+                    <button class="btn btn-solid" style="background:#3b82f6; color:white; padding:5px 10px;" onclick="window.exportEvent('${ev.id}', '${ev.title.replace(/'/g, "\\'")}')">Export</button>
                     <button class="btn btn-solid" style="background:#facc15; padding:5px 10px; color:black;" onclick="window.editEvent('${ev.id}')">Edit</button>
                     <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="window.deleteEvent('${ev.id}')">Delete</button>
                 </td>
@@ -556,11 +678,68 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (document.getElementById("stat-events"))
           document.getElementById("stat-events").innerText = events.length;
       }
-      const { count } = await supabase
+
+      // Update Total Orders
+      const { count: orderCount } = await supabase
         .from("orders")
         .select("*", { count: "exact", head: true });
       if (document.getElementById("stat-orders"))
-        document.getElementById("stat-orders").innerText = count || 0;
+        document.getElementById("stat-orders").innerText = orderCount || 0;
+
+      // Update Total Attended (Analytics)
+      const { count: attendedCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "Attended");
+      if (document.getElementById("stat-attended"))
+        document.getElementById("stat-attended").innerText = attendedCount || 0;
+    };
+
+    // EXPORT TO CSV LOGIC (UPDATED & SAFE)
+    window.exportEvent = async (eventId, eventTitle) => {
+      // 1. Kunin muna ang orders ng event na ito
+      const { data: ordersData, error: ordersError } = await supabase
+        .from("orders")
+        .select("user_id, status")
+        .eq("event_id", eventId);
+
+      if (ordersError || !ordersData || ordersData.length === 0) {
+        showCustomAlert("Notice", "No attendees found for this event.");
+        return;
+      }
+
+      // 2. Kunin ang user IDs
+      const userIds = ordersData.map((order) => order.user_id);
+
+      // 3. Kunin ang profiles gamit ang mga user IDs
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, school_email")
+        .in("id", userIds);
+
+      // 4. Buuin ang CSV
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "First Name,Last Name,Email,Status\n";
+
+      ordersData.forEach((order) => {
+        const profile = profilesData?.find((p) => p.id === order.user_id) || {};
+        const fname = profile.first_name || "N/A";
+        const lname = profile.last_name || "N/A";
+        const email = profile.school_email || "N/A";
+        csvContent += `${fname},${lname},${email},${order.status}\n`;
+      });
+
+      // 5. I-download ang file
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute(
+        "download",
+        `${eventTitle.replace(/\s+/g, "_")}_Attendance.csv`,
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     };
 
     window.deleteEvent = async (id) => {
@@ -630,61 +809,120 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- 8. ORDER LIST LOGIC ---
   const ordersGrid = document.getElementById("orders-grid");
   if (ordersGrid && path.includes("orderlist")) {
-    const { data: orders, error } = await supabase
-      .from("orders")
-      .select(`id, status, events ( title, event_date, campus, poster_url )`)
-      .eq("user_id", currentUser.id);
-    ordersGrid.innerHTML = "";
-    if (error || !orders || orders.length === 0) {
-      ordersGrid.innerHTML = "<p>You have no registered events yet.</p>";
-    } else {
-      orders.forEach((order) => {
-        const event = order.events;
-        const card = document.createElement("div");
-        card.className = "event-card";
-        card.innerHTML = `
-                    <img src="${event.poster_url || "https://via.placeholder.com/300x160?text=FEUR+Ticket"}" class="event-img">
-                    <div class="event-info">
-                        <span class="status-badge">${order.status}</span>
-                        <div class="event-title">${event.title}</div>
-                        <div class="event-meta">
-                            <span>📅 ${event.event_date || "TBA"}</span>
-                            <span>📍 FEU Roosevelt ${event.campus}</span>
-                        </div>
-                        <button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}">View QR Code</button>
-                    </div>`;
-        ordersGrid.appendChild(card);
-      });
+    const fetchOrders = async () => {
+      const { data: orders, error } = await supabase
+        .from("orders")
+        .select(
+          `id, status, events ( id, title, event_date, campus, poster_url, price )`,
+        )
+        .eq("user_id", currentUser.id);
 
-      document.querySelectorAll(".qr-code-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const orderId = btn.getAttribute("data-order-id");
-          const eventTitle = btn.getAttribute("data-event-title");
-          document.getElementById("qr-event-title").innerText = eventTitle;
-          const qrContainer = document.getElementById("qr-code-image");
-          qrContainer.innerHTML = "";
-          if (typeof QRCode !== "undefined") {
-            new QRCode(qrContainer, {
-              text: `FEUR-TICKET-${orderId}`,
-              width: 250,
-              height: 250,
-              colorDark: "#000000",
-              colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.H,
-            });
-          } else {
-            console.error("ERROR: QRCode library hindi nag-load!");
+      ordersGrid.innerHTML = "";
+      if (error || !orders || orders.length === 0) {
+        ordersGrid.innerHTML = "<p>You have no registered events yet.</p>";
+      } else {
+        orders.forEach((order) => {
+          const event = order.events;
+          const isCancelled = order.status === "Cancelled";
+          const card = document.createElement("div");
+          card.className = "event-card";
+
+          // Cancel button logic: Only allow cancel if FREE and not already cancelled/attended
+          let cancelBtnHTML = "";
+          if (!isCancelled && order.status !== "Attended" && event.price == 0) {
+            cancelBtnHTML = `<button class="btn btn-outline w-100 cancel-ticket-btn" data-order-id="${order.id}" style="margin-top: 5px; border-color:#ef4444; color:#ef4444;">Cancel Ticket</button>`;
+          } else if (
+            !isCancelled &&
+            order.status !== "Attended" &&
+            event.price > 0
+          ) {
+            cancelBtnHTML = `<button class="btn btn-outline w-100" disabled style="margin-top: 5px; border-color:#9ca3af; color:#9ca3af; font-size:12px;">Contact Admin for Refund</button>`;
           }
-          document.getElementById("qr-modal")?.classList.remove("hidden");
-        });
-      });
 
-      document
-        .getElementById("close-qr-modal")
-        ?.addEventListener("click", () => {
-          document.getElementById("qr-modal")?.classList.add("hidden");
+          const qrBtnStyle = isCancelled ? "display:none;" : "";
+          const statusStyle = isCancelled
+            ? "background:#fee2e2; color:#991b1b;"
+            : "";
+
+          card.innerHTML = `
+                        <img src="${event.poster_url || "https://via.placeholder.com/300x160?text=FEUR+Ticket"}" class="event-img" style="${isCancelled ? "filter: grayscale(100%);" : ""}">
+                        <div class="event-info">
+                            <span class="status-badge" style="${statusStyle}">${order.status}</span>
+                            <div class="event-title" style="${isCancelled ? "text-decoration: line-through; color:gray;" : ""}">${event.title}</div>
+                            <div class="event-meta">
+                                <span>📅 ${event.event_date || "TBA"}</span>
+                                <span>📍 FEU Roosevelt ${event.campus}</span>
+                            </div>
+                            <button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}" style="${qrBtnStyle}">View QR Code</button>
+                            ${cancelBtnHTML}
+                        </div>`;
+          ordersGrid.appendChild(card);
         });
-    }
+
+        // QR Code Event Listener
+        document.querySelectorAll(".qr-code-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const orderId = btn.getAttribute("data-order-id");
+            const eventTitle = btn.getAttribute("data-event-title");
+            document.getElementById("qr-event-title").innerText = eventTitle;
+            const qrContainer = document.getElementById("qr-code-image");
+            qrContainer.innerHTML = "";
+            if (typeof QRCode !== "undefined") {
+              new QRCode(qrContainer, {
+                text: `FEUR-TICKET-${orderId}`,
+                width: 250,
+                height: 250,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H,
+              });
+            } else {
+              console.error("ERROR: QRCode library hindi nag-load!");
+            }
+            document.getElementById("qr-modal")?.classList.remove("hidden");
+          });
+        });
+
+        // Cancel Ticket Event Listener
+        document.querySelectorAll(".cancel-ticket-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const orderId = btn.getAttribute("data-order-id");
+            if (
+              confirm(
+                "Are you sure you want to cancel your registration for this event? This action cannot be undone.",
+              )
+            ) {
+              btn.innerText = "Cancelling...";
+              btn.disabled = true;
+
+              const { error } = await supabase
+                .from("orders")
+                .update({ status: "Cancelled" })
+                .eq("id", orderId);
+
+              if (error) {
+                showCustomAlert("Error", "Failed to cancel ticket.");
+                btn.innerText = "Cancel Ticket";
+                btn.disabled = false;
+              } else {
+                showCustomAlert(
+                  "Success",
+                  "Your registration has been cancelled.",
+                );
+                fetchOrders(); // Reload the list
+                loadNotifications(); // Update notif bell
+              }
+            }
+          });
+        });
+      }
+    };
+
+    fetchOrders(); // Initial load
+
+    document.getElementById("close-qr-modal")?.addEventListener("click", () => {
+      document.getElementById("qr-modal")?.classList.add("hidden");
+    });
   }
 
   // --- 9. LOGOUT LOGIC ---
@@ -730,8 +968,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             scannerResult.style.color = "#991b1b";
           } else {
             scannerResult.innerText = `LEGIT TICKET! Event: ${data.events.title} | Status: ${data.status}`;
-            scannerResult.style.background = "#dcfce7";
-            scannerResult.style.color = "#166534";
+            if (data.status === "Cancelled") {
+              scannerResult.style.background = "#fee2e2";
+              scannerResult.style.color = "#991b1b";
+            } else {
+              scannerResult.style.background = "#dcfce7";
+              scannerResult.style.color = "#166534";
+            }
           }
           setTimeout(() => {
             isScanning = false;
@@ -782,7 +1025,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             entryResult.style.background = "#fee2e2";
             entryResult.style.color = "#991b1b";
           } else {
-            if (data.status === "Attended") {
+            if (data.status === "Cancelled") {
+              entryResult.innerText = "❌ DENIED: Ticket was Cancelled.";
+              entryResult.style.background = "#fee2e2";
+              entryResult.style.color = "#991b1b";
+            } else if (data.status === "Attended") {
               entryResult.innerText = `⚠️ ALREADY SCANNED for ${data.events.title}.`;
               entryResult.style.background = "#fef3c7";
               entryResult.style.color = "#92400e";
@@ -812,4 +1059,4 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }, 1000);
   }
-}); // <--- ITO ANG NAG-IISANG CLOSING BRACKET NG BUONG SCRIPT!
+});
