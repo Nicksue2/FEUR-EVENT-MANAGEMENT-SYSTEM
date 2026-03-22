@@ -479,6 +479,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function renderEvents(eventsToRender) {
     if (!eventsGrid) return;
     eventsGrid.innerHTML = "";
+
     if (eventsToRender.length === 0) {
       eventsGrid.innerHTML = "<p>No events match your criteria.</p>";
       return;
@@ -750,6 +751,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     };
 
+    // ==========================================
+    // EVENT CRUD LOGIC WITH MODAL
+    // ==========================================
+    const eventModal = document.getElementById("event-modal");
+
+    document
+      .getElementById("open-create-event-modal")
+      ?.addEventListener("click", () => {
+        document.getElementById("event-form").reset();
+        document.getElementById("event-id").value = "";
+        document.getElementById("form-title").innerText = "Add New Event";
+        if (eventModal) eventModal.classList.remove("hidden");
+      });
+
+    document
+      .getElementById("close-event-modal")
+      ?.addEventListener("click", () => {
+        if (eventModal) eventModal.classList.add("hidden");
+      });
+
     window.editEvent = async (id) => {
       const { data: ev } = await supabase
         .from("events")
@@ -760,12 +781,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("event-id").value = ev.id;
         document.getElementById("title").value = ev.title;
         document.getElementById("campus").value = ev.campus;
-        document.getElementById("date").value = ev.event_date;
+        document.getElementById("date").value = ev.event_date || ev.date;
         document.getElementById("price").value = ev.price || 0;
         document.getElementById("desc").value = ev.description;
         document.getElementById("poster_url").value = ev.poster_url;
+
         document.getElementById("form-title").innerText = "Edit: " + ev.title;
-        document.getElementById("cancel-edit")?.classList.remove("hidden");
+        if (eventModal) eventModal.classList.remove("hidden");
       }
     };
 
@@ -774,6 +796,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       ?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = document.getElementById("event-id").value;
+        const btn = e.submitter;
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
         const eventData = {
           title: document.getElementById("title").value,
           campus: document.getElementById("campus").value,
@@ -790,20 +816,137 @@ document.addEventListener("DOMContentLoaded", async () => {
           await supabase.from("events").insert([eventData]);
           showCustomAlert("Success", "Event Created!");
         }
+
         document.getElementById("event-form").reset();
         document.getElementById("event-id").value = "";
-        document.getElementById("cancel-edit")?.classList.add("hidden");
-        document.getElementById("form-title").innerText = "Add New Event";
+        if (eventModal) eventModal.classList.add("hidden");
+
+        btn.innerText = "Save Event";
+        btn.disabled = false;
         fetchAdminEvents();
       });
 
-    document.getElementById("cancel-edit")?.addEventListener("click", () => {
-      document.getElementById("event-form").reset();
-      document.getElementById("event-id").value = "";
-      document.getElementById("form-title").innerText = "Add New Event";
-      document.getElementById("cancel-edit")?.classList.add("hidden");
-    });
     fetchAdminEvents();
+
+    // ==========================================
+    // IDINAGDAG KO ANG USER MANAGEMENT DITO
+    // ==========================================
+    const fetchAdminUsers = async () => {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("first_name", { ascending: true });
+      const list = document.getElementById("admin-user-list");
+
+      if (list && profiles) {
+        list.innerHTML = profiles
+          .map(
+            (p) => `
+          <tr>
+            <td><b>${p.first_name || ""} ${p.last_name || ""}</b></td>
+            <td>${p.school_email}</td>
+            <td>${p.phone_number || "N/A"}</td>
+            <td><span class="status-badge" style="background:${p.role === "admin" ? "#fef08a" : "#e5e7eb"}; color:black; padding: 4px 8px; border-radius: 4px;">${p.role}</span></td>
+            <td><button class="btn btn-solid" style="background:#facc15; padding:5px 15px; color:black; border:none; border-radius:4px; cursor:pointer;" onclick="window.manageUser('${p.id}')">Manage</button></td>
+          </tr>`,
+          )
+          .join("");
+      }
+    };
+
+    const phoneInput = document.getElementById("edit-user-phone");
+    if (phoneInput) {
+      phoneInput.setAttribute("maxlength", "11");
+      phoneInput.addEventListener("input", function () {
+        this.value = this.value.replace(/[^0-9]/g, "");
+      });
+    }
+
+    window.manageUser = async (userId) => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      if (profile) {
+        document.getElementById("edit-user-id").value = profile.id;
+        document.getElementById("edit-user-fname").value =
+          profile.first_name || "";
+        document.getElementById("edit-user-lname").value =
+          profile.last_name || "";
+        document.getElementById("edit-user-phone").value =
+          profile.phone_number || "";
+        document.getElementById("edit-user-role").value =
+          profile.role || "user";
+
+        const titleEl = document.getElementById("user-modal-title");
+        if (titleEl) titleEl.innerText = `Manage: ${profile.school_email}`;
+      }
+
+      const { data: orders } = await supabase
+        .from("orders")
+        .select("status, events(title)")
+        .eq("user_id", userId);
+      const ordersList = document.getElementById("user-orders-list");
+      if (ordersList) {
+        if (orders && orders.length > 0) {
+          ordersList.innerHTML = orders
+            .map(
+              (o) =>
+                `<tr><td>${o.events?.title || "Unknown"}</td><td><span class="status-badge">${o.status}</span></td></tr>`,
+            )
+            .join("");
+        } else {
+          ordersList.innerHTML = `<tr><td colspan="2" style="text-align:center;">No records.</td></tr>`;
+        }
+      }
+
+      const modal = document.getElementById("user-management-modal");
+      if (modal) modal.classList.remove("hidden");
+    };
+
+    document
+      .getElementById("edit-user-form")
+      ?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const userId = document.getElementById("edit-user-id").value;
+        const updates = {
+          first_name: document.getElementById("edit-user-fname").value,
+          last_name: document.getElementById("edit-user-lname").value,
+          phone_number: document.getElementById("edit-user-phone").value,
+          role: document.getElementById("edit-user-role").value,
+        };
+
+        const btn = e.submitter;
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        const { error } = await supabase
+          .from("profiles")
+          .update(updates)
+          .eq("id", userId);
+        if (error) {
+          showCustomAlert("Error", "Failed to update profile.");
+        } else {
+          showCustomAlert("Success", "Profile updated successfully!");
+          document
+            .getElementById("user-management-modal")
+            .classList.add("hidden");
+          fetchAdminUsers();
+        }
+        btn.innerText = "Save Profile Changes";
+        btn.disabled = false;
+      });
+
+    document
+      .getElementById("close-user-modal")
+      ?.addEventListener("click", () => {
+        document
+          .getElementById("user-management-modal")
+          .classList.add("hidden");
+      });
+
+    fetchAdminUsers();
   }
 
   // --- 8. ORDER LIST LOGIC ---

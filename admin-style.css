@@ -1,158 +1,355 @@
 /* --- ADMIN DASHBOARD STYLES --- */
 
 .admin-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .admin-main {
-    padding: 30px;
-    overflow-y: auto;
-    flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Header & Nav */
+.admin-top-nav {
+  /* keep other properties */
+  background: var(--nav-bg);
+  color: var(--nav-text);
+  height: 70px; /* Idagdag ito para pumantay sa height ng main site mo */
+}
+
+.nav-left-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon-btn {
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.header-logo-img {
+  height: 35px;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.header-user-greeting {
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 /* Stats Section */
 .stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .stat-box {
-    background: var(--primary);
-    color: white;
-    padding: 25px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: var(--shadow);
+  background: var(--primary);
+  color: white;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.stat-box.stat-attended {
+  background: #166534;
 }
 
 .stat-box h3 {
-    font-size: 2.5rem;
-    margin-bottom: 5px;
+  font-size: 2.5rem;
+  margin-bottom: 5px;
 }
 
 .stat-box p {
-    font-weight: 500;
-    opacity: 0.9;
+  font-weight: 500;
+  opacity: 0.9;
 }
 
 /* Admin Cards */
 .admin-card {
-    background: var(--card-bg);
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    margin-bottom: 30px;
-    border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 30px;
+  border: 1px solid var(--border-color);
 }
 
 .admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
 }
 
 .admin-header h2 {
-    color: var(--primary);
+  color: var(--primary);
+}
+
+.event-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.event-list-title {
+  margin: 0;
+}
+
+/* Buttons */
+.btn-create-event {
+  background: #006633;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-save-event {
+  margin-top: 15px;
+  padding: 12px;
+  font-weight: bold;
 }
 
 /* CRUD Form */
 .event-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
 }
 
 .full-width {
-    grid-column: 1 / -1;
+  grid-column: 1 / -1;
 }
 
 .form-control {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .form-control label {
-    font-weight: bold;
-    font-size: 14px;
+  font-weight: bold;
+  font-size: 14px;
 }
 
-.event-form input, 
-.event-form textarea, 
+.event-form input,
+.event-form textarea,
 .event-form select {
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--bg-color);
-    color: var(--text-color);
-    outline: none;
-    font-size: 14px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  outline: none;
+  font-size: 14px;
 }
 
 .event-form input:focus {
-    border-color: var(--primary);
+  border-color: var(--primary);
 }
 
 /* Management Table */
 .table-wrapper {
-    overflow-x: auto;
-    background: var(--card-bg);
-    border-radius: 12px;
+  overflow-x: auto;
+  background: var(--card-bg);
+  border-radius: 12px;
+}
+
+.scrollable-table-wrapper {
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    min-width: 600px;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 600px;
 }
 
-.admin-table th, 
+.admin-table.table-sm {
+  font-size: 13px;
+}
+
+.admin-table th,
 .admin-table td {
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .admin-table th {
-    background: rgba(0,0,0,0.03);
-    font-weight: bold;
-    color: var(--primary);
+  background: rgba(0, 0, 0, 0.03);
+  font-weight: bold;
+  color: var(--primary);
 }
 
 /* Actions */
 .action-btns {
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 8px;
 }
 
 .btn-edit {
-    background: #facc15;
-    color: #000;
+  background: #facc15;
+  color: #000;
 }
 
 .btn-delete {
-    background: #ef4444;
-    color: #fff;
+  background: #ef4444;
+  color: #fff;
 }
 
-.btn-edit:hover, .btn-delete:hover {
-    opacity: 0.8;
+.btn-edit:hover,
+.btn-delete:hover {
+  opacity: 0.8;
+}
+
+/* Utilities */
+.mt-10 {
+  margin-top: 10px;
+}
+.mt-30 {
+  margin-top: 30px;
+}
+.mb-10 {
+  margin-bottom: 10px;
+}
+.modal-box-large {
+  max-width: 600px;
+}
+.modal-title-green {
+  margin-bottom: 15px;
+  color: #006633;
+}
+.modal-title-primary {
+  margin-bottom: 15px;
+  color: var(--primary);
+}
+.modal-divider {
+  margin: 25px 0;
+  border: 0;
+  border-top: 1px solid var(--border-color);
 }
 
 /* Responsive Fix */
 @media (max-width: 768px) {
-    .admin-main {
-        padding: 15px;
-    }
-    
-    .event-form {
-        grid-template-columns: 1fr;
-    }
+  .admin-main {
+    padding: 15px;
+  }
+
+  .event-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Center Logo in Navbar */
+.admin-top-nav {
+  position: relative;
+}
+.nav-center-wrapper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: white;
+}
+
+/* Hide Sidebar Text kapag minimized (Depende kung ano class gamit mo sa JS. Halimbawa: .minimized o .collapsed) */
+.sidebar.minimized .nav-text {
+  display: none;
+}
+
+/* --- SIDEBAR & LAYOUT FIXES (UPDATED) --- */
+
+.layout-container {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 55px);
+  overflow: hidden;
+  position: relative;
+}
+
+.sidebar {
+  /* keep other properties */
+  background-color: var(--sidebar-bg);
+}
+
+/* Kapag pinindot ang burger (Minimize Desktop) */
+.sidebar.minimized {
+  width: 70px; /* Tamang sukat para sa icon lang */
+}
+.sidebar.minimized .nav-text {
+  display: none;
+}
+
+/* --- MOBILE RESPONSIVE FIXES --- */
+@media (max-width: 768px) {
+  .layout-container {
+    height: auto;
+    min-height: calc(100vh - 55px);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 55px;
+    left: -100%; /* Nakatago by default */
+    height: calc(100vh - 55px);
+    width: 250px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Kapag binuksan sa mobile */
+  .sidebar.open {
+    left: 0;
+  }
+
+  /* Force full text kapag open sa mobile */
+  .sidebar.minimized.open {
+    width: 250px;
+  }
+  .sidebar.minimized.open .nav-text {
+    display: inline-block;
+  }
+
+  .admin-top-nav {
+    padding: 10px 15px;
+  }
+
+  .nav-center-wrapper {
+    position: relative;
+    left: 0;
+    transform: none;
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+
+.header-user-greeting {
+  position: absolute;
+  right: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
