@@ -6,16 +6,23 @@
     <title>FEU Roosevelt Events</title>
     <link rel="stylesheet" href="style.css" />
 
-    <link rel="icon" type="image/x-icon" href="images/feurlogo.png">
-    
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script type="text/javascript">
-   (function(){
-      emailjs.init("RzFhb6MyWEm1QADV2"); 
-   })();
-</script>
+    <link rel="icon" type="image/x-icon" href="images/feurlogo.png" />
 
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
+    ></script>
+    <script type="text/javascript">
+      (function () {
+        emailjs.init("RzFhb6MyWEm1QADV2");
+      })();
+    </script>
 
+    <link rel="manifest" href="manifest.json" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="images/feurlogo.png" />
   </head>
   <body>
     <header class="top-nav">
@@ -250,7 +257,7 @@
       <div class="modal-box">
         <h3 style="margin-bottom: 10px; color: var(--primary)">
           Login Required
-        </h3> 
+        </h3>
         <p>You need an account to register for events.</p>
         <div class="modal-actions">
           <button id="close-auth-modal" class="btn btn-outline">Cancel</button>
