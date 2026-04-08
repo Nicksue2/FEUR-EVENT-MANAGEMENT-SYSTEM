@@ -4,24 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign Up - FEU Roosevelt Events</title>
-<<<<<<< HEAD
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="signinup.css">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-</head>
-<body class="auth-page">
-=======
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="signinup.css" />
     <link rel="icon" type="image/x-icon" href="images/feurlogo.png" />
     <link rel="manifest" href="manifest.json" />
-
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="apple-touch-icon" href="images/feurlogo.png" />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </head>
   <body class="auth-page">
->>>>>>> 394d7769f0aa3362717ea4604cdb6d4d17855f07
     <div class="auth-container">
       <div class="logo-wrapper">
         <a href="index.html">
@@ -77,46 +69,6 @@
           <label for="show-password-signup">Show Passwords</label>
         </div>
 
-<<<<<<< HEAD
-        <h2>Register Account</h2>
-        <form id="signup-form">
-            <div class="form-group">
-                <input type="text" id="fname" placeholder="First Name" required>
-            </div>
-            <div class="form-group">
-                <input type="text" id="lname" placeholder="Last Name" required>
-            </div>
-            <div class="form-group">
-                <input type="email" id="email" placeholder="School Email (@feuroosevelt.edu.ph)" required>
-            </div>
-            <div class="form-group">
-                <input type="text" id="phone" placeholder="Phone Number" required>
-            </div>
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-            <div class="form-group">
-                <input type="password" id="confirm-password" placeholder="Confirm Password" required>
-            </div>
-            <div class="form-options">
-                <input type="checkbox" id="show-password-signup">
-                <label for="show-password-signup">Show Passwords</label>
-            </div>
-            
-            <button type="button" id="open-tc" class="btn-auth btn-tc">Read Terms & Conditions</button>
-            
-            <div class="form-options">
-                <input type="checkbox" id="tc-checkbox" disabled required>
-                <label for="tc-checkbox">I accept the Terms & Conditions</label>
-            </div>
-            
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAAC2I_rAhuzk6aKTc"></div>
-
-            <button type="submit" id="register-btn" class="btn-auth" disabled>Sign Up</button>
-        </form>
-        <div class="switch-link">
-            Already have an account? <a href="signin.html">Log In</a>
-=======
         <button type="button" id="open-tc" class="btn-auth btn-tc">
           Read Terms & Conditions
         </button>
@@ -124,13 +76,15 @@
         <div class="form-options">
           <input type="checkbox" id="tc-checkbox" disabled required />
           <label for="tc-checkbox">I accept the Terms & Conditions</label>
->>>>>>> 394d7769f0aa3362717ea4604cdb6d4d17855f07
         </div>
+
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAC2I_rAhuzk6aKTc"></div>
 
         <button type="submit" id="register-btn" class="btn-auth" disabled>
           Sign Up
         </button>
       </form>
+      
       <div class="switch-link">
         Already have an account? <a href="signin.html">Log In</a>
       </div>
@@ -147,8 +101,7 @@
         <div id="tc-box" class="tc-box">
           <h4>1. Introduction</h4>
           <p>
-            Welcome to the
-            <strong>FEU Roosevelt Event Management System</strong>. By
+            Welcome to the <strong>FEU Roosevelt Event Management System</strong>. By
             registering an account, you agree to comply with and be bound by the
             following terms.
           </p>
