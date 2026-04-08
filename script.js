@@ -222,7 +222,24 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
 
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        // --- IN-ADD NA CLOUDFLARE CAPTCHA LOGIC ---
+        const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+
+        if (!captchaToken) {
+          showCustomAlert("Error", "Please complete the Captcha verification!");
+          registerBtn.innerText = "Sign Up";
+          registerBtn.disabled = false;
+          return;
+        }
+
+        // --- IN-IMPROVE NA SUPABASE SIGNUP (MAY TOKEN NA) ---
+        const { data, error } = await supabase.auth.signUp({ 
+            email, 
+            password,
+            options: {
+                captchaToken: captchaToken
+            }
+        });
         if (error) {
           showCustomAlert("Error", error.message);
           registerBtn.innerText = "Sign Up";

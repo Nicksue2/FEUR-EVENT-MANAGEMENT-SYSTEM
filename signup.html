@@ -6,6 +6,7 @@
     <title>Sign Up - FEU Roosevelt Events</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="signinup.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body class="auth-page">
     <div class="auth-container">
@@ -47,6 +48,8 @@
                 <label for="tc-checkbox">I accept the Terms & Conditions</label>
             </div>
             
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAC2I_rAhuzk6aKTc"></div>
+
             <button type="submit" id="register-btn" class="btn-auth" disabled>Sign Up</button>
         </form>
         <div class="switch-link">
