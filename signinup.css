@@ -1,15 +1,13 @@
 body.auth-page {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* FIX: Pinalitan mula center para hindi kainin yung taas */
-  min-height: 100vh;
   background-color: var(--bg-color, #f4f6f8);
   margin: 0;
-  padding: 50px 20px; /* FIX: Nilakihan yung space sa taas at baba para sa scrolling */
+  padding: 40px 20px; 
   box-sizing: border-box;
   font-family: "Segoe UI", sans-serif;
+  min-height: 100vh;
+  display: block; 
+  overflow-y: auto !important; /* FIX: Ito ang magpapa-scroll */
 }
-
 .auth-container {
   background: #ffffff;
   padding: 40px 30px;
@@ -18,7 +16,8 @@ body.auth-page {
   width: 100%;
   max-width: 400px;
   text-align: center;
-  margin: auto; /* MAGIC FIX: Para nasa gitna palagi kung malaki ang screen, pero scrollable kung maliit */
+  /* FIX: Ito ang perfect na mag-se-center sa kanya horizontally! */
+  margin: 0 auto; 
 }
 
 .logo-wrapper {
