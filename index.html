@@ -5,15 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FEU Roosevelt Events</title>
     <link rel="stylesheet" href="style.css" />
-    
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script type="text/javascript">
-   (function(){
-      emailjs.init("RzFhb6MyWEm1QADV2"); 
-   })();
-</script>
 
+    <link rel="icon" type="image/x-icon" href="images/feurlogo.png" />
 
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
+    ></script>
+    <script type="text/javascript">
+      (function () {
+        emailjs.init("RzFhb6MyWEm1QADV2");
+      })();
+    </script>
+
+    <link rel="manifest" href="manifest.json" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="images/feurlogo.png" />
   </head>
   <body>
     <header class="top-nav">
@@ -79,7 +88,9 @@
             </button>
             <div id="notif-modal" class="modern-modal hidden">
               <h4>Notifications</h4>
-              <div class="notif-list" id="notif-list"></div>
+              <div class="notif-list" id="notif-list">
+                <div class="loading-text">Loading...</div>
+              </div>
             </div>
           </div>
           <div id="user-greeting" class="user-greeting">Welcome!</div>
@@ -256,5 +267,16 @@
     </div>
 
     <script type="module" src="script.js"></script>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((registration) => console.log("ServiceWorker registered!"))
+            .catch((err) => console.log("ServiceWorker failed: ", err));
+        });
+      }
+    </script>
   </body>
 </html>

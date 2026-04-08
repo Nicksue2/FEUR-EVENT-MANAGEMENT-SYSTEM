@@ -1,0 +1,20 @@
+{
+  "name": "FEUR Events",
+  "short_name": "FEUR Events",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#006633",
+  "icons": [
+    {
+      "src": "images/feurlogo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/feurlogo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
