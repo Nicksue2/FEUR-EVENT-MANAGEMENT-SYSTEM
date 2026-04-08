@@ -189,3 +189,10 @@ body.auth-page {
   color: #d97706; /* Orange emphasis */
   font-weight: bold;
 }
+
+.cf-turnstile {
+  margin-top: 15px;
+  margin-bottom: 15px; 
+  display: flex;
+  justify-content: center;
+}

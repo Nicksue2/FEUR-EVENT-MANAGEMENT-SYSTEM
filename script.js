@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         registerBtn.disabled = true;
 
         const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
+      const password = document.getElementById("password").value;
 
         if (password !== document.getElementById("confirm-password").value) {
           showCustomAlert("Error", "Passwords do not match.");
@@ -399,9 +399,25 @@ document.addEventListener("DOMContentLoaded", async () => {
           localStorage.removeItem("rememberedEmail");
         }
 
+       // --- CLOUDFLARE CAPTCHA ---
+        const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+
+        if (!captchaToken) {
+          showCustomAlert("Error", "Please complete the verification!");
+          if (btn) {
+            btn.innerText = "Log In";
+            btn.disabled = false;
+          }
+          return;
+        }
+
+        // --- SUPABASE LOGIN ---
         const { error } = await supabase.auth.signInWithPassword({
           email: emailVal,
           password: passVal,
+          options: {
+              captchaToken: captchaToken
+          }
         });
         if (error) {
           showCustomAlert("Login Failed", error.message);
