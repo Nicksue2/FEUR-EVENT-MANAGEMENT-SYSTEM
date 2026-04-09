@@ -390,6 +390,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           },
         );
 
+        // I-RESET ANG CAPTCHA PARA MAKA-GENERATE NG BAGONG TOKEN KUNG SAKALING GUSTONG UMULIT
+        if (typeof turnstile !== "undefined") turnstile.reset();
+
         if (error) {
           showCustomAlert("Error", error.message);
         } else {
@@ -443,10 +446,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (error) {
           showCustomAlert("Login Failed", error.message);
+          // I-RESET ANG CAPTCHA PARA SA BAGONG TRY
           if (typeof turnstile !== "undefined") turnstile.reset();
+
+          // I-ENABLE ULIT ANG BUTTON PARA PWEDE PUMINDOT ULIT
           if (btn) {
             btn.innerText = "Log In";
             btn.disabled = false;
+            btn.classList.remove("loading-btn");
           }
         } else {
           window.location.href = "index.html";
