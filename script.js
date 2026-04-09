@@ -1289,4 +1289,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
+
+  
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      // Kapag may pumasok na bagong Service Worker (e.g., nagpalit ka from v4 to v5)
+      // Kusa niyang ire-refresh yung browser ng user para makita yung update
+      window.location.reload();
+    });
+  }
 });
