@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         registerBtn.disabled = true;
 
         const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+        const password = document.getElementById("password").value;
 
         if (password !== document.getElementById("confirm-password").value) {
           showCustomAlert("Error", "Passwords do not match.");
@@ -296,7 +296,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         // --- IN-ADD NA CLOUDFLARE CAPTCHA LOGIC ---
-        const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+        const captchaToken = document.querySelector(
+          '[name="cf-turnstile-response"]',
+        )?.value;
 
         if (!captchaToken) {
           showCustomAlert("Error", "Please complete the Captcha verification!");
@@ -306,12 +308,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         // --- IN-IMPROVE NA SUPABASE SIGNUP (MAY TOKEN NA) ---
-        const { data, error } = await supabase.auth.signUp({ 
-            email, 
-            password,
-            options: {
-                captchaToken: captchaToken
-            }
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            captchaToken: captchaToken,
+          },
         });
         if (error) {
           showCustomAlert("Error", error.message);
@@ -399,8 +401,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           localStorage.removeItem("rememberedEmail");
         }
 
-       // --- CLOUDFLARE CAPTCHA ---
-        const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+        // --- CLOUDFLARE CAPTCHA ---
+        const captchaToken = document.querySelector(
+          '[name="cf-turnstile-response"]',
+        )?.value;
 
         if (!captchaToken) {
           showCustomAlert("Error", "Please complete the verification!");
@@ -416,11 +420,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           email: emailVal,
           password: passVal,
           options: {
-              captchaToken: captchaToken
-          }
+            captchaToken: captchaToken,
+          },
         });
         if (error) {
           showCustomAlert("Login Failed", error.message);
+          if (typeof turnstile !== "undefined") turnstile.reset();
           if (btn) {
             btn.innerText = "Log In";
             btn.disabled = false;
