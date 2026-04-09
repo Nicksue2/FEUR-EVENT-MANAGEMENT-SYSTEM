@@ -369,13 +369,27 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
 
+        // Kunin ang captcha token para tanggapin ng Supabase
+        const captchaToken = document.querySelector(
+          '[name="cf-turnstile-response"]',
+        )?.value;
+        if (!captchaToken) {
+          showCustomAlert(
+            "Error",
+            "Please complete the Captcha verification first!",
+          );
+          return;
+        }
+
         // I-se-set natin ang redirect URL sa reset-password.html
         const { error } = await supabase.auth.resetPasswordForEmail(
           emailInput,
           {
             redirectTo: window.location.origin + "/reset-password.html",
+            captchaToken: captchaToken,
           },
         );
+
         if (error) {
           showCustomAlert("Error", error.message);
         } else {
@@ -426,6 +440,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             captchaToken: captchaToken,
           },
         });
+
         if (error) {
           showCustomAlert("Login Failed", error.message);
           if (typeof turnstile !== "undefined") turnstile.reset();
@@ -441,14 +456,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- RESET PASSWORD LOGIC ---
   if (path.includes("reset-password")) {
-    togglePassword("show-new-password", "new-password");
+    togglePassword("show-new-password", "new-password", "confirm-new-password");
 
-    // Tinanggal yung onAuthStateChange wrapper para direct trigger agad sa form
+    // I-check kung may error galing sa email link (e.g., expired token)
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    if (hashParams.get("error")) {
+      showCustomAlert(
+        "Error",
+        "Link is expired or invalid. Please request a new one from the Log In page.",
+      );
+    }
+
     document
       .getElementById("reset-password-form")
       ?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const newPassword = document.getElementById("new-password").value;
+        const confirmPassword = document.getElementById(
+          "confirm-new-password",
+        ).value;
+
+        if (newPassword !== confirmPassword) {
+          showCustomAlert("Error", "Passwords do not match.");
+          return;
+        }
+
         const btn = document.getElementById("update-pwd-btn");
         btn.innerText = "Updating...";
         btn.disabled = true;
@@ -1290,7 +1322,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       // Kapag may pumasok na bagong Service Worker (e.g., nagpalit ka from v4 to v5)
