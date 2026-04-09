@@ -10,7 +10,7 @@ const urlsToCache = [
   "/manifest.json",
 ];
 
-// Install: I-save ang mga files sa cache
+// Install:
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -19,12 +19,27 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Fetch: Kapag walang internet, kunin ang files sa cache
+// Fetch:  pag walang net.. kukunin cache
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // Ibigay ang cached file kung meron, kundi, kumuha sa internet
       return response || fetch(event.request);
+    }),
+  );
+});
+
+// Activate: remove old cache if may new
+self.addEventListener("activate", (event) => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (!cacheWhitelist.includes(cacheName)) {
+            return caches.delete(cacheName);
+          }
+        }),
+      );
     }),
   );
 });
