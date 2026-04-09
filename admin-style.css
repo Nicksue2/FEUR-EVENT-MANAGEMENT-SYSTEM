@@ -442,3 +442,79 @@
     border-top: 1px solid #eee;
   }
 }
+
+/* --- EXPANDING SEARCH BAR --- */
+.attendee-tools {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+  position: relative;
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  width: 18px;
+  height: 18px;
+  color: #777;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.expand-input {
+  width: 100%;
+  padding: 10px 10px 10px 35px !important;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  height: 42px;
+  transition: all 0.3s ease;
+}
+
+.filter-select {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  height: 42px;
+}
+
+@media (max-width: 768px) {
+  .search-wrapper {
+    position: static;
+    flex: none;
+  }
+  .search-icon {
+    left: auto;
+    right: 12px;
+    z-index: 5;
+  }
+  .expand-input {
+    position: absolute;
+    right: 0;
+    width: 42px;
+    padding: 10px !important;
+    color: transparent;
+    background: transparent;
+    cursor: pointer;
+    z-index: 4;
+  }
+  .expand-input:focus {
+    width: 100%;
+    padding: 10px 40px 10px 15px !important;
+    color: var(--text-color);
+    background: var(--bg-color);
+    cursor: text;
+  }
+
+  /* Burahin yung old layout na in-override natin */
+  #attendees-modal > div[style*="display: flex"] {
+    display: none;
+  }
+}

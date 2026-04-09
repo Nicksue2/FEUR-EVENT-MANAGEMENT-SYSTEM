@@ -354,26 +354,29 @@
           Event Attendees
         </h3>
 
-        <div style="display: flex; gap: 10px; margin-bottom: 15px">
-          <input
-            type="text"
-            id="search-attendee"
-            placeholder="Search name or email..."
-            style="
-              flex: 1;
-              padding: 10px;
-              border: 1px solid var(--border-color);
-              border-radius: 6px;
-            "
-          />
-          <select
-            id="filter-attendee-status"
-            style="
-              padding: 10px;
-              border: 1px solid var(--border-color);
-              border-radius: 6px;
-            "
-          >
+        <div class="attendee-tools">
+          <div class="search-wrapper">
+            <svg
+              class="search-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+            <input
+              type="text"
+              id="search-attendee"
+              class="expand-input"
+              placeholder="Search name or email..."
+            />
+          </div>
+          <select id="filter-attendee-status" class="filter-select">
             <option value="All">All Status</option>
             <option value="Registered">Registered</option>
             <option value="Attended">Attended</option>
