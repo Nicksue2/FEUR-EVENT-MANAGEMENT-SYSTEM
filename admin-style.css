@@ -446,22 +446,24 @@
 /* --- EXPANDING SEARCH BAR --- */
 .attendee-tools {
   display: flex;
+  flex-direction: row; /* Laging magkatabi */
   gap: 10px;
   margin-bottom: 15px;
   align-items: center;
-  position: relative;
+  width: 100%;
 }
 
 .search-wrapper {
   display: flex;
   align-items: center;
-  flex: 1;
+  flex: 1; /* Full size sa PC */
   position: relative;
+  transition: all 0.3s ease;
 }
 
 .search-icon {
   position: absolute;
-  left: 10px;
+  left: 12px;
   width: 18px;
   height: 18px;
   color: #777;
@@ -471,50 +473,82 @@
 
 .expand-input {
   width: 100%;
-  padding: 10px 10px 10px 35px !important;
+  padding: 10px 10px 10px 38px !important;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   height: 42px;
   transition: all 0.3s ease;
+  background: var(--bg-color);
+  color: var(--text-color);
+  outline: none;
+}
+
+.expand-input:focus {
+  border-color: var(--primary);
 }
 
 .filter-select {
+  flex: 0 0 140px; /* Fixed width sa PC */
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   height: 42px;
+  transition: all 0.3s ease;
+  outline: none;
 }
 
+/* --- MOBILE EXPAND LOGIC --- */
 @media (max-width: 768px) {
+  .attendee-tools {
+    flex-direction: row !important;
+  }
+
   .search-wrapper {
-    position: static;
-    flex: none;
+    flex: 0 0 42px;
   }
-  .search-icon {
-    left: auto;
-    right: 12px;
-    z-index: 5;
-  }
+
+  /* Nakatago kapag hindi pinipindot */
   .expand-input {
-    position: absolute;
-    right: 0;
-    width: 42px;
     padding: 10px !important;
     color: transparent;
     background: transparent;
+    border-color: transparent; /* Itago ang border */
     cursor: pointer;
-    z-index: 4;
   }
-  .expand-input:focus {
-    width: 100%;
-    padding: 10px 40px 10px 15px !important;
+
+  .expand-input::placeholder {
+    color: transparent; /* Itago ang text */
+  }
+
+  .filter-select {
+    flex: 1;
+    min-width: 0;
+    opacity: 1;
+  }
+
+  /* Lalabas kapag pinindot */
+  .search-wrapper:focus-within {
+    flex: 1 1 100%;
+  }
+
+  .search-wrapper:focus-within .expand-input {
     color: var(--text-color);
     background: var(--bg-color);
+    border-color: var(--border-color); /* Ipakita ang border */
+    padding: 10px 10px 10px 38px !important;
     cursor: text;
   }
 
-  /* Burahin yung old layout na in-override natin */
-  #attendees-modal > div[style*="display: flex"] {
-    display: none;
+  .search-wrapper:focus-within .expand-input::placeholder {
+    color: #999; /* Ipakita ang text */
+  }
+
+  .search-wrapper:focus-within ~ .filter-select {
+    flex: 0 0 0;
+    padding: 0;
+    border: none;
+    opacity: 0;
+    overflow: hidden;
+    margin: 0;
   }
 }
