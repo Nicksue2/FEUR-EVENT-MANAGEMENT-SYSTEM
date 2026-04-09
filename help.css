@@ -1,0 +1,226 @@
+/* help.css - Fixed scrolling, alignment, and animations */
+
+.help-body {
+  background: #f4f6f8;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  /* Enforce normal scrolling */
+  overflow-y: auto !important;
+  display: block !important;
+}
+
+.help-header {
+  background: #006633;
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: sticky; /* Panatilihin ang header sa taas */
+  top: 0;
+  z-index: 100;
+}
+
+.home-btn {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition:
+    transform 0.2s,
+    color 0.2s;
+}
+
+.home-btn:hover {
+  transform: scale(1.1);
+  color: #f1c40f;
+}
+
+/* Design para sa clickable center part */
+.header-center-link {
+  text-decoration: none;
+  color: white;
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
+}
+
+.header-center-link:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-title h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.nav-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.header-spacer {
+  width: 28px;
+}
+
+.help-main {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px 40px; /* Dagdag padding sa baba para sa scroll */
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.help-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.help-card h3 {
+  color: #006633;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 10px;
+}
+
+.contact-card h3 {
+  margin-bottom: 5px;
+}
+
+.contact-desc {
+  color: #64748b;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+  overflow: hidden; /* Kailangan para sa height animation */
+}
+
+.faq-item:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.faq-item summary {
+  padding: 15px 20px;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1.05rem;
+  outline: none;
+}
+
+/* --- SMOOTH FAQ ANIMATION --- */
+.faq-item p {
+  max-height: 0;
+  margin: 0;
+  padding: 0 20px; /* Side padding lang muna */
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease-out,
+    padding 0.3s ease-out,
+    opacity 0.2s ease-out;
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.faq-item[open] p {
+  max-height: 500px; /* Arbitrary number para magka-space */
+  padding: 0 20px 20px; /* Lagyan ng padding sa baba */
+  opacity: 1;
+}
+/* ---------------------------- */
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group-help {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group-help label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-group-help select,
+.form-group-help textarea {
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group-help textarea {
+  resize: vertical;
+}
+
+.form-group-help select:focus,
+.form-group-help textarea:focus {
+  outline: none;
+  border-color: #006633;
+  background: white;
+}
+
+.btn-send-help {
+  background: #f1c40f;
+  color: #1e293b;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 5px;
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.btn-send-help:hover {
+  opacity: 0.9;
+}
+
+.btn-send-help:active {
+  transform: scale(0.98);
+}

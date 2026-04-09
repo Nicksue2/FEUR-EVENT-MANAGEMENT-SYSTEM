@@ -284,6 +284,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         e.preventDefault();
         registerBtn.innerText = "Processing...";
         registerBtn.disabled = true;
+        registerBtn.classList.remove("loading-btn");
 
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
@@ -292,6 +293,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           showCustomAlert("Error", "Passwords do not match.");
           registerBtn.innerText = "Sign Up";
           registerBtn.disabled = false;
+          registerBtn.classList.remove("loading-btn");
           return;
         }
 
@@ -389,6 +391,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (btn) {
           btn.innerText = "Logging in...";
           btn.disabled = true;
+          btn.classList.add("loading-btn");
         }
 
         const emailVal = document.getElementById("email").value;
@@ -440,36 +443,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (path.includes("reset-password")) {
     togglePassword("show-new-password", "new-password");
 
-    // Supabase automatically handles the hash in the URL on this page load
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event == "PASSWORD_RECOVERY") {
-        // Show the form
-        document
-          .getElementById("reset-password-form")
-          ?.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const newPassword = document.getElementById("new-password").value;
-            const btn = document.getElementById("update-pwd-btn");
-            btn.innerText = "Updating...";
-            btn.disabled = true;
+    // Tinanggal yung onAuthStateChange wrapper para direct trigger agad sa form
+    document
+      .getElementById("reset-password-form")
+      ?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const newPassword = document.getElementById("new-password").value;
+        const btn = document.getElementById("update-pwd-btn");
+        btn.innerText = "Updating...";
+        btn.disabled = true;
 
-            const { error } = await supabase.auth.updateUser({
-              password: newPassword,
-            });
+        const { error } = await supabase.auth.updateUser({
+          password: newPassword,
+        });
 
-            if (error) {
-              showCustomAlert("Error", error.message);
-              btn.innerText = "Update Password";
-              btn.disabled = false;
-            } else {
-              showCustomAlert("Success", "Password updated successfully!");
-              setTimeout(() => {
-                window.location.href = "signin.html";
-              }, 2000);
-            }
-          });
-      }
-    });
+        if (error) {
+          showCustomAlert("Error", error.message);
+          btn.innerText = "Update Password";
+          btn.disabled = false;
+        } else {
+          showCustomAlert("Success", "Password updated successfully!");
+          setTimeout(() => {
+            window.location.href = "signin.html";
+          }, 2000);
+        }
+      });
   }
 
   // --- 6. DASHBOARD EVENTS & REGISTRATION LOGIC ---
@@ -1239,5 +1237,56 @@ document.addEventListener("DOMContentLoaded", async () => {
         entryScanner.render(entrySuccessCallback);
       }
     }, 1000);
+  }
+
+  // --- HELP PAGE LOGIC ---
+  if (path.includes("help")) {
+    document.getElementById("contact-form")?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("send-help-btn");
+      const subject = document.getElementById("contact-subject").value;
+      const message = document.getElementById("contact-message").value;
+
+      btn.innerText = "Sending...";
+      btn.disabled = true;
+
+      // Kunin ang info ng current user
+      const senderEmail = currentUser ? currentUser.email : "Not Logged In";
+      const senderName = currentUser
+        ? document.getElementById("user-greeting")?.innerText || "User"
+        : "Guest";
+
+      if (typeof emailjs !== "undefined") {
+        emailjs
+          .send("service_nczv2qc", "template_4unbsmi", {
+            email: senderEmail,
+            name: senderName,
+            title: subject,
+            message: message,
+          })
+          .then(() => {
+            showCustomAlert(
+              "Success",
+              "Message sent successfully to the admin!",
+            );
+            document.getElementById("contact-form").reset();
+            btn.innerText = "Send Message";
+            btn.disabled = false;
+          })
+          .catch((err) => {
+            console.error("Email error:", err);
+            showCustomAlert(
+              "Error",
+              "Failed to send message. Please try again later.",
+            );
+            btn.innerText = "Send Message";
+            btn.disabled = false;
+          });
+      } else {
+        showCustomAlert("Error", "Email service is not loaded.");
+        btn.innerText = "Send Message";
+        btn.disabled = false;
+      }
+    });
   }
 });

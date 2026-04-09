@@ -743,3 +743,82 @@ input:checked + .slider:before {
   background: #fff;
   border-color: var(--primary);
 }
+
+.loading-btn {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+/* --- PREMIUM MODAL ALERT UPGRADE --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5) !important; /* Mas dark na background */
+  backdrop-filter: blur(4px) !important; /* Blur effect sa likod */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-box {
+  background: white !important;
+  padding: 30px 25px !important;
+  border-radius: 16px !important; /* Mas rounded */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  width: 90% !important;
+  max-width: 380px !important;
+  text-align: center !important;
+  transform: scale(1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.hidden .modal-box {
+  transform: scale(0.8); /* Cool pop-in animation */
+}
+
+.modal-box h3 {
+  margin: 0 0 10px !important;
+  color: #1e293b !important;
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+}
+
+.modal-box p {
+  color: #475569 !important;
+  font-size: 1rem !important;
+  margin-bottom: 25px !important;
+  line-height: 1.5 !important;
+}
+
+.modal-box button {
+  background: #006633 !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 25px !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  transition: background 0.2s, transform 0.1s !important;
+}
+
+.modal-box button:hover {
+  background: #004d26 !important;
+}
+
+.modal-box button:active {
+  transform: scale(0.97) !important;
+}
+/* ----------------------------------- */
