@@ -744,6 +744,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <tr>
                 <td>${ev.title}</td><td>${ev.campus}</td><td>${ev.event_date}</td><td>${ev.price > 0 ? "₱" + ev.price : "FREE"}</td>
                 <td style="display:flex; gap:5px;">
+                    <button class="btn btn-solid" style="background:#10b981; color:white; padding:5px 10px;" onclick="window.viewEventAttendees('${ev.id}', '${ev.title.replace(/'/g, "\\'")}')">View</button>
                     <button class="btn btn-solid" style="background:#3b82f6; color:white; padding:5px 10px;" onclick="window.exportEvent('${ev.id}', '${ev.title.replace(/'/g, "\\'")}')">Export</button>
                     <button class="btn btn-solid" style="background:#facc15; padding:5px 10px; color:black;" onclick="window.editEvent('${ev.id}')">Edit</button>
                     <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px;" onclick="window.deleteEvent('${ev.id}')">Delete</button>
@@ -817,6 +818,76 @@ document.addEventListener("DOMContentLoaded", async () => {
       link.click();
       document.body.removeChild(link);
     };
+
+    //here
+    let currentAttendeesData = []; 
+
+    window.viewEventAttendees = async (eventId, eventTitle) => {
+      document.getElementById("attendees-modal-title").innerText = `${eventTitle} - Attendees`;
+      const list = document.getElementById("attendees-list");
+      list.innerHTML = `<tr><td colspan="3" style="text-align:center;">Loading...</td></tr>`;
+      document.getElementById("attendees-modal").classList.remove("hidden");
+
+      const { data: orders } = await supabase
+        .from("orders")
+        .select("user_id, status")
+        .eq("event_id", eventId);
+
+      if (!orders || orders.length === 0) {
+        list.innerHTML = `<tr><td colspan="3" style="text-align:center;">No attendees yet.</td></tr>`;
+        currentAttendeesData = [];
+        return;
+      }
+
+      const userIds = orders.map(o => o.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, school_email")
+        .in("id", userIds);
+
+      currentAttendeesData = orders.map(order => {
+        const profile = profiles?.find(p => p.id === order.user_id) || {};
+        return {
+          name: `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || "Unknown",
+          email: profile.school_email || "N/A",
+          status: order.status
+        };
+      });
+
+      renderAttendees(); 
+    };
+
+    const renderAttendees = () => {
+      const term = document.getElementById("search-attendee").value.toLowerCase();
+      const statusFilter = document.getElementById("filter-attendee-status").value;
+
+      const filtered = currentAttendeesData.filter(user => {
+        const matchSearch = user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term);
+        const matchStatus = statusFilter === "All" || user.status === statusFilter;
+        return matchSearch && matchStatus;
+      });
+
+      const list = document.getElementById("attendees-list");
+      if (filtered.length === 0) {
+        list.innerHTML = `<tr><td colspan="3" style="text-align:center;">No match found.</td></tr>`;
+      } else {
+        list.innerHTML = filtered.map(u => {
+          let bg = u.status === "Registered" ? "#e5e7eb" : (u.status === "Attended" ? "#dcfce7" : "#fee2e2");
+          let txt = u.status === "Registered" ? "black" : (u.status === "Attended" ? "#166534" : "#991b1b");
+          return `<tr>
+            <td><b>${u.name}</b></td>
+            <td>${u.email}</td>
+            <td><span class="status-badge" style="background:${bg}; color:${txt}; padding: 4px 8px; border-radius: 4px; font-size:12px;">${u.status}</span></td>
+          </tr>`;
+        }).join("");
+      }
+    };
+
+    document.getElementById("search-attendee")?.addEventListener("input", renderAttendees);
+    document.getElementById("filter-attendee-status")?.addEventListener("change", renderAttendees);
+    document.getElementById("close-attendees-modal")?.addEventListener("click", () => {
+      document.getElementById("attendees-modal").classList.add("hidden");
+    });
 
     window.deleteEvent = async (id) => {
       if (confirm("Delete this event?")) {
