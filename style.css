@@ -822,3 +822,72 @@ input:checked + .slider:before {
   transform: scale(0.97) !important;
 }
 /* ----------------------------------- */
+
+/* --- NEW FIXES FOR PC MODAL & MOBILE RESPONSIVENESS --- */
+
+/* 1. Palaparin ang modal sa PC para hindi mukhang pang-mobile */
+@media (min-width: 768px) {
+  .event-modal-box {
+    max-width: 600px !important;
+    padding: 30px !important;
+  }
+}
+
+/* 2. Ayusin ang Campus Selector sa Mobile para hindi mawala */
+@media (max-width: 768px) {
+  .nav-right {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .campus-dropdown {
+    width: 100%;
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+}
+
+/* 3. Force Gray out sa Registered Button */
+.btn:disabled, .btn-disabled {
+  background-color: #9ca3af !important;
+  border-color: #9ca3af !important;
+  color: white !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+/* --- UI POLISHING FIXES --- */
+
+/* 1. Fix para hindi maputol ang Modal sa PC (Lalabas ang scrollbar kung mahaba) */
+.event-modal-box {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* 2. Fix para sa Gap ng Action Buttons sa Order List */
+.event-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+.event-action-area {
+  margin-top: auto; /* Itutulak niya yung buttons pababa */
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Consistent spacing */
+  padding-top: 15px;
+}
+.event-action-area button {
+  margin: 0 !important; /* Tatanggalin ang manual margins */
+}
+
+/* 3. Fix para sa Admin Table sa Mobile (Para mabasa ang labels) */
+@media (max-width: 768px) {
+  .admin-table th, .admin-table td {
+    font-size: 12px;
+    padding: 10px 8px;
+    white-space: nowrap; /* Hindi magugusot ang text */
+  }
+}

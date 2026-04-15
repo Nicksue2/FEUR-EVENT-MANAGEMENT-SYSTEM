@@ -431,6 +431,16 @@
         <button id="close-alert" class="btn btn-solid w-100">OK</button>
       </div>
     </div>
+    <div id="custom-confirm" class="modal-overlay hidden">
+      <div class="modal-box alert-box">
+        <h3 id="confirm-title" style="color: var(--primary);">Confirm Action</h3>
+        <p id="confirm-message" class="alert-margin"></p>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button id="confirm-cancel-btn" class="btn btn-outline w-100">Cancel</button>
+          <button id="confirm-ok-btn" class="btn btn-solid w-100">Confirm</button>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="script.js"></script>
     <script>

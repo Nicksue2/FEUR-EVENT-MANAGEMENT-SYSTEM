@@ -17,8 +17,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     const alertModal = document.getElementById("custom-alert");
     if (alertModal) {
       document.getElementById("alert-title").innerText = title;
-      document.getElementById("alert-message").innerText = message;
+      document.getElementById("alert-message").innerHTML = message;
       alertModal.classList.remove("hidden");
+    }
+  };
+
+  // --- CUSTOM CONFIRM HELPER ---
+  const showCustomConfirm = (title, message, onConfirm) => {
+    const confirmModal = document.getElementById("custom-confirm");
+    if (confirmModal) {
+      document.getElementById("confirm-title").innerText = title;
+      document.getElementById("confirm-message").innerHTML = message;
+      confirmModal.classList.remove("hidden");
+
+      const okBtn = document.getElementById("confirm-ok-btn");
+      const cancelBtn = document.getElementById("confirm-cancel-btn");
+
+      const newOkBtn = okBtn.cloneNode(true);
+      const newCancelBtn = cancelBtn.cloneNode(true);
+      okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+      newCancelBtn.addEventListener("click", () => {
+        confirmModal.classList.add("hidden");
+      });
+
+      newOkBtn.addEventListener("click", () => {
+        confirmModal.classList.add("hidden");
+        onConfirm();
+      });
     }
   };
 
@@ -682,15 +709,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      // [SEARCH: PAYMENT_STATUS_SETUP]
       let paymentStat = currentSelectedEvent.price > 0 ? 'unpaid' : 'free';
+      let orderStat = currentSelectedEvent.price > 0 ? 'Pending Payment' : 'Registered';
 
+      // [SEARCH: DB_INSERT_ORDER]
       const { data, error } = await supabase
         .from("orders")
         .insert([
           {
             user_id: currentUser.id,
             event_id: currentSelectedEvent.id,
-            status: "Registered",
+            status: orderStat, // "Pending Payment" o "Registered"
             payment_status: paymentStat,
             proof_of_payment_url: null 
           },
@@ -708,11 +738,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         const ticketID = `FEUR-TICKET-${orderData.id}`;
 
         if (currentSelectedEvent.price > 0) {
+            // [SEARCH: PAID_EVENT_ALERT]
             showCustomAlert(
               "Slot Reserved!", 
-              `Please pay ₱${currentSelectedEvent.price}.\n\nYour Reference Number is: ${ticketID}\n\nGo to your Order List to upload the receipt within 5 days.`
+              `Please pay ₱${currentSelectedEvent.price}.<br><br>Your Reference Number is: <b style="font-size: 14px; color: var(--primary);">${ticketID}</b><br><br>Go to your Order List to upload the receipt within 5 days.`
             );
+            
+            // BAGONG EMAILJS ACCOUNT - PENDING EMAIL
+            if (typeof emailjs !== "undefined") {
+              emailjs.send("service_abyji0d", "template_jxtr45p", {
+                  to_email: currentUser.email,
+                  user_name: userName,
+                  event_title: currentSelectedEvent.title,
+                  ref_no: ticketID,
+                  price: currentSelectedEvent.price
+                }, "pY0e20a_mx8EoiFdT")
+                .then(() => console.log("Initial Pending Email sent!"))
+                .catch((err) => console.error("Email error:", err));
+            }
         } else {
+            // [SEARCH: FREE_EVENT_EMAIL] (LUMANG ACCOUNT GAMIT DITO)
             if (typeof emailjs !== "undefined") {
               emailjs
                 .send("service_nczv2qc", "template_uiwfmsd", {
@@ -1136,27 +1181,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     window.approvePayment = async (orderId, userEmail, userName, eventTitle, eventDate, eventCampus) => {
-      if (confirm("Approve this payment and send the QR Ticket to their email?")) {
-        await supabase.from("orders").update({ payment_status: "paid" }).eq("id", orderId);
+      showCustomConfirm("Approve Payment", "Approve this payment and send the QR Ticket to their email?", async () => {
+        await supabase.from("orders").update({ payment_status: "paid", status: "Registered" }).eq("id", orderId);
 
         const ticketID = `FEUR-TICKET-${orderId}`;
 
+        // BAGONG EMAILJS ACCOUNT - ORDER CONFIRMATION
         if (typeof emailjs !== "undefined") {
-          emailjs.send("service_nczv2qc", "template_uiwfmsd", {
+          emailjs.send("service_abyji0d", "template_aosc5oj", {
               to_email: userEmail,
               user_name: userName || "Student",
               event_title: eventTitle,
               event_date: eventDate,
               campus: eventCampus,
               qr_data: ticketID,
-            })
+            }, "pY0e20a_mx8EoiFdT") // NEW PUBLIC KEY NA GAMIT DITO
             .then(() => console.log("Ticket sent!"))
             .catch((err) => console.error("Email error:", err));
         }
 
         showCustomAlert("Success", "Payment verified and QR Ticket sent!");
         fetchPaymentApprovals();
-      }
+      });
+    };
+
+    window.rejectPayment = async (orderId) => {
+      showCustomConfirm("Reject Payment", "Reject this receipt? They will need to upload again.", async () => {
+        await supabase.from("orders").update({ proof_of_payment_url: null }).eq("id", orderId);
+        showCustomAlert("System", "Receipt rejected. User must upload again.");
+        fetchPaymentApprovals();
+      });
     };
 
     window.rejectPayment = async (orderId) => {
@@ -1232,20 +1286,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <span>📅 ${event.event_date || "TBA"}</span>
                     <span>📍 FEU Roosevelt ${event.campus}</span>
                 </div>
-                <button class="btn btn-outline w-100 ref-no-btn" data-order-id="${
-                  order.id}" style="margin-bottom:8px; border-color:var(--primary); color:var(--primary); font-size:12px; padding:6px; font-weight:bold;">📄 View Ref No.</button>
+                ${event.price > 0 ? `<button class="btn btn-outline w-100 ref-no-btn" data-order-id="${order.id}" style="margin-bottom:8px; border-color:var(--primary); color:var(--primary); font-size:12px; padding:6px; font-weight:bold;">📄 View Ref No.</button>` : ''}
+                
                 ${actionHTML}
             </div>`;
           ordersGrid.appendChild(card);
         });
 
-        // Events for generated buttons
+        // [SEARCH: REF_NO_EVENT_LISTENER]
         document.querySelectorAll(".ref-no-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
             const orderId = btn.getAttribute("data-order-id");
             showCustomAlert(
               "Reference Number",
-              `Your Reference Number is:\n\nFEUR-TICKET-${orderId}\n\nUse this when paying via GCash or Finance.`
+              `Your Reference Number is:<br><br><b style="font-size: 16px; color: var(--primary);">FEUR-TICKET-${orderId}</b>`
             );
           });
         });
@@ -1307,10 +1361,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           });
         });
 
+        // Cancel Ticket Event Listener
         document.querySelectorAll(".cancel-ticket-btn").forEach((btn) => {
           btn.addEventListener("click", async () => {
             const orderId = btn.getAttribute("data-order-id");
-            if (confirm("Are you sure you want to cancel your registration for this event? This action cannot be undone.")) {
+            
+            showCustomConfirm("Cancel Registration", "Are you sure you want to cancel your registration for this event? This action cannot be undone.", async () => {
               btn.innerText = "Cancelling...";
               btn.disabled = true;
 
@@ -1325,7 +1381,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 fetchOrders(); 
                 loadNotifications(); 
               }
-            }
+            });
           });
         });
       }
