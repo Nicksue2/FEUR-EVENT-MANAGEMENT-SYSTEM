@@ -603,7 +603,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("modal-event-meta").innerHTML =
           `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus} <br><br>📊 <b>Available Slots:</b> ${slotsLeft} / ${maxCap}`;
         document.getElementById("modal-event-desc").innerText =
+        
           event.description || "No description available for this event.";
+         // CHECK KUNG FREE O PAID PARA LUMABAS YUNG INFO SECTION
+        const paymentSection = document.getElementById('payment-section');
+        const priceDisplay = document.getElementById('modal-price-display');
+        
+        if (paymentSection) {
+            if (event.price > 0) {
+                paymentSection.style.display = "block";
+                if(priceDisplay) priceDisplay.innerText = event.price;
+            } else {
+                paymentSection.style.display = "none";
+            }
+        }
 
         const modalBtn = document.getElementById("modal-register-btn");
         if (modalBtn) {
@@ -668,11 +681,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      // [SEARCH: EVENT_SOLD_OUT_CHECK]
       const { count } = await supabase
         .from("orders")
         .select("*", { count: "exact", head: true })
         .eq("event_id", currentSelectedEvent.id)
         .not("status", "eq", "Cancelled");
+
       const maxCap = currentSelectedEvent.max_capacity || 100;
       if ((count || 0) >= maxCap) {
         showCustomAlert("Error", "Sorry, this event is already sold out.");
@@ -681,6 +696,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      // [SEARCH: PAYMENT_STATUS_SETUP]
+      let paymentStat = currentSelectedEvent.price > 0 ? 'unpaid' : 'free';
+
+      // [SEARCH: DB_INSERT_ORDER] (Walang upload dito, record lang muna)
       const { data, error } = await supabase
         .from("orders")
         .insert([
@@ -688,44 +707,54 @@ document.addEventListener("DOMContentLoaded", async () => {
             user_id: currentUser.id,
             event_id: currentSelectedEvent.id,
             status: "Registered",
+            payment_status: paymentStat,
+            proof_of_payment_url: null // Sa Order List na mag-uupload
           },
         ])
         .select();
 
+      // [SEARCH: REGISTRATION_SUCCESS_HANDLER]
       if (error || !data) {
         showCustomAlert("Error", "An error occurred during registration.");
         modalRegBtn.disabled = false;
       } else {
         const orderData = data[0];
         const greetingEl = document.getElementById("user-greeting");
-        const userName = greetingEl
-          ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "")
-          : "Student";
+        const userName = greetingEl ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "") : "Student";
+        
+        // ITO ANG MAGSISILBING REFERENCE NUMBER NILA
         const ticketID = `FEUR-TICKET-${orderData.id}`;
 
-        if (typeof emailjs !== "undefined") {
-          emailjs
-            .send("service_nczv2qc", "template_uiwfmsd", {
-              to_email: currentUser.email,
-              user_name: userName,
-              event_title: currentSelectedEvent.title,
-              event_date: currentSelectedEvent.event_date || "TBA",
-              campus: currentSelectedEvent.campus,
-              qr_data: ticketID,
-            })
-            .then(() => console.log("Ticket sent!"))
-            .catch((err) => console.error("Email error:", err));
+        if (currentSelectedEvent.price > 0) {
+            // [SEARCH: PAID_EVENT_ALERT]
+            showCustomAlert(
+              "Slot Reserved!", 
+              `Please pay ₱${currentSelectedEvent.price}.\n\nYour Reference Number is: ${ticketID}\n\nGo to your Order List to upload the receipt within 5 days.`
+            );
+        } else {
+            // [SEARCH: FREE_EVENT_EMAIL]
+            if (typeof emailjs !== "undefined") {
+              emailjs
+                .send("service_nczv2qc", "template_uiwfmsd", {
+                  to_email: currentUser.email,
+                  user_name: userName,
+                  event_title: currentSelectedEvent.title,
+                  event_date: currentSelectedEvent.event_date || "TBA",
+                  campus: currentSelectedEvent.campus,
+                  qr_data: ticketID,
+                })
+                .then(() => console.log("Ticket sent!"))
+                .catch((err) => console.error("Email error:", err));
+            }
+            showCustomAlert("Success", "Successfully Registered! You can view your QR ticket in the Order List.");
         }
-        showCustomAlert(
-          "Success",
-          "Successfully Registered! You can view your QR ticket in the Order List.",
-        );
+
+        // [SEARCH: RESET_REGISTER_BUTTON]
         modalRegBtn.innerText = "Registered";
         modalRegBtn.style.background = "gray";
         modalRegBtn.style.color = "white";
         loadNotifications();
 
-        // Refresh event grid to update slot count
         if (allEventsGlobal.length > 0) {
           renderEvents(allEventsGlobal);
         }
@@ -1093,16 +1122,104 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
     fetchAdminUsers();
+// ==========================================
+    // PAYMENT APPROVALS LOGIC
+    // ==========================================
+    const fetchPaymentApprovals = async () => {
+      // 1. Kunin muna ang orders (Walang profile join para iwas error)
+      const { data: pendingOrders, error } = await supabase
+        .from("orders")
+        .select("id, user_id, created_at, proof_of_payment_url, events(title)")
+        .eq("payment_status", "unpaid")
+        .not("proof_of_payment_url", "is", null)
+        .not("status", "eq", "Cancelled");
+
+      const list = document.getElementById("payment-approvals-list");
+      if (!list) return;
+
+      if (error || !pendingOrders || pendingOrders.length === 0) {
+        list.innerHTML = '<tr><td colspan="4" style="text-align:center;">No pending receipts to verify.</td></tr>';
+        return;
+      }
+
+      // 2. Kunin ang mga profiles ng mga nag-upload manually
+      const userIds = pendingOrders.map(o => o.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, school_email")
+        .in("id", userIds);
+
+      // 3. I-render sa table
+      list.innerHTML = pendingOrders.map((order) => {
+        const profile = profiles?.find(p => p.id === order.user_id) || {};
+        const fname = profile.first_name || "";
+        const lname = profile.last_name || "";
+        const email = profile.school_email || "N/A";
+        const title = order.events?.title || "Unknown Event";
+        const safeTitle = title.replace(/'/g, "\\'"); 
+        const dateReg = new Date(order.created_at).toLocaleDateString();
+
+        return `<tr>
+          <td><b>${fname} ${lname}</b><br><span style="font-size:12px; color:gray;">${email}</span></td>
+          <td>${title}</td>
+          <td>${dateReg}</td>
+          <td style="display:flex; justify-content:flex-end; gap:5px;">
+            <a href="${order.proof_of_payment_url}" target="_blank" class="btn btn-solid" style="background:#3b82f6; color:white; padding:5px 10px; text-decoration:none; font-size:12px;">View Receipt</a>
+            <button class="btn btn-solid" style="background:#10b981; color:white; padding:5px 10px; font-size:12px;" onclick="window.approvePayment('${order.id}', '${email}', '${fname}', '${safeTitle}')">Approve</button>
+            <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px; font-size:12px;" onclick="window.rejectPayment('${order.id}')">Reject</button>
+          </td>
+        </tr>`;
+      }).join("");
+    };
+
+    window.approvePayment = async (orderId, userEmail, userName, eventTitle) => {
+      if (confirm("Approve this payment and send the QR Ticket to their email?")) {
+        // Gawing 'paid' ang status sa database
+        await supabase.from("orders").update({ payment_status: "paid" }).eq("id", orderId);
+
+        // Auto-send email na may QR Code link (Ginawa kong simpleng text para iwas error)
+        const ticketID = "FEUR-TICKET-" + orderId;
+
+        if (typeof emailjs !== "undefined") {
+          emailjs.send("service_nczv2qc", "template_uiwfmsd", {
+              to_email: userEmail,
+              user_name: userName || "Student",
+              event_title: eventTitle,
+              qr_data: ticketID,
+            })
+            .then(() => console.log("Ticket sent!"))
+            .catch((err) => console.error("Email error:", err));
+        }
+
+        showCustomAlert("Success", "Payment verified and QR Ticket sent!");
+        fetchPaymentApprovals(); // Refresh table
+      }
+    };
+
+    window.rejectPayment = async (orderId) => {
+      if (confirm("Reject this receipt? They will need to upload again.")) {
+        // Tanggalin ang resibo sa db para manghingi ulit ng bago
+        await supabase.from("orders").update({ proof_of_payment_url: null }).eq("id", orderId);
+        showCustomAlert("System", "Receipt rejected. User must upload again.");
+        fetchPaymentApprovals();
+      }
+    };
+
+    fetchPaymentApprovals();
+    
   }
+
+  
 
   // --- 8. ORDER LIST LOGIC ---
   const ordersGrid = document.getElementById("orders-grid");
   if (ordersGrid && path.includes("orderlist")) {
     const fetchOrders = async () => {
+      // 1. ISINAMA NA NATIN ANG payment_status AT proof_of_payment_url SA QUERY
       const { data: orders, error } = await supabase
         .from("orders")
         .select(
-          `id, status, events ( id, title, event_date, campus, poster_url, price )`,
+          `id, status, payment_status, proof_of_payment_url, events ( id, title, event_date, campus, poster_url, price )`,
         )
         .eq("user_id", currentUser.id);
 
@@ -1116,39 +1233,119 @@ document.addEventListener("DOMContentLoaded", async () => {
           const card = document.createElement("div");
           card.className = "event-card";
 
-          // Cancel button logic: Only allow cancel if FREE and not already cancelled/attended
-          let cancelBtnHTML = "";
-          if (!isCancelled && order.status !== "Attended" && event.price == 0) {
-            cancelBtnHTML = `<button class="btn btn-outline w-100 cancel-ticket-btn" data-order-id="${order.id}" style="margin-top: 5px; border-color:#ef4444; color:#ef4444;">Cancel Ticket</button>`;
-          } else if (
-            !isCancelled &&
-            order.status !== "Attended" &&
-            event.price > 0
-          ) {
-            cancelBtnHTML = `<button class="btn btn-outline w-100" disabled style="margin-top: 5px; border-color:#9ca3af; color:#9ca3af; font-size:12px;">Contact Admin for Refund</button>`;
+          let actionHTML = "";
+          let statusStyle = isCancelled ? "background:#fee2e2; color:#991b1b;" : "";
+
+          // 2. LOGIC PARA SA BUTTONS NG ORDER LIST
+          if (isCancelled) {
+            actionHTML = `<button class="btn btn-outline w-100" disabled style="border-color:#9ca3af; color:#9ca3af;">Cancelled</button>`;
+          } else if (order.status === "Attended") {
+            actionHTML = `<button class="btn btn-outline w-100" disabled style="border-color:#166534; color:#166534;">Attended</button>`;
+          } else {
+            // KUNG FREE O KUNG BAYAD NA AT VERIFIED NA (Lalabas ang QR)
+            if (event.price == 0 || order.payment_status === "paid") {
+              actionHTML = `<button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}">View QR Code</button>`;
+              if (event.price == 0) {
+                actionHTML += `<button class="btn btn-outline w-100 cancel-ticket-btn" data-order-id="${order.id}" style="margin-top: 5px; border-color:#ef4444; color:#ef4444;">Cancel Ticket</button>`;
+              }
+            } 
+            // KUNG MAY BAYAD PERO HINDI PA VERIFIED
+            else if (event.price > 0 && order.payment_status === "unpaid") {
+              if (order.proof_of_payment_url) {
+                // Naka-pag upload na, waiting for admin
+                actionHTML = `
+                  <div style="background:#fef08a; padding:10px; border-radius:6px; text-align:center; font-size:12px; color:#854d0e; margin-bottom:5px; font-weight:bold;">
+                      ⏳ Pending Admin Verification
+                  </div>
+                  <button class="btn btn-outline w-100 cancel-ticket-btn" data-order-id="${order.id}" style="border-color:#ef4444; color:#ef4444;">Cancel Registration</button>
+                `;
+              } else {
+                // Hindi pa nakakapag-upload ng resibo, kaya dito mag-u-upload
+                actionHTML = `
+                  <div style="background:#fee2e2; padding:10px; border-radius:6px; margin-bottom:5px; border: 1px solid #fca5a5;">
+                      <p style="font-size:12px; color:#991b1b; margin-bottom:5px; font-weight:bold;">⚠️ Action Required: Upload Receipt</p>
+                      <input type="file" id="receipt-${order.id}" accept="image/*" style="width:100%; font-size:11px; margin-bottom:5px;">
+                      <button class="btn btn-solid w-100 upload-receipt-btn" data-order-id="${order.id}" style="background:#10b981; color:white; font-size:12px; padding:8px;">Submit Payment Proof</button>
+                  </div>
+                  <button class="btn btn-outline w-100 cancel-ticket-btn" data-order-id="${order.id}" style="border-color:#ef4444; color:#ef4444;">Cancel Registration</button>
+                `;
+              }
+            }
           }
 
-          const qrBtnStyle = isCancelled ? "display:none;" : "";
-          const statusStyle = isCancelled
-            ? "background:#fee2e2; color:#991b1b;"
-            : "";
-
+          // [SEARCH: CARD_INNER_HTML_REPLACE]
           card.innerHTML = `
-                        <img src="${event.poster_url || "https://via.placeholder.com/300x160?text=FEUR+Ticket"}" class="event-img" style="${isCancelled ? "filter: grayscale(100%);" : ""}">
-                        <div class="event-info">
-                            <span class="status-badge" style="${statusStyle}">${order.status}</span>
-                            <div class="event-title" style="${isCancelled ? "text-decoration: line-through; color:gray;" : ""}">${event.title}</div>
-                            <div class="event-meta">
-                                <span>📅 ${event.event_date || "TBA"}</span>
-                                <span>📍 FEU Roosevelt ${event.campus}</span>
-                            </div>
-                            <button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}" style="${qrBtnStyle}">View QR Code</button>
-                            ${cancelBtnHTML}
-                        </div>`;
+            <img src="${event.poster_url || "https://via.placeholder.com/300x160?text=FEUR+Ticket"}" class="event-img" style="${isCancelled ? "filter: grayscale(100%);" : ""}">
+            <div class="event-info">
+                <span class="status-badge" style="${statusStyle}">${order.status}</span>
+                <div class="event-title" style="${isCancelled ? "text-decoration: line-through; color:gray;" : ""}">${event.title}</div>
+                <div class="event-meta">
+                    <span>📅 ${event.event_date || "TBA"}</span>
+                    <span>📍 FEU Roosevelt ${event.campus}</span>
+                </div>
+                
+                <button class="btn btn-outline w-100 ref-no-btn" data-order-id="${order.id}" style="margin-bottom:8px; border-color:var(--primary); color:var(--primary); font-size:12px; padding:6px; font-weight:bold;">📄 View Ref No.</button>
+                
+                ${actionHTML}
+            </div>`;
           ordersGrid.appendChild(card);
         });
 
-        // QR Code Event Listener
+// [SEARCH: REF_NO_EVENT_LISTENER]
+        document.querySelectorAll(".ref-no-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const orderId = btn.getAttribute("data-order-id");
+            showCustomAlert(
+              "Reference Number",
+              `Your Reference Number is:\n\nFEUR-TICKET-${orderId}\n\nUse this when paying via GCash or Finance.`
+            );
+          });
+        });
+
+        // EVENT LISTENER PARA SA UPLOAD BUTTON SA ORDER LIST
+        document.querySelectorAll(".upload-receipt-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const orderId = btn.getAttribute("data-order-id");
+            const fileInput = document.getElementById(`receipt-${orderId}`);
+            const file = fileInput.files[0];
+
+            if (!file) {
+              showCustomAlert("Error", "Please select an image file first.");
+              return;
+            }
+
+            btn.innerText = "Uploading...";
+            btn.disabled = true;
+
+            const fileExt = file.name.split(".").pop();
+            const fileName = `${currentUser.id}-${orderId}-${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+              .from("receipts")
+              .upload(fileName, file);
+
+            if (uploadError) {
+              showCustomAlert("Error", "Upload failed. Try again.");
+              btn.innerText = "Submit Payment Proof";
+              btn.disabled = false;
+              return;
+            }
+
+            const { data: publicUrlData } = supabase.storage
+              .from("receipts")
+              .getPublicUrl(fileName);
+
+            const receiptUrl = publicUrlData.publicUrl;
+
+            // Update database na may resibo na siya
+            await supabase.from("orders").update({ proof_of_payment_url: receiptUrl }).eq("id", orderId);
+
+            showCustomAlert("Success", "Receipt uploaded! Please wait for admin verification.");
+            fetchOrders(); // Refresh ang order list
+          });
+        });
+
+        // QR Code Event Listener (OLD)
         document.querySelectorAll(".qr-code-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
             const orderId = btn.getAttribute("data-order-id");
@@ -1172,7 +1369,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           });
         });
 
-        // Cancel Ticket Event Listener
+        // Cancel Ticket Event Listener (OLD)
         document.querySelectorAll(".cancel-ticket-btn").forEach((btn) => {
           btn.addEventListener("click", async () => {
             const orderId = btn.getAttribute("data-order-id");
