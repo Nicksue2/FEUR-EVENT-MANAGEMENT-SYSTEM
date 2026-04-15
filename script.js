@@ -737,25 +737,31 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const ticketID = `FEUR-TICKET-${orderData.id}`;
 
-        if (currentSelectedEvent.price > 0) {
+       if (currentSelectedEvent.price > 0) {
             // [SEARCH: PAID_EVENT_ALERT]
             showCustomAlert(
               "Slot Reserved!", 
               `Please pay ₱${currentSelectedEvent.price}.<br><br>Your Reference Number is: <b style="font-size: 14px; color: var(--primary);">${ticketID}</b><br><br>Go to your Order List to upload the receipt within 5 days.`
             );
             
-            // BAGONG EMAILJS ACCOUNT - PENDING EMAIL
-            if (typeof emailjs !== "undefined") {
-              emailjs.send("service_abyji0d", "template_jxtr45p", {
+            // DIRECT API FETCH - PENDING EMAIL (Para iwas conflict sa lumang account)
+            fetch("https://api.emailjs.com/api/v1.0/email/send", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                service_id: "service_abyji0d",
+                template_id: "template_sy2u7pe", // TAMA NA YUNG TEMPLATE ID DITO
+                user_id: "pY0e20a_mx8EoiFdT",
+                template_params: {
                   to_email: currentUser.email,
                   user_name: userName,
                   event_title: currentSelectedEvent.title,
                   ref_no: ticketID,
                   price: currentSelectedEvent.price
-                }, "pY0e20a_mx8EoiFdT")
-                .then(() => console.log("Initial Pending Email sent!"))
-                .catch((err) => console.error("Email error:", err));
-            }
+                }
+              })
+            }).then(() => console.log("Pending Email sent via API!"));
+
         } else {
             // [SEARCH: FREE_EVENT_EMAIL] (LUMANG ACCOUNT GAMIT DITO)
             if (typeof emailjs !== "undefined") {
@@ -1186,19 +1192,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const ticketID = `FEUR-TICKET-${orderId}`;
 
-        // BAGONG EMAILJS ACCOUNT - ORDER CONFIRMATION
-        if (typeof emailjs !== "undefined") {
-          emailjs.send("service_abyji0d", "template_aosc5oj", {
+        // DIRECT API FETCH - ORDER CONFIRMATION
+        fetch("https://api.emailjs.com/api/v1.0/email/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            service_id: "service_abyji0d",
+            template_id: "template_aosc5oj",
+            user_id: "pY0e20a_mx8EoiFdT",
+            template_params: {
               to_email: userEmail,
               user_name: userName || "Student",
               event_title: eventTitle,
               event_date: eventDate,
               campus: eventCampus,
-              qr_data: ticketID,
-            }, "pY0e20a_mx8EoiFdT") // NEW PUBLIC KEY NA GAMIT DITO
-            .then(() => console.log("Ticket sent!"))
-            .catch((err) => console.error("Email error:", err));
-        }
+              qr_data: ticketID
+            }
+          })
+        }).then(() => console.log("QR Ticket sent via API!"));
 
         showCustomAlert("Success", "Payment verified and QR Ticket sent!");
         fetchPaymentApprovals();
