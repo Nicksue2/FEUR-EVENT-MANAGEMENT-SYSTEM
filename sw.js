@@ -11,7 +11,7 @@ const urlsToCache = [
   "/manifest.json",
 ];
 
-// Install: I-save ang mga files at skip waiting
+// Install
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -21,7 +21,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting(); // FORCE INSTALL AGAD
 });
 
-// Fetch: Kunin sa cache, kung wala, sa internet
+// Fetch
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
@@ -30,7 +30,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-// Activate: Burahin ang lumang cache at i-claim ang clients
+// Activate
 self.addEventListener("activate", (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -38,7 +38,7 @@ self.addEventListener("activate", (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            return caches.delete(cacheName); // Burahin luma
+            return caches.delete(cacheName); // delete d old shi
           }
         }),
       );
