@@ -634,3 +634,18 @@
     border-top: 1px solid #eee;
   }
 }
+
+/* --- FIX: MODAL TABLE ALIGNMENT (STATUS COLUMNS) --- */
+#attendees-modal .admin-table th:last-child,
+#attendees-modal .admin-table td:last-child,
+#user-management-modal .admin-table th:last-child,
+#user-management-modal .admin-table td:last-child {
+  text-align: center !important;
+}
+
+#attendees-modal .admin-table td:last-child .status-badge,
+#user-management-modal .admin-table td:last-child .status-badge {
+  display: inline-block;
+  width: 120px; /* Para pare-parehas ang lapad ng mga badges */
+  text-align: center;
+}
