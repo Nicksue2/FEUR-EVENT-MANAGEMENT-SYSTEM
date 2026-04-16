@@ -18,36 +18,41 @@
     <link rel="apple-touch-icon" href="images/feurlogo.png" />
   </head>
   <body class="admin-body">
-    <header class="top-nav">
-      <div class="nav-left">
-        <button id="burger-btn" class="icon-btn">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M3 12h18M3 6h18M3 18h18" />
-          </svg>
-        </button>
+    <header class="top-nav admin-header-nav">
+      <div class="header-main-row">
+        <div class="nav-left">
+          <button id="burger-btn" class="icon-btn">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="logo-container">
+          <a href="index.html" class="logo-link">
+            <img src="images/feurlogo.png" alt="FEUR Logo" class="logo-img" />
+            <h2 class="logo-text">Admin Panel</h2>
+          </a>
+        </div>
+
+        <div class="nav-right">
+          <div id="user-greeting" class="user-greeting">Welcome, Admin!</div>
+        </div>
       </div>
 
-      <div class="logo-container">
-        <a href="index.html" class="logo-link">
-          <img src="images/feurlogo.png" alt="FEUR Logo" class="logo-img" />
-          <h2 class="logo-text">Admin Panel</h2>
-        </a>
-      </div>
-
-      <div class="nav-right">
-        <div
-          id="user-greeting"
-          class="user-greeting"
-          style="position: relative; right: 0"
-        >
-          Admin Mode
+      <div class="admin-sub-nav">
+        <div class="admin-nav-links">
+          <a href="#qr-section" class="sec-link active">Validator</a>
+          <a href="#event-list-section" class="sec-link">Events</a>
+          <a href="#user-management-section" class="sec-link">Users</a>
+          <a href="#payment-approvals-section" class="sec-link">Payments</a>
         </div>
       </div>
     </header>
@@ -190,7 +195,7 @@
           </div>
         </div>
 
-        <section class="admin-card qr-section">
+        <section class="admin-card qr-section" id="qr-section">
           <div class="admin-header">
             <h3>QR Validator (Check Legitimacy Only)</h3>
           </div>
@@ -202,7 +207,7 @@
           </div>
         </section>
 
-        <div class="admin-card">
+        <div class="admin-card" id="event-list-section">
           <div class="event-list-header">
             <h3 class="event-list-title">Event List</h3>
             <button id="open-create-event-modal" class="btn-create-event">
@@ -225,7 +230,7 @@
           </div>
         </div>
 
-        <div class="admin-card mt-30">
+        <div class="admin-card mt-30" id="user-management-section">
           <h3>User Management</h3>
           <div class="table-wrapper">
             <table class="admin-table">
@@ -243,26 +248,27 @@
           </div>
         </div>
 
-
         <div class="admin-card mt-30" id="payment-approvals-section">
-            <div class="admin-header">
-                <h2>Payment Approvals</h2>
-            </div>
-            <div class="table-wrapper scrollable-table-wrapper">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Attendee Info</th>
-                            <th>Event</th>
-                            <th>Date Registered</th>
-                            <th style="text-align: right;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="payment-approvals-list">
-                        <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+          <div class="admin-header">
+            <h2>Payment Approvals</h2>
+          </div>
+          <div class="table-wrapper scrollable-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Attendee Info</th>
+                  <th>Event</th>
+                  <th>Date Registered</th>
+                  <th style="text-align: right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="payment-approvals-list">
+                <tr>
+                  <td colspan="4" style="text-align: center">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>
@@ -433,26 +439,45 @@
     </div>
     <div id="custom-confirm" class="modal-overlay hidden">
       <div class="modal-box alert-box">
-        <h3 id="confirm-title" style="color: var(--primary);">Confirm Action</h3>
+        <h3 id="confirm-title" style="color: var(--primary)">Confirm Action</h3>
         <p id="confirm-message" class="alert-margin"></p>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-          <button id="confirm-cancel-btn" class="btn btn-outline w-100">Cancel</button>
-          <button id="confirm-ok-btn" class="btn btn-solid w-100">Confirm</button>
+        <div style="display: flex; gap: 10px; margin-top: 20px">
+          <button id="confirm-cancel-btn" class="btn btn-outline w-100">
+            Cancel
+          </button>
+          <button id="confirm-ok-btn" class="btn btn-solid w-100">
+            Confirm
+          </button>
         </div>
       </div>
     </div>
 
     <div id="receipt-modal" class="modal-overlay hidden">
-  <div class="modal-box event-modal-box" style="max-width: 500px; padding: 20px;">
-    <span class="close-modal" id="close-receipt-modal">&times;</span>
-    <h3 style="color: var(--primary); margin-bottom: 15px;">Payment Receipt</h3>
-    <img id="receipt-image" src="" alt="Receipt" style="width: 100%; border-radius: 8px; max-height: 70vh; object-fit: contain;">
-  </div>
-</div>
+      <div
+        class="modal-box event-modal-box"
+        style="max-width: 500px; padding: 20px"
+      >
+        <span class="close-modal" id="close-receipt-modal">&times;</span>
+        <h3 style="color: var(--primary); margin-bottom: 15px">
+          Payment Receipt
+        </h3>
+        <img
+          id="receipt-image"
+          src=""
+          alt="Receipt"
+          style="
+            width: 100%;
+            border-radius: 8px;
+            max-height: 70vh;
+            object-fit: contain;
+          "
+        />
+      </div>
+    </div>
 
-<div id="settings-modal" class="modal-overlay hidden">
+    <div id="settings-modal" class="modal-overlay hidden">
       <div class="modal-box">
-        <h3 style="color: var(--primary); margin-bottom: 15px;">Settings</h3>
+        <h3 style="color: var(--primary); margin-bottom: 15px">Settings</h3>
         <div class="setting-item">
           <span>Dark Mode</span>
           <label class="switch"

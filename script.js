@@ -1745,4 +1745,65 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.reload();
     });
   }
+
+  //here spy shi
+
+  // --- ROBUST ADMIN SCROLL SPY FIX ---
+  const adminMain = document.querySelector(".main-content");
+  const sections = document.querySelectorAll(
+    "#qr-section, #event-list-section, #user-management-section, #payment-approvals-section",
+  );
+  const navLinks = document.querySelectorAll(".sec-link");
+
+  if (adminMain && navLinks.length > 0) {
+    const highlightSection = () => {
+      let current = "";
+
+      // Check kung nasa pinaka-baba na ng scroll
+      const isAtBottom =
+        adminMain.scrollHeight - adminMain.scrollTop <=
+        adminMain.clientHeight + 50;
+
+      if (isAtBottom) {
+        current = "payment-approvals-section"; // Force active ang huling section
+      } else {
+        sections.forEach((section) => {
+          const sectionTop = section.offsetTop;
+          // Trigger point adjustment (150px offset)
+          if (adminMain.scrollTop >= sectionTop - 150) {
+            current = section.getAttribute("id");
+          }
+        });
+      }
+
+      navLinks.forEach((link) => {
+        link.classList.remove("active");
+        if (link.getAttribute("href") === `#${current}`) {
+          link.classList.add("active");
+        }
+      });
+    };
+
+    adminMain.addEventListener("scroll", highlightSection);
+
+    // Smooth scroll fix with Forced Active class on click
+    navLinks.forEach((link) => {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute("href");
+        const targetSection = document.querySelector(targetId);
+
+        if (targetSection) {
+          // Manual switch para instant ang feedback pag-click
+          navLinks.forEach((l) => l.classList.remove("active"));
+          this.classList.add("active");
+
+          adminMain.scrollTo({
+            top: targetSection.offsetTop - 20,
+            behavior: "smooth",
+          });
+        }
+      });
+    });
+  }
 });
