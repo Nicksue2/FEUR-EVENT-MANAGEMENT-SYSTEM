@@ -552,3 +552,85 @@
     margin: 0;
   }
 }
+
+/* ========================================= */
+/* --- ADMIN DARK MODE FIXES --- */
+/* ========================================= */
+
+.dark-mode .admin-table tr {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: none;
+}
+.dark-mode .admin-table th {
+  background: var(--sidebar-bg);
+  color: white;
+  border-color: var(--border-color);
+}
+.dark-mode .admin-table td {
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+.dark-mode .expand-input,
+.dark-mode .filter-select {
+  background: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+/* Fix para sa gray text sa loob ng Admin Cards sa mobile */
+.dark-mode .admin-table td[style*="color:gray"] {
+  color: #aaaaaa !important;
+}
+/* ========================================= */
+/* --- FINAL ADMIN DARK MODE POLISH --- */
+/* ========================================= */
+
+/* Fix 1: Admin Table Cards in Mobile View */
+@media (max-width: 768px) {
+  .dark-mode .admin-table tr {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+  }
+  .dark-mode .admin-table td {
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+  }
+  .dark-mode .admin-table td:first-child {
+    border-bottom-color: var(--border-color) !important;
+  }
+  .dark-mode .admin-table td[style*="display:flex"] {
+    border-top-color: var(--border-color) !important;
+  }
+}
+
+/* Fix 2: Live Scanner Dark Mode */
+.dark-mode .qr-scanner-wrapper,
+.dark-mode #reader,
+.dark-mode #entry-reader {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+.dark-mode .qr-scanner-wrapper * {
+  color: var(--text-color) !important;
+}
+.dark-mode .qr-status-box {
+  background-color: var(--bg-color) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+/* Fix para sa broken lines at button alignment */
+.admin-actions-flex {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+@media (max-width: 768px) {
+  .admin-actions-flex {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+  }
+}

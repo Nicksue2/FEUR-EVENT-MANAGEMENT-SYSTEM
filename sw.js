@@ -1,4 +1,4 @@
-const CACHE_NAME = "feur-events-v5.7";
+const CACHE_NAME = "feur-events-v6";
 
 const urlsToCache = [
   "/",

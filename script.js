@@ -621,15 +621,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           event.description || "No description available for this event.";
 
         // Ipakita ang GCash details kapag may bayad
-        const paymentSection = document.getElementById('payment-section');
-        const priceDisplay = document.getElementById('modal-price-display');
+        const paymentSection = document.getElementById("payment-section");
+        const priceDisplay = document.getElementById("modal-price-display");
         if (paymentSection) {
-            if (event.price > 0) {
-                paymentSection.style.display = "block";
-                if(priceDisplay) priceDisplay.innerText = event.price;
-            } else {
-                paymentSection.style.display = "none";
-            }
+          if (event.price > 0) {
+            paymentSection.style.display = "block";
+            if (priceDisplay) priceDisplay.innerText = event.price;
+          } else {
+            paymentSection.style.display = "none";
+          }
         }
 
         const modalBtn = document.getElementById("modal-register-btn");
@@ -710,8 +710,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       // [SEARCH: PAYMENT_STATUS_SETUP]
-      let paymentStat = currentSelectedEvent.price > 0 ? 'unpaid' : 'free';
-      let orderStat = currentSelectedEvent.price > 0 ? 'Pending Payment' : 'Registered';
+      let paymentStat = currentSelectedEvent.price > 0 ? "unpaid" : "free";
+      let orderStat =
+        currentSelectedEvent.price > 0 ? "Pending Payment" : "Registered";
 
       // [SEARCH: DB_INSERT_ORDER]
       const { data, error } = await supabase
@@ -722,7 +723,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             event_id: currentSelectedEvent.id,
             status: orderStat, // "Pending Payment" o "Registered"
             payment_status: paymentStat,
-            proof_of_payment_url: null 
+            proof_of_payment_url: null,
           },
         ])
         .select();
@@ -733,51 +734,55 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         const orderData = data[0];
         const greetingEl = document.getElementById("user-greeting");
-        const userName = greetingEl ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "") : "Student";
-        
+        const userName = greetingEl
+          ? greetingEl.innerText.replace("Welcome, ", "").replace("!", "")
+          : "Student";
+
         const ticketID = `FEUR-TICKET-${orderData.id}`;
 
-       if (currentSelectedEvent.price > 0) {
-            // [SEARCH: PAID_EVENT_ALERT]
-            showCustomAlert(
-              "Slot Reserved!", 
-              `Please pay ₱${currentSelectedEvent.price}.<br><br>Your Reference Number is: <b style="font-size: 14px; color: var(--primary);">${ticketID}</b><br><br>Go to your Order List to upload the receipt within 5 days.`
-            );
-            
-            // DIRECT API FETCH - PENDING EMAIL (Para iwas conflict sa lumang account)
-            fetch("https://api.emailjs.com/api/v1.0/email/send", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                service_id: "service_abyji0d",
-                template_id: "template_sy2u7pe", // TAMA NA YUNG TEMPLATE ID DITO
-                user_id: "pY0e20a_mx8EoiFdT",
-                template_params: {
-                  to_email: currentUser.email,
-                  user_name: userName,
-                  event_title: currentSelectedEvent.title,
-                  ref_no: ticketID,
-                  price: currentSelectedEvent.price
-                }
-              })
-            }).then(() => console.log("Pending Email sent via API!"));
+        if (currentSelectedEvent.price > 0) {
+          // [SEARCH: PAID_EVENT_ALERT]
+          showCustomAlert(
+            "Slot Reserved!",
+            `Please pay ₱${currentSelectedEvent.price}.<br><br>Your Reference Number is: <b style="font-size: 14px; color: var(--primary);">${ticketID}</b><br><br>Go to your Order List to upload the receipt within 5 days.`,
+          );
 
+          // DIRECT API FETCH - PENDING EMAIL (Para iwas conflict sa lumang account)
+          fetch("https://api.emailjs.com/api/v1.0/email/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              service_id: "service_abyji0d",
+              template_id: "template_sy2u7pe", // TAMA NA YUNG TEMPLATE ID DITO
+              user_id: "pY0e20a_mx8EoiFdT",
+              template_params: {
+                to_email: currentUser.email,
+                user_name: userName,
+                event_title: currentSelectedEvent.title,
+                ref_no: ticketID,
+                price: currentSelectedEvent.price,
+              },
+            }),
+          }).then(() => console.log("Pending Email sent via API!"));
         } else {
-            // [SEARCH: FREE_EVENT_EMAIL] (LUMANG ACCOUNT GAMIT DITO)
-            if (typeof emailjs !== "undefined") {
-              emailjs
-                .send("service_nczv2qc", "template_uiwfmsd", {
-                  to_email: currentUser.email,
-                  user_name: userName,
-                  event_title: currentSelectedEvent.title,
-                  event_date: currentSelectedEvent.event_date || "TBA",
-                  campus: currentSelectedEvent.campus,
-                  qr_data: ticketID,
-                })
-                .then(() => console.log("Ticket sent!"))
-                .catch((err) => console.error("Email error:", err));
-            }
-            showCustomAlert("Success", "Successfully Registered! You can view your QR ticket in the Order List.");
+          // [SEARCH: FREE_EVENT_EMAIL] (LUMANG ACCOUNT GAMIT DITO)
+          if (typeof emailjs !== "undefined") {
+            emailjs
+              .send("service_nczv2qc", "template_uiwfmsd", {
+                to_email: currentUser.email,
+                user_name: userName,
+                event_title: currentSelectedEvent.title,
+                event_date: currentSelectedEvent.event_date || "TBA",
+                campus: currentSelectedEvent.campus,
+                qr_data: ticketID,
+              })
+              .then(() => console.log("Ticket sent!"))
+              .catch((err) => console.error("Email error:", err));
+          }
+          showCustomAlert(
+            "Success",
+            "Successfully Registered! You can view your QR ticket in the Order List.",
+          );
         }
 
         modalRegBtn.innerText = "Registered";
@@ -869,10 +874,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.body.removeChild(link);
     };
 
-    let currentAttendeesData = []; 
+    let currentAttendeesData = [];
 
     window.viewEventAttendees = async (eventId, eventTitle) => {
-      document.getElementById("attendees-modal-title").innerText = `${eventTitle} - Attendees`;
+      document.getElementById("attendees-modal-title").innerText =
+        `${eventTitle} - Attendees`;
       const list = document.getElementById("attendees-list");
       list.innerHTML = `<tr><td colspan="3" style="text-align:center;">Loading...</td></tr>`;
       document.getElementById("attendees-modal").classList.remove("hidden");
@@ -888,31 +894,40 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      const userIds = orders.map(o => o.user_id);
+      const userIds = orders.map((o) => o.user_id);
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, first_name, last_name, school_email")
         .in("id", userIds);
 
-      currentAttendeesData = orders.map(order => {
-        const profile = profiles?.find(p => p.id === order.user_id) || {};
+      currentAttendeesData = orders.map((order) => {
+        const profile = profiles?.find((p) => p.id === order.user_id) || {};
         return {
-          name: `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || "Unknown",
+          name:
+            `${profile.first_name || ""} ${profile.last_name || ""}`.trim() ||
+            "Unknown",
           email: profile.school_email || "N/A",
-          status: order.status
+          status: order.status,
         };
       });
 
-      renderAttendees(); 
+      renderAttendees();
     };
 
     const renderAttendees = () => {
-      const term = document.getElementById("search-attendee").value.toLowerCase();
-      const statusFilter = document.getElementById("filter-attendee-status").value;
+      const term = document
+        .getElementById("search-attendee")
+        .value.toLowerCase();
+      const statusFilter = document.getElementById(
+        "filter-attendee-status",
+      ).value;
 
-      const filtered = currentAttendeesData.filter(user => {
-        const matchSearch = user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term);
-        const matchStatus = statusFilter === "All" || user.status === statusFilter;
+      const filtered = currentAttendeesData.filter((user) => {
+        const matchSearch =
+          user.name.toLowerCase().includes(term) ||
+          user.email.toLowerCase().includes(term);
+        const matchStatus =
+          statusFilter === "All" || user.status === statusFilter;
         return matchSearch && matchStatus;
       });
 
@@ -920,23 +935,41 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (filtered.length === 0) {
         list.innerHTML = `<tr><td colspan="3" style="text-align:center;">No match found.</td></tr>`;
       } else {
-        list.innerHTML = filtered.map(u => {
-          let bg = u.status === "Registered" ? "#e5e7eb" : (u.status === "Attended" ? "#dcfce7" : "#fee2e2");
-          let txt = u.status === "Registered" ? "black" : (u.status === "Attended" ? "#166534" : "#991b1b");
-          return `<tr>
+        list.innerHTML = filtered
+          .map((u) => {
+            let bg =
+              u.status === "Registered"
+                ? "#e5e7eb"
+                : u.status === "Attended"
+                  ? "#dcfce7"
+                  : "#fee2e2";
+            let txt =
+              u.status === "Registered"
+                ? "black"
+                : u.status === "Attended"
+                  ? "#166534"
+                  : "#991b1b";
+            return `<tr>
             <td><b>${u.name}</b></td>
             <td>${u.email}</td>
             <td><span class="status-badge" style="background:${bg}; color:${txt}; padding: 4px 8px; border-radius: 4px; font-size:12px;">${u.status}</span></td>
           </tr>`;
-        }).join("");
+          })
+          .join("");
       }
     };
 
-    document.getElementById("search-attendee")?.addEventListener("input", renderAttendees);
-    document.getElementById("filter-attendee-status")?.addEventListener("change", renderAttendees);
-    document.getElementById("close-attendees-modal")?.addEventListener("click", () => {
-      document.getElementById("attendees-modal").classList.add("hidden");
-    });
+    document
+      .getElementById("search-attendee")
+      ?.addEventListener("input", renderAttendees);
+    document
+      .getElementById("filter-attendee-status")
+      ?.addEventListener("change", renderAttendees);
+    document
+      .getElementById("close-attendees-modal")
+      ?.addEventListener("click", () => {
+        document.getElementById("attendees-modal").classList.add("hidden");
+      });
 
     window.deleteEvent = async (id) => {
       if (confirm("Delete this event?")) {
@@ -1143,7 +1176,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const fetchPaymentApprovals = async () => {
       const { data: pendingOrders, error } = await supabase
         .from("orders")
-        .select("id, user_id, created_at, proof_of_payment_url, events(title, event_date, campus)")
+        .select(
+          "id, user_id, created_at, proof_of_payment_url, events(title, event_date, campus)",
+        )
         .eq("payment_status", "unpaid")
         .not("proof_of_payment_url", "is", null)
         .not("status", "eq", "Cancelled");
@@ -1152,85 +1187,120 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!list) return;
 
       if (error || !pendingOrders || pendingOrders.length === 0) {
-        list.innerHTML = '<tr><td colspan="4" style="text-align:center;">No pending receipts to verify.</td></tr>';
+        list.innerHTML =
+          '<tr><td colspan="4" style="text-align:center;">No pending receipts to verify.</td></tr>';
         return;
       }
 
-      const userIds = pendingOrders.map(o => o.user_id);
+      const userIds = pendingOrders.map((o) => o.user_id);
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, first_name, last_name, school_email")
         .in("id", userIds);
 
-      list.innerHTML = pendingOrders.map((order) => {
-        const profile = profiles?.find(p => p.id === order.user_id) || {};
-        const fname = profile.first_name || "";
-        const lname = profile.last_name || "";
-        const email = profile.school_email || "N/A";
-        const title = order.events?.title || "Unknown Event";
-        const safeTitle = title.replace(/'/g, "\\'"); 
-        const date = order.events?.event_date || "TBA";
-        const campus = order.events?.campus || "N/A";
-        const dateReg = new Date(order.created_at).toLocaleDateString();
+      list.innerHTML = pendingOrders
+        .map((order) => {
+          const profile = profiles?.find((p) => p.id === order.user_id) || {};
+          const fname = profile.first_name || "";
+          const lname = profile.last_name || "";
+          const email = profile.school_email || "N/A";
+          const title = order.events?.title || "Unknown Event";
+          const safeTitle = title.replace(/'/g, "\\'");
+          const date = order.events?.event_date || "TBA";
+          const campus = order.events?.campus || "N/A";
+          const dateReg = new Date(order.created_at).toLocaleDateString();
 
-        return `<tr>
+          return `<tr>
           <td><b>${fname} ${lname}</b><br><span style="font-size:12px; color:gray;">${email}</span></td>
           <td>${title}</td>
           <td>${dateReg}</td>
-          <td style="display:flex; justify-content:flex-end; gap:5px;">
-            <a href="${order.proof_of_payment_url}" target="_blank" class="btn btn-solid" style="background:#3b82f6; color:white; padding:5px 10px; text-decoration:none; font-size:12px;">View Receipt</a>
-            <button class="btn btn-solid" style="background:#10b981; color:white; padding:5px 10px; font-size:12px;" onclick="window.approvePayment('${order.id}', '${email}', '${fname}', '${safeTitle}', '${date}', '${campus}')">Approve</button>
-            <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px; font-size:12px;" onclick="window.rejectPayment('${order.id}')">Reject</button>
-          </td>
+          <td>
+  <div class="admin-actions-flex">
+    <button class="btn btn-solid" style="background:#3b82f6; color:white; padding:5px 10px; font-size:12px;" onclick="window.viewReceiptModal('${order.proof_of_payment_url}')">View Receipt</button>
+    <button class="btn btn-solid" style="background:#10b981; color:white; padding:5px 10px; font-size:12px;" onclick="window.approvePayment('${order.id}', '${email}', '${fname}', '${safeTitle}', '${date}', '${campus}')">Approve</button>
+    <button class="btn btn-solid" style="background:#ef4444; color:white; padding:5px 10px; font-size:12px;" onclick="window.rejectPayment('${order.id}')">Reject</button>
+  </div>
+</td>
         </tr>`;
-      }).join("");
+        })
+        .join("");
     };
 
-    window.approvePayment = async (orderId, userEmail, userName, eventTitle, eventDate, eventCampus) => {
-      showCustomConfirm("Approve Payment", "Approve this payment and send the QR Ticket to their email?", async () => {
-        await supabase.from("orders").update({ payment_status: "paid", status: "Registered" }).eq("id", orderId);
+    window.approvePayment = async (
+      orderId,
+      userEmail,
+      userName,
+      eventTitle,
+      eventDate,
+      eventCampus,
+    ) => {
+      showCustomConfirm(
+        "Approve Payment",
+        "Approve this payment and send the QR Ticket to their email?",
+        async () => {
+          await supabase
+            .from("orders")
+            .update({ payment_status: "paid", status: "Registered" })
+            .eq("id", orderId);
 
-        const ticketID = `FEUR-TICKET-${orderId}`;
+          const ticketID = `FEUR-TICKET-${orderId}`;
 
-        // DIRECT API FETCH - ORDER CONFIRMATION
-        fetch("https://api.emailjs.com/api/v1.0/email/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            service_id: "service_abyji0d",
-            template_id: "template_aosc5oj",
-            user_id: "pY0e20a_mx8EoiFdT",
-            template_params: {
-              to_email: userEmail,
-              user_name: userName || "Student",
-              event_title: eventTitle,
-              event_date: eventDate,
-              campus: eventCampus,
-              qr_data: ticketID
-            }
-          })
-        }).then(() => console.log("QR Ticket sent via API!"));
+          // DIRECT API FETCH - ORDER CONFIRMATION
+          fetch("https://api.emailjs.com/api/v1.0/email/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              service_id: "service_abyji0d",
+              template_id: "template_aosc5oj",
+              user_id: "pY0e20a_mx8EoiFdT",
+              template_params: {
+                to_email: userEmail,
+                user_name: userName || "Student",
+                event_title: eventTitle,
+                event_date: eventDate,
+                campus: eventCampus,
+                qr_data: ticketID,
+              },
+            }),
+          }).then(() => console.log("QR Ticket sent via API!"));
 
-        showCustomAlert("Success", "Payment verified and QR Ticket sent!");
-        fetchPaymentApprovals();
-      });
+          showCustomAlert("Success", "Payment verified and QR Ticket sent!");
+          fetchPaymentApprovals();
+        },
+      );
     };
 
     window.rejectPayment = async (orderId) => {
-      showCustomConfirm("Reject Payment", "Reject this receipt? They will need to upload again.", async () => {
-        await supabase.from("orders").update({ proof_of_payment_url: null }).eq("id", orderId);
-        showCustomAlert("System", "Receipt rejected. User must upload again.");
-        fetchPaymentApprovals();
-      });
+      showCustomConfirm(
+        "Reject Receipt",
+        "Are you sure you want to reject this receipt? The student will need to upload a new one.",
+        async () => {
+          const { error } = await supabase
+            .from("orders")
+            .update({ proof_of_payment_url: null })
+            .eq("id", orderId);
+
+          if (error) {
+            showCustomAlert("Error", "Failed to reject receipt.");
+          } else {
+            showCustomAlert("System", "Receipt rejected. Student notified to re-upload.");
+            fetchPaymentApprovals(); // I-refresh ang listahan
+          }
+        }
+      );
     };
 
-    window.rejectPayment = async (orderId) => {
-      if (confirm("Reject this receipt? They will need to upload again.")) {
-        await supabase.from("orders").update({ proof_of_payment_url: null }).eq("id", orderId);
-        showCustomAlert("System", "Receipt rejected. User must upload again.");
-        fetchPaymentApprovals();
-      }
+   
+
+    // --- RECEIPT MODAL LOGIC ---
+    window.viewReceiptModal = (imgUrl) => {
+      document.getElementById("receipt-image").src = imgUrl;
+      document.getElementById("receipt-modal").classList.remove("hidden");
     };
+
+    document.getElementById("close-receipt-modal")?.addEventListener("click", () => {
+      document.getElementById("receipt-modal").classList.add("hidden");
+    });
 
     fetchPaymentApprovals();
   }
@@ -1241,21 +1311,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     const fetchOrders = async () => {
       const { data: orders, error } = await supabase
         .from("orders")
-        .select(`id, status, payment_status, proof_of_payment_url, events ( id, title, event_date, campus, poster_url, price )`)
+        .select(
+          `id, status, payment_status, proof_of_payment_url, events ( id, title, event_date, campus, poster_url, price )`,
+        )
         .eq("user_id", currentUser.id);
 
       ordersGrid.innerHTML = "";
       if (error || !orders || orders.length === 0) {
         ordersGrid.innerHTML = "<p>You have no registered events yet.</p>";
       } else {
-        orders.forEach((order) => {
+        // --- FILTER LOGIC — IDs match orderlist.html: search-input & campus-select ---
+        const searchVal = (
+          document.getElementById("search-input")?.value || ""
+        ).toLowerCase();
+        const campusVal =
+          document.getElementById("campus-select")?.value || "All";
+
+        const filteredOrders = orders.filter((o) => {
+          const ev = o.events;
+          if (!ev) return false;
+          return (
+            ev.title.toLowerCase().includes(searchVal) &&
+            (campusVal === "All" || ev.campus === campusVal)
+          );
+        });
+
+        if (filteredOrders.length === 0) {
+          ordersGrid.innerHTML = "<p>No matching events found.</p>";
+          return;
+        }
+
+        filteredOrders.forEach((order) => {
           const event = order.events;
           const isCancelled = order.status === "Cancelled";
           const card = document.createElement("div");
           card.className = "event-card";
 
           let actionHTML = "";
-          const statusStyle = isCancelled ? "background:#fee2e2; color:#991b1b;" : "";
+          const statusStyle = isCancelled
+            ? "background:#fee2e2; color:#991b1b;"
+            : "";
 
           if (isCancelled) {
             actionHTML = `<button class="btn btn-outline w-100" disabled style="border-color:#9ca3af; color:#9ca3af;">Cancelled</button>`;
@@ -1265,7 +1360,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (event.price == 0 || order.payment_status === "paid") {
               actionHTML = `<button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}">View QR Code</button>`;
               if (event.price == 0) {
-                actionHTML += `<button class="btn btn-outline w-100 cancel-ticket-btn" data-order-id="${order.id}" style="margin-top: 5px; border-color:#ef4444; color:#ef4444;">Cancel Ticket</button>`;
+                actionHTML += `<button class="btn btn-outline w-100 cancel-ticket-btn" data-order-id="${order.id}" data-price="${event.price}" style="border-color:#ef4444; color:#ef4444; font-size:12px; padding:6px; font-weight:bold;">Cancel Ticket</button>`;
               }
             } else if (event.price > 0 && order.payment_status === "unpaid") {
               if (order.proof_of_payment_url) {
@@ -1297,7 +1392,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <span>📅 ${event.event_date || "TBA"}</span>
                     <span>📍 FEU Roosevelt ${event.campus}</span>
                 </div>
-                ${event.price > 0 ? `<button class="btn btn-outline w-100 ref-no-btn" data-order-id="${order.id}" style="margin-bottom:8px; border-color:var(--primary); color:var(--primary); font-size:12px; padding:6px; font-weight:bold;">📄 View Ref No.</button>` : ''}
+                ${event.price > 0 ? `<button class="btn btn-outline w-100 ref-no-btn" data-order-id="${order.id}" style="margin-bottom:8px; border-color:var(--primary); color:var(--primary); font-size:12px; padding:6px; font-weight:bold;">📄 View Ref No.</button>` : ""}
                 
                 ${actionHTML}
             </div>`;
@@ -1310,7 +1405,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const orderId = btn.getAttribute("data-order-id");
             showCustomAlert(
               "Reference Number",
-              `Your Reference Number is:<br><br><b style="font-size: 16px; color: var(--primary);">FEUR-TICKET-${orderId}</b>`
+              `Your Reference Number is:<br><br><b style="font-size: 16px; color: var(--primary);">FEUR-TICKET-${orderId}</b>`,
             );
           });
         });
@@ -1332,7 +1427,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const fileExt = file.name.split(".").pop();
             const fileName = `${currentUser.id}-${orderId}-${Date.now()}.${fileExt}`;
 
-            const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, file);
+            const { error: uploadError } = await supabase.storage
+              .from("receipts")
+              .upload(fileName, file);
 
             if (uploadError) {
               showCustomAlert("Error", "Upload failed. Try again.");
@@ -1341,11 +1438,19 @@ document.addEventListener("DOMContentLoaded", async () => {
               return;
             }
 
-            const { data: publicUrlData } = supabase.storage.from("receipts").getPublicUrl(fileName);
-            await supabase.from("orders").update({ proof_of_payment_url: publicUrlData.publicUrl }).eq("id", orderId);
+            const { data: publicUrlData } = supabase.storage
+              .from("receipts")
+              .getPublicUrl(fileName);
+            await supabase
+              .from("orders")
+              .update({ proof_of_payment_url: publicUrlData.publicUrl })
+              .eq("id", orderId);
 
-            showCustomAlert("Success", "Receipt uploaded! Please wait for admin verification.");
-            fetchOrders(); 
+            showCustomAlert(
+              "Success",
+              "Receipt uploaded! Please wait for admin verification.",
+            );
+            fetchOrders();
           });
         });
 
@@ -1376,29 +1481,58 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.querySelectorAll(".cancel-ticket-btn").forEach((btn) => {
           btn.addEventListener("click", async () => {
             const orderId = btn.getAttribute("data-order-id");
-            
-            showCustomConfirm("Cancel Registration", "Are you sure you want to cancel your registration for this event? This action cannot be undone.", async () => {
-              btn.innerText = "Cancelling...";
-              btn.disabled = true;
+            const eventPrice = parseFloat(btn.getAttribute("data-price") || 0);
 
-              const { error } = await supabase.from("orders").update({ status: "Cancelled" }).eq("id", orderId);
+            // Bawal i-cancel kung Paid Event
+            if (eventPrice > 0) {
+              showCustomAlert(
+                "Action Not Allowed",
+                "You cannot cancel a paid registration directly. Please go to the <b>Help</b> section and contact the administrator for cancellation or refunds.",
+              );
+              return; // Stop execution
+            }
 
-              if (error) {
-                showCustomAlert("Error", "Failed to cancel ticket.");
-                btn.innerText = "Cancel Ticket";
-                btn.disabled = false;
-              } else {
-                showCustomAlert("Success", "Your registration has been cancelled.");
-                fetchOrders(); 
-                loadNotifications(); 
-              }
-            });
+            // Normal cancellation para sa Free Event
+            showCustomConfirm(
+              "Cancel Registration",
+              "Are you sure you want to cancel your registration for this free event? This action cannot be undone.",
+              async () => {
+                btn.innerText = "Cancelling...";
+                btn.disabled = true;
+
+                const { error } = await supabase
+                  .from("orders")
+                  .update({ status: "Cancelled" })
+                  .eq("id", orderId);
+
+                if (error) {
+                  showCustomAlert("Error", "Failed to cancel ticket.");
+                  btn.innerText = "Cancel Ticket";
+                  btn.disabled = false;
+                } else {
+                  showCustomAlert(
+                    "Success",
+                    "Your registration has been cancelled.",
+                  );
+                  fetchOrders();
+                  loadNotifications();
+                }
+              },
+            );
           });
         });
       }
     };
 
-    fetchOrders(); 
+    fetchOrders();
+
+    // --- FILTER EVENT LISTENERS — bound here where fetchOrders is in scope ---
+    document
+      .getElementById("search-input")
+      ?.addEventListener("input", fetchOrders);
+    document
+      .getElementById("campus-select")
+      ?.addEventListener("change", fetchOrders);
 
     document.getElementById("close-qr-modal")?.addEventListener("click", () => {
       document.getElementById("qr-modal")?.classList.add("hidden");
@@ -1590,6 +1724,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Service Worker reload on update
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       window.location.reload();

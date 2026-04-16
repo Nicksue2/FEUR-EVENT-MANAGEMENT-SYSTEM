@@ -752,9 +752,9 @@ input:checked + .slider:before {
 /* --- PREMIUM MODAL ALERT UPGRADE --- */
 .modal-overlay {
   position: fixed;
-  top: 0; 
-  left: 0; 
-  width: 100%; 
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5) !important; /* Mas dark na background */
   backdrop-filter: blur(4px) !important; /* Blur effect sa likod */
@@ -811,7 +811,9 @@ input:checked + .slider:before {
   font-weight: bold !important;
   cursor: pointer !important;
   width: 100% !important;
-  transition: background 0.2s, transform 0.1s !important;
+  transition:
+    background 0.2s,
+    transform 0.1s !important;
 }
 
 .modal-box button:hover {
@@ -849,7 +851,8 @@ input:checked + .slider:before {
 }
 
 /* 3. Force Gray out sa Registered Button */
-.btn:disabled, .btn-disabled {
+.btn:disabled,
+.btn-disabled {
   background-color: #9ca3af !important;
   border-color: #9ca3af !important;
   color: white !important;
@@ -885,9 +888,135 @@ input:checked + .slider:before {
 
 /* 3. Fix para sa Admin Table sa Mobile (Para mabasa ang labels) */
 @media (max-width: 768px) {
-  .admin-table th, .admin-table td {
+  .admin-table th,
+  .admin-table td {
     font-size: 12px;
     padding: 10px 8px;
     white-space: nowrap; /* Hindi magugusot ang text */
+  }
+}
+
+/* ========================================= */
+/* --- MASTER UI & DARK MODE OVERRIDES --- */
+/* ========================================= */
+
+/* 1. Fix Event Title (Para hindi humaba ang card kapag mahaba ang text) */
+.event-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Hanggang 2 lines lang tapos magkaka "..." */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  min-height: 43px; /* Keep uniform card height */
+}
+
+/* 2. Fix Mobile Navbar Alignment & Campus Selector */
+@media (max-width: 768px) {
+  .campus-dropdown {
+    display: block !important; /* Ipakita ulit sa mobile */
+    max-width: 130px; /* Paliitin para kumasya sa header */
+    padding: 5px 8px;
+    font-size: 11px;
+    margin-right: 5px;
+  }
+  .nav-right {
+    gap: 8px !important;
+    justify-content: flex-end;
+  }
+}
+
+/* 3. DARK MODE CONSISTENCY (Modals, QR, Settings) */
+.dark-mode .modal-box {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color);
+}
+.dark-mode .modal-box h3,
+.dark-mode .qr-title {
+  color: var(--primary) !important;
+}
+.dark-mode .modal-box p,
+.dark-mode .setting-item {
+  color: var(--text-color) !important;
+}
+.dark-mode .qr-image-container {
+  background: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+/* ========================================= */
+/* --- FINAL UI & DARK MODE POLISH --- */
+/* ========================================= */
+
+/* Fix 1: Notification Dropdown Dark Mode */
+.dark-mode #notif-modal {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+}
+.dark-mode .notif-item {
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+.dark-mode .notif-item b {
+  color: var(--primary) !important;
+}
+
+/* Fix 2: Paid Event Warning Box Dark Mode (Para sa mga pink box) */
+.dark-mode div[style*="fef2f2"],
+.dark-mode div[style*="fee2e2"] {
+  background-color: #450a0a !important;
+  border-color: #7f1d1d !important;
+  color: #fca5a5 !important;
+}
+.dark-mode div[style*="fef2f2"] *,
+.dark-mode div[style*="fee2e2"] * {
+  color: #fca5a5 !important;
+}
+
+/* Fix 3: Mobile Header & Campus Selector Perfect Alignment */
+@media (max-width: 768px) {
+  .nav-right {
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+  }
+  .campus-dropdown {
+    width: auto !important;
+    max-width: 140px !important;
+    margin-bottom: 0 !important;
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    height: 35px !important;
+  }
+  #notif-btn {
+    margin-top: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+} /* Fix 4: Mobile Campus Selector as Icon */
+@media (max-width: 768px) {
+  .campus-dropdown {
+    width: auto !important;
+    max-width: none !important;
+    margin-bottom: 0 !important;
+    padding: 6px 8px !important;
+    font-size: 0 !important; /* Itago ang text */
+    height: 35px !important;
+    background: transparent !important; /* Walang bg kapag dark mode */
+    border: none !important;
+    color: var(--nav-text) !important;
+  }
+
+  /* Gumamit ng custom icon na mukhang drop-down icon */
+  .campus-dropdown::after {
+    content: "📍"; /* Or pwede kang gumamit ng SVG/FontAwesome kung meron */
+    font-size: 16px;
+    visibility: visible;
+  }
+
+  /* Ipakita ulit ang option text kapag pinindot */
+  .campus-dropdown option {
+    font-size: 14px !important;
+    color: #000;
   }
 }
