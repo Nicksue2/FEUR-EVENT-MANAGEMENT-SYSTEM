@@ -94,3 +94,41 @@
   border: 1.5px solid var(--text-color) !important;
   color: var(--text-color) !important;
 }
+
+/* --- MOBILE VIEW OPTIMIZATION --- */
+@media (max-width: 768px) {
+  /* Bawasan ang padding ng main area para lumapad ang card */
+  .main-content {
+    padding: 10px !important;
+  }
+
+  /* Bawasan ang padding sa loob ng card */
+  .maps-card {
+    padding: 15px 10px !important;
+    margin-top: 10px !important;
+  }
+
+  /* Paliitin ang buttons para magkasya sa isang linya */
+  .campus-buttons {
+    gap: 6px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .map-btn {
+    min-width: 90px !important; /* Mula 130px, ginawa nating 90px */
+    padding: 6px 5px !important;
+    font-size: 11px !important;
+  }
+
+  /* Paliitin din ang switching buttons (Street/2D) */
+  .mode-btn {
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+  }
+
+  /* I-adjust ang height ng Map para hindi masyadong mahaba sa CP */
+  .map-container iframe {
+    height: 50vh !important; /* 50% ng screen height lang */
+    min-height: 350px !important;
+  }
+}
