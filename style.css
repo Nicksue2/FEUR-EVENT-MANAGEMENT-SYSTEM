@@ -1036,3 +1036,12 @@ input:checked + .slider:before {
     font-size: 12px;
   }
 }
+
+/* Fix: Paid Event Reminder Dark Mode */
+.dark-mode #payment-section {
+  background-color: #450a0a !important;
+  border-color: #7f1d1d !important;
+}
+.dark-mode #payment-section p {
+  color: #fca5a5 !important;
+}
