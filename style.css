@@ -1020,3 +1020,19 @@ input:checked + .slider:before {
     color: #000;
   }
 }
+
+/* 2. Ayusin ang Campus Selector sa Mobile para hindi mawala */
+@media (max-width: 768px) {
+  .nav-right {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .campus-dropdown {
+    display: block !important; /* <--- DAGDAG MO ITO */
+    width: 100%;
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+}
