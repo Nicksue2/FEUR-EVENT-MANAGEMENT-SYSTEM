@@ -309,18 +309,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       .getElementById("signup-form")
       ?.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        const registerBtn = document.getElementById("register-btn");
+        const email = document.getElementById("email").value.toLowerCase();
+        const password = document.getElementById("password").value;
+
+        // --- UPDATED: DOMAIN VALIDATION (@feuroosevelt.edu.ph) ---
+        if (!email.endsWith("@feuroosevelt.edu.ph")) {
+          showCustomAlert(
+            "Invalid Email",
+            "Please use your official school email ending in <b>@feuroosevelt.edu.ph</b>.",
+          );
+          if (typeof turnstile !== "undefined") turnstile.reset();
+          return;
+        }
+
         registerBtn.innerText = "Processing...";
         registerBtn.disabled = true;
-        registerBtn.classList.remove("loading-btn");
-
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
 
         if (password !== document.getElementById("confirm-password").value) {
           showCustomAlert("Error", "Passwords do not match.");
           registerBtn.innerText = "Sign Up";
           registerBtn.disabled = false;
-          registerBtn.classList.remove("loading-btn");
+          if (typeof turnstile !== "undefined") turnstile.reset();
           return;
         }
 
@@ -338,14 +349,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            captchaToken: captchaToken,
-          },
+          options: { captchaToken: captchaToken },
         });
+
         if (error) {
           showCustomAlert("Error", error.message);
           registerBtn.innerText = "Sign Up";
           registerBtn.disabled = false;
+          // --- FIX: RESET CAPTCHA ON ERROR ---
+          if (typeof turnstile !== "undefined") turnstile.reset();
         } else {
           if (data.user) {
             await supabase.from("profiles").insert([
@@ -361,7 +373,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           showCustomAlert(
             "Success",
-            "Registration successful! Please confirm your email before logging in.",
+            "Registration successful! Confirm email before logging in.",
           );
           setTimeout(() => {
             window.location.href = "signin.html";
@@ -1283,14 +1295,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (error) {
             showCustomAlert("Error", "Failed to reject receipt.");
           } else {
-            showCustomAlert("System", "Receipt rejected. Student notified to re-upload.");
+            showCustomAlert(
+              "System",
+              "Receipt rejected. Student notified to re-upload.",
+            );
             fetchPaymentApprovals(); // I-refresh ang listahan
           }
-        }
+        },
       );
     };
-
-   
 
     // --- RECEIPT MODAL LOGIC ---
     window.viewReceiptModal = (imgUrl) => {
@@ -1298,9 +1311,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("receipt-modal").classList.remove("hidden");
     };
 
-    document.getElementById("close-receipt-modal")?.addEventListener("click", () => {
-      document.getElementById("receipt-modal").classList.add("hidden");
-    });
+    document
+      .getElementById("close-receipt-modal")
+      ?.addEventListener("click", () => {
+        document.getElementById("receipt-modal").classList.add("hidden");
+      });
 
     fetchPaymentApprovals();
   }
