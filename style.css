@@ -1045,3 +1045,54 @@ input:checked + .slider:before {
 .dark-mode #payment-section p {
   color: #fca5a5 !important;
 }
+
+/* ========================================= */
+/* --- MOBILE CAMPUS SELECTOR (ICON ONLY) ---*/
+/* ========================================= */
+
+@media (max-width: 768px) {
+  .nav-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap !important;
+    gap: 5px;
+  }
+
+  .campus-dropdown {
+    display: block !important;
+    width: 35px !important;
+    height: 35px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    
+    /* Itago ang text at ang default gray box ng browser */
+    color: transparent !important;
+    font-size: 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    
+    /* Ipalit ang White Map Pin Icon gamit ang SVG */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 22px !important;
+    cursor: pointer;
+  }
+
+  /* Ipakita ulit ang mga text kapag na-click na yung icon */
+  .campus-dropdown option {
+    color: #000 !important;
+    font-size: 16px !important; /* 16px para hindi mag-auto zoom ang iPhone */
+  }
+}
+
+/* Fix: Paid Event Reminder Dark Mode */
+.dark-mode #payment-section {
+  background-color: #450a0a !important;
+  border-color: #7f1d1d !important;
+}
+.dark-mode #payment-section p {
+  color: #fca5a5 !important;
+}
