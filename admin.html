@@ -16,6 +16,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="apple-touch-icon" href="images/feurlogo.png" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body class="admin-body">
     <header class="top-nav admin-header-nav">
@@ -181,15 +182,32 @@
         </div>
 
         <div class="stats-container">
-          <div class="stat-box">
+          <div
+            class="stat-box clickable-stat"
+            role="button"
+            tabindex="0"
+            onclick="openAnalytics('events')"
+          >
             <h3 id="stat-events">0</h3>
             <p>Total Events</p>
           </div>
-          <div class="stat-box">
+
+          <div
+            class="stat-box clickable-stat"
+            role="button"
+            tabindex="0"
+            onclick="openAnalytics('orders')"
+          >
             <h3 id="stat-orders">0</h3>
             <p>Total Orders</p>
           </div>
-          <div class="stat-box stat-attended">
+
+          <div
+            class="stat-box stat-attended clickable-stat"
+            role="button"
+            tabindex="0"
+            onclick="openAnalytics('attendance')"
+          >
             <h3 id="stat-attended">0</h3>
             <p>Total Attended</p>
           </div>
@@ -271,6 +289,15 @@
           </div>
         </div>
       </main>
+    </div>
+    <div id="analytics-modal" class="modal-overlay hidden">
+      <div class="modal-box modal-box-large">
+        <span class="close-modal" onclick="closeAnalytics()">&times;</span>
+        <h3 id="analytics-title" class="modal-title-green">Analytics View</h3>
+        <div class="chart-wrapper" style="margin-top: 20px; height: 320px">
+          <canvas id="analyticsChart"></canvas>
+        </div>
+      </div>
     </div>
 
     <div id="event-modal" class="modal-overlay hidden">

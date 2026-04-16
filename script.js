@@ -1806,4 +1806,106 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     });
   }
+
+  //dito shi hehe
+
+  // --- UPDATED ANALYTICS FEATURE ---
+  let myChart = null;
+
+  // Function para buksan ang modal at mag-load ng chart
+  window.openAnalytics = async (type) => {
+    const modal = document.getElementById("analytics-modal");
+    const ctx = document.getElementById("analyticsChart").getContext("2d");
+    const title = document.getElementById("analytics-title");
+
+    if (modal) modal.classList.remove("hidden");
+    if (myChart) myChart.destroy();
+
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, padding: 15 } },
+      },
+    };
+
+    if (type === "events") {
+      title.innerText = "Events per Campus";
+      const { data } = await supabase.from("events").select("campus");
+      const counts = { Cainta: 0, Marikina: 0, Rodriguez: 0 };
+      data.forEach((ev) => {
+        if (counts[ev.campus] !== undefined) counts[ev.campus]++;
+      });
+
+      myChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: Object.keys(counts),
+          datasets: [
+            {
+              data: Object.values(counts),
+              backgroundColor: ["#facc15", "#006633", "#166534"],
+            },
+          ],
+        },
+        options: chartOptions,
+      });
+    } else if (type === "orders") {
+      title.innerText = "Registrations by Status";
+      const { data } = await supabase.from("orders").select("status");
+      const counts = {};
+      data.forEach((o) => (counts[o.status] = (counts[o.status] || 0) + 1));
+
+      myChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: Object.keys(counts),
+          datasets: [
+            {
+              label: "Total Orders",
+              data: Object.values(counts),
+              backgroundColor: "#006633",
+            },
+          ],
+        },
+        options: {
+          ...chartOptions,
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+        },
+      });
+    } else if (type === "attendance") {
+      title.innerText = "Overall Attendance Rate";
+      const { data } = await supabase.from("orders").select("status");
+      const attended = data.filter((o) => o.status === "Attended").length;
+      const others = data.length - attended;
+
+      myChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Attended", "Others"],
+          datasets: [
+            {
+              data: [attended, others],
+              backgroundColor: ["#006633", "#e5e7eb"],
+            },
+          ],
+        },
+        options: chartOptions,
+      });
+    }
+  };
+
+  // Function para isara ang modal (ginagamit ng X button)
+  window.closeAnalytics = () => {
+    const modal = document.getElementById("analytics-modal");
+    if (modal) modal.classList.add("hidden");
+  };
+
+  // Click Outside Closer para sa Analytics Modal
+  window.addEventListener("click", (e) => {
+    const modal = document.getElementById("analytics-modal");
+    if (e.target === modal) {
+      closeAnalytics();
+    }
+  });
 });

@@ -726,7 +726,7 @@
 
 /* Hover effect para sa indicator */
 .sec-link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -744,4 +744,74 @@
 .sec-link.active::after {
   width: 100% !important;
   background: var(--secondary) !important; /* Solid Yellow */
+}
+
+/* Analytics Interactivity */
+.clickable-stat {
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    filter 0.2s;
+}
+.clickable-stat:hover {
+  transform: translateY(-5px);
+  filter: brightness(1.2);
+}
+/* --- ANALYTICS MODAL FIX --- */
+.chart-wrapper {
+  width: 100%;
+  height: 350px !important; /* Fixed height para hindi lumagpas */
+  background: white; /* Para malinis tignan ket naka dark mode ang dashboard */
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#analyticsChart {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Adjust modal title para sa dark mode */
+.dark-mode .modal-title-green {
+  color: #009135 !important;
+}
+
+/* Palitan ito para mag-match ang kulay ng tatlong boxes */
+.stat-box.stat-attended {
+  background: var(--primary) !important;
+}
+
+/* Fix para sa modal background sa dark mode */
+.dark-mode #analytics-modal .modal-box {
+  background: var(--card-bg) !important;
+  color: var(--text-color) !important;
+}
+
+.dark-mode .chart-wrapper {
+  background: #ffffff !important; /* Keep white para kitang-kita ang chart lines */
+  border: 1px solid var(--border-color);
+}
+
+/* Stat Boxes Color Update */
+.stat-box {
+  background: #006633 !important; /* Dark green na katulad ng button */
+  color: white;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.stat-box.stat-attended {
+  background: #006633 !important; /* Siguradong match silang lahat */
+}
+
+/* Para hindi masakit sa mata kapag hino-hover (kung clickable) */
+.clickable-stat:hover {
+  transform: translateY(-5px);
+  filter: brightness(0.9); /* Imbes na mag-glow, magdidilim nang konti */
 }
