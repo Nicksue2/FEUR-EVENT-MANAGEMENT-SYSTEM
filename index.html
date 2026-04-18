@@ -8,6 +8,19 @@
 
     <link rel="icon" type="image/x-icon" href="images/feurlogo.png" />
 
+    <style>
+      /* Piliting itaas ang Tidio bubble sa mobile */
+      #tidio-chat-iframe {
+        bottom: 20px !important; /* Taasan mo 'to kung gusto mong mas mataas pa */
+      }
+
+      @media only screen and (max-width: 768px) {
+        #tidio-chat-iframe {
+          bottom: 30px !important; /* Mas mataas na margin para sa mobile Safe Area */
+        }
+      }
+    </style>
+
     <script
       type="text/javascript"
       src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
