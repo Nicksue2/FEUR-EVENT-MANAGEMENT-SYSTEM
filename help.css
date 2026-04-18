@@ -1,15 +1,17 @@
-/* help.css - Fixed scrolling, alignment, and animations */
+/* ============================================================
+   FEUR EVENTS — HELP PAGE STYLESHEET
+   ============================================================ */
 
 .help-body {
   background: #f4f6f8;
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  /* Enforce normal scrolling */
   overflow-y: auto !important;
   display: block !important;
 }
 
+/* --- HEADER --- */
 .help-header {
   background: #006633;
   padding: 15px 30px;
@@ -18,7 +20,7 @@
   justify-content: space-between;
   color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: sticky; /* Panatilihin ang header sa taas */
+  position: sticky;
   top: 0;
   z-index: 100;
 }
@@ -38,7 +40,6 @@
   color: #f1c40f;
 }
 
-/* Design para sa clickable center part */
 .header-center-link {
   text-decoration: none;
   color: white;
@@ -73,10 +74,11 @@
   width: 28px;
 }
 
+/* --- MAIN LAYOUT --- */
 .help-main {
   max-width: 800px;
   margin: 40px auto;
-  padding: 0 20px 40px; /* Dagdag padding sa baba para sa scroll */
+  padding: 0 20px 40px;
   display: flex;
   flex-direction: column;
   gap: 25px;
@@ -109,6 +111,7 @@
   margin-bottom: 20px;
 }
 
+/* --- FAQ ACCORDION --- */
 .faq-list {
   display: flex;
   flex-direction: column;
@@ -123,7 +126,7 @@
   transition:
     background 0.2s ease,
     border-color 0.2s ease;
-  overflow: hidden; /* Kailangan para sa height animation */
+  overflow: hidden;
 }
 
 .faq-item:hover {
@@ -139,11 +142,11 @@
   outline: none;
 }
 
-/* --- SMOOTH FAQ ANIMATION --- */
+/* Smooth open/close animation */
 .faq-item p {
   max-height: 0;
   margin: 0;
-  padding: 0 20px; /* Side padding lang muna */
+  padding: 0 20px;
   opacity: 0;
   overflow: hidden;
   transition:
@@ -156,12 +159,12 @@
 }
 
 .faq-item[open] p {
-  max-height: 500px; /* Arbitrary number para magka-space */
-  padding: 0 20px 20px; /* Lagyan ng padding sa baba */
+  max-height: 500px;
+  padding: 0 20px 20px;
   opacity: 1;
 }
-/* ---------------------------- */
 
+/* --- CONTACT FORM --- */
 .contact-form {
   display: flex;
   flex-direction: column;
@@ -225,47 +228,45 @@
   transform: scale(0.98);
 }
 
-/* ========================================= */
-/* --- HELP SECTION DARK MODE FIXES --- */
-/* ========================================= */
-
+/* --- DARK MODE --- */
 .dark-mode .help-body {
   background: var(--bg-color) !important;
 }
+
 .dark-mode .help-card {
   background: var(--card-bg) !important;
   border-color: var(--border-color) !important;
 }
+
 .dark-mode .help-card h3 {
   border-bottom-color: var(--border-color) !important;
 }
+
 .dark-mode .contact-desc,
 .dark-mode .faq-item p {
   color: #aaaaaa !important;
 }
+
 .dark-mode .faq-item {
   background: var(--card-bg) !important;
   border-color: var(--border-color) !important;
 }
+
 .dark-mode .faq-item:hover {
   background: var(--sidebar-hover) !important;
 }
+
 .dark-mode .faq-item summary {
   color: var(--text-color) !important;
 }
+
 .dark-mode .form-group-help label {
   color: var(--text-color) !important;
 }
+
 .dark-mode .form-group-help select,
 .dark-mode .form-group-help textarea {
   background: var(--bg-color) !important;
   border-color: var(--border-color) !important;
   color: var(--text-color) !important;
 }
-
-/* Fix: Help Page Body Background in Dark Mode */
-body.dark-mode.help-body {
-  background-color: var(--bg-color) !important;
-}
-
-body.dark-mode { background-color: #121212 !important; }

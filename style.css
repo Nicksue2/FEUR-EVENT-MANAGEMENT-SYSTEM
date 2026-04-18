@@ -1,4 +1,9 @@
-/* --- THEME VARIABLES --- */
+/* ============================================================
+   FEUR EVENTS — MAIN STYLESHEET
+   Optimized: duplicates removed, media queries consolidated
+   ============================================================ */
+
+/* --- 1. THEME VARIABLES --- */
 :root {
   --bg-color: #f4f6f8;
   --text-color: #333333;
@@ -26,12 +31,14 @@
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
+/* --- 2. GLOBAL RESET --- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
+
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -43,56 +50,74 @@ body {
   height: 100vh;
   overflow: hidden;
 }
+
+/* --- 3. UTILITIES --- */
 .hidden {
   display: none !important;
 }
 
-/* --- HEADER / TOP NAV --- */
+.w-100 {
+  width: 100%;
+}
+
+.full-width-mt20 {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.loading-btn {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn:disabled,
+.btn-disabled {
+  background-color: #9ca3af !important;
+  border-color: #9ca3af !important;
+  color: white !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+/* --- 4. TOP NAV / HEADER --- */
+/* Absolute centering for logo, flex for left/right sides */
 .top-nav {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   background: var(--nav-bg);
   color: var(--nav-text);
   padding: 10px 20px;
   height: 70px;
   z-index: 100;
   box-shadow: var(--shadow);
-  position: relative;
 }
+
 .nav-left,
 .nav-right {
   display: flex;
   align-items: center;
+  flex: 1;
   gap: 15px;
   z-index: 2;
 }
 
-/* --- LOGO STYLES --- */
-.logo-container {
-  z-index: 1;
+.nav-left {
+  justify-content: flex-start;
 }
-.logo-link {
+
+.nav-right {
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+#auth-user-view {
   display: flex;
   align-items: center;
   gap: 12px;
-  text-decoration: none;
-  color: inherit;
-}
-.logo-img {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  object-fit: contain;
-  background: #ffffff;
-  border: 2px solid var(--secondary);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-.logo-text {
-  font-size: 1.4rem;
-  font-weight: bold;
-  letter-spacing: 1px;
-  color: var(--nav-text);
 }
 
 .icon-btn {
@@ -107,11 +132,47 @@ body {
   border-radius: 50%;
   transition: background 0.2s;
 }
+
 .icon-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Search Bar & Dropdown */
+/* --- 5. LOGO --- */
+.logo-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: #ffffff;
+  border: 2px solid var(--secondary);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--nav-text);
+}
+
+/* --- 6. SEARCH BAR --- */
 .search-container {
   position: relative;
   display: flex;
@@ -120,10 +181,12 @@ body {
   border-radius: 20px;
   padding: 5px 15px;
 }
+
 .search-icon {
   color: var(--nav-text);
   margin-right: 8px;
 }
+
 .search-container input {
   background: transparent;
   border: none;
@@ -132,9 +195,12 @@ body {
   width: 200px;
   font-size: 14px;
 }
+
 .search-container input::placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
+
+/* --- 7. CAMPUS DROPDOWN (desktop) --- */
 .campus-dropdown {
   padding: 8px 12px;
   border-radius: 6px;
@@ -146,15 +212,18 @@ body {
   outline: none;
 }
 
-/* Auth Area */
+/* --- 8. AUTH AREA --- */
 .user-greeting {
   font-weight: 600;
   font-size: 14px;
 }
+
 .auth-buttons {
   display: flex;
   gap: 10px;
 }
+
+/* --- 9. BUTTONS --- */
 .btn {
   padding: 8px 16px;
   border-radius: 6px;
@@ -166,28 +235,33 @@ body {
   border: none;
   transition: 0.2s;
 }
+
 .btn-outline {
   background: transparent;
   border: 1px solid var(--nav-text);
   color: var(--nav-text);
 }
+
 .btn-outline:hover {
   background: rgba(255, 255, 255, 0.1);
 }
+
 .btn-solid {
   background: var(--secondary);
   color: #000;
 }
+
 .btn-solid:hover {
   background: #eab308;
 }
 
-/* --- SIDEBAR & LAYOUT --- */
+/* --- 10. SIDEBAR & LAYOUT --- */
 .layout-container {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
+
 .sidebar {
   width: 240px;
   background: var(--sidebar-bg);
@@ -198,17 +272,21 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 .sidebar.minimized {
   width: 70px;
 }
+
 .sidebar.minimized span {
   display: none;
 }
+
 .side-menu {
   display: flex;
   flex-direction: column;
   padding: 10px 0;
 }
+
 .side-menu a {
   display: flex;
   align-items: center;
@@ -219,30 +297,39 @@ body {
   font-weight: 500;
   transition: background 0.2s;
 }
+
 .sidebar.minimized .side-menu a {
   padding: 15px 25px;
   justify-content: center;
 }
+
 .side-menu a:hover,
 .side-menu a.active {
   background: var(--sidebar-hover);
   border-left: 4px solid var(--secondary);
 }
 
-/* --- MAIN CONTENT & CARDS --- */
+.bottom-nav {
+  display: none;
+}
+
+/* --- 11. MAIN CONTENT & EVENT CARDS --- */
 .main-content {
   flex: 1;
   padding: 30px;
   overflow-y: auto;
 }
+
 .header-section {
   margin-bottom: 25px;
 }
+
 .header-section h2 {
   font-size: 24px;
   color: var(--primary);
   margin-bottom: 5px;
 }
+
 .events-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -260,28 +347,43 @@ body {
   transition: transform 0.2s;
   cursor: pointer;
 }
+
 .event-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
+
 .event-img {
   width: 100%;
   height: 160px;
   background: #ddd;
   object-fit: cover;
 }
+
 .event-info {
   padding: 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
 }
+
 .event-title {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
   color: var(--text-color);
+  /* Clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  min-height: 43px;
 }
+
 .event-meta {
   font-size: 13px;
   color: gray;
@@ -290,6 +392,20 @@ body {
   flex-direction: column;
   gap: 5px;
 }
+
+.event-action-area {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 15px;
+}
+
+.event-action-area button {
+  margin: 0 !important;
+}
+
+/* --- 12. STATUS BADGE --- */
 .status-badge {
   display: inline-block;
   padding: 5px 10px;
@@ -302,68 +418,111 @@ body {
   margin-bottom: 10px;
 }
 
-/* --- MODALS & TOGGLES --- */
-.notif-container {
-  position: relative;
-}
-.modern-modal {
-  position: absolute;
-  top: 45px;
-  right: 0;
-  background: var(--card-bg);
-  color: var(--text-color);
-  width: 300px;
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border-color);
-  padding: 15px;
-  z-index: 200;
-}
-.modern-modal h4 {
-  margin-bottom: 10px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 5px;
-}
-.notif-item {
-  padding: 10px;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 13px;
-}
+/* --- 13. MODALS --- */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(3px);
+  justify-content: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.3s ease;
 }
+
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .modal-box {
   background: var(--card-bg);
   color: var(--text-color);
-  padding: 30px;
-  border-radius: 12px;
+  padding: 30px 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   width: 90%;
-  max-width: 400px;
-  box-shadow: var(--shadow);
+  max-width: 380px;
   text-align: center;
   position: relative;
+  transform: scale(1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+.modal-overlay.hidden .modal-box {
+  transform: scale(0.8);
+}
+
+.modal-box h3 {
+  margin: 0 0 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modal-box p {
+  font-size: 1rem;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.modal-box button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+}
+
+.modal-box button:hover {
+  opacity: 0.9;
+}
+
+.modal-box button:active {
+  transform: scale(0.97);
+}
+
+/* Alert box specifics */
+.alert-box {
+  text-align: center;
+}
+
+.alert-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.alert-margin {
+  margin: 15px 0;
+}
+
+/* Event details modal */
 .event-modal-box {
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   padding: 20px;
   text-align: left;
 }
+
 .modal-event-img {
   width: 100%;
   height: 200px;
   object-fit: cover;
   border-radius: 8px;
 }
+
 .close-modal {
   position: absolute;
   top: 10px;
@@ -372,15 +531,27 @@ body {
   cursor: pointer;
   color: var(--text-color);
 }
+
 .close-modal:hover {
   color: var(--primary);
 }
+
 .modal-actions {
   display: flex;
   justify-content: center;
   gap: 15px;
   margin-top: 20px;
 }
+
+/* Wide modal on PC */
+@media (min-width: 768px) {
+  .event-modal-box {
+    max-width: 600px;
+    padding: 30px;
+  }
+}
+
+/* --- 14. SETTINGS TOGGLE SWITCH --- */
 .setting-item {
   display: flex;
   justify-content: space-between;
@@ -388,17 +559,20 @@ body {
   padding: 15px 0;
   border-bottom: 1px solid var(--border-color);
 }
+
 .switch {
   position: relative;
   display: inline-block;
   width: 40px;
   height: 20px;
 }
+
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
+
 .slider {
   position: absolute;
   cursor: pointer;
@@ -410,6 +584,7 @@ body {
   transition: 0.4s;
   border-radius: 20px;
 }
+
 .slider:before {
   position: absolute;
   content: "";
@@ -421,116 +596,16 @@ body {
   transition: 0.4s;
   border-radius: 50%;
 }
+
 input:checked + .slider {
   background-color: var(--primary);
 }
+
 input:checked + .slider:before {
   transform: translateX(20px);
 }
 
-/* --- MOBILE RESPONSIVENESS (FIXED SEARCH) --- */
-.bottom-nav {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  /* Logo */
-  .logo-container {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .logo-img {
-    width: 40px;
-    height: 40px;
-  }
-  .logo-text {
-    display: none;
-  }
-
-  /* Fixed Mobile Search Bar */
-  .search-container {
-    width: 35px;
-    height: 35px;
-    overflow: hidden;
-    background: transparent;
-    transition: width 0.3s ease;
-    padding: 5px;
-    margin-left: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-  }
-
-  .search-container input {
-    width: 0px;
-    opacity: 0;
-    padding: 0;
-    transition:
-      width 0.3s ease,
-      opacity 0.3s ease;
-  }
-
-  .search-container:focus-within {
-    width: 160px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 20px;
-  }
-
-  .search-container:focus-within input {
-    width: 100%;
-    opacity: 1;
-    margin-left: 5px;
-  }
-
-  .campus-dropdown,
-  .user-greeting {
-    display: none;
-  }
-
-  .sidebar {
-    position: absolute;
-    height: calc(100vh - 70px);
-    z-index: 1000;
-    transform: translateX(-100%);
-    width: 240px;
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .main-content {
-    padding: 15px;
-    margin-bottom: 60px;
-  }
-
-  .bottom-nav {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background: var(--nav-bg);
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    z-index: 100;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-  }
-  .bottom-nav a {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    transition: color 0.2s;
-  }
-  .bottom-nav a.active {
-    color: white;
-  }
-}
-
-/* --- QR CODE MODAL STYLES (ORDER LIST) --- */
+/* --- 15. QR CODE MODAL --- */
 .qr-modal-box {
   text-align: center;
   max-width: 400px;
@@ -548,7 +623,7 @@ input:checked + .slider:before {
   justify-content: center;
   align-items: center;
   margin-bottom: 25px;
-  min-height: 250px; /* Prevents jumping before QR loads */
+  min-height: 250px;
   background: #f9f9f9;
   padding: 15px;
   border-radius: 8px;
@@ -561,7 +636,7 @@ input:checked + .slider:before {
 
 .qr-close-btn {
   width: 100%;
-  background: #6b7280; /* Gray color */
+  background: #6b7280;
   color: white;
 }
 
@@ -569,7 +644,7 @@ input:checked + .slider:before {
   background: #4b5563;
 }
 
-/* --- QR SCANNER RESPONSIVE UI --- */
+/* QR Scanner */
 .qr-scanner-wrapper {
   width: 100%;
   max-width: 500px;
@@ -590,99 +665,7 @@ input:checked + .slider:before {
   border: 2px solid #e5e7eb;
 }
 
-/* --- HEADER ALIGNMENT PERFECT CENTER --- */
-.top-nav {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.nav-left,
-.nav-right {
-  display: flex;
-  align-items: center;
-  flex: 1; /* Pantay na espasyo sa magkabilang gilid */
-}
-
-.nav-left {
-  justify-content: flex-start;
-}
-
-.nav-right {
-  justify-content: flex-end;
-  gap: 15px;
-  white-space: nowrap; /* ITO ANG PIPIGIL SA PAGBABA NG WELCOME TEXT */
-}
-
-#auth-user-view {
-  display: flex;
-  align-items: center;
-  gap: 12px; /* Espasyo sa pagitan ng Bell at Pangalan */
-}
-
-.logo-container {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  justify-content: center;
-}
-
-/* Mobile Adjustments */
-@media (max-width: 768px) {
-  .logo-container {
-    position: static; /* Balik sa normal flow sa mobile */
-    transform: none;
-  }
-  .nav-right {
-    gap: 8px;
-  }
-  .logo-text {
-    display: none;
-  }
-  .user-greeting {
-    display: none;
-  } /* Tinago ang pangalan sa mobile para di masikip */
-}
-
-/* --- HEADER & NOTIF ALIGNMENT FIX --- */
-.nav-auth-view {
-  display: flex !important;
-  align-items: center;
-  gap: 15px;
-}
-
-#notif-modal {
-  right: 0;
-  left: auto;
-  width: 300px;
-  max-height: 400px;
-  overflow-y: auto;
-  z-index: 1000;
-}
-
-/* Mobile Fix: Siguraduhin na hindi nagtatago ang Notif Button */
-@media (max-width: 768px) {
-  .nav-auth-view {
-    gap: 10px;
-  }
-
-  .logo-text {
-    display: none; /* Itago ang text para kumasya ang logo at bell */
-  }
-
-  #user-greeting {
-    display: none; /* Itago ang 'Welcome, Name' sa mobile para lumitaw ang bell */
-  }
-
-  #notif-btn {
-    display: block !important; /* Siguradong kita ang bell */
-  }
-}
-
-.n/* Siguraduhin na ang modal ay laging nasa ibaba ng bell */
+/* --- 16. NOTIFICATIONS --- */
 .notif-container {
   position: relative;
 }
@@ -691,16 +674,31 @@ input:checked + .slider:before {
   position: absolute;
   top: 100%;
   right: 0;
-  width: 280px;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
   margin-top: 10px;
-  padding: 10px;
-  z-index: 9999; /* Para laging nasa ibabaw */
+  padding: 15px;
+  z-index: 9999;
 }
 
-/* Red dot adjustment */
+#notif-modal h4 {
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.notif-item {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13px;
+}
+
 .notif-badge {
   position: absolute;
   top: -2px;
@@ -717,363 +715,187 @@ input:checked + .slider:before {
   border: 2px solid var(--primary);
 }
 
-/* --- HELP PAGE STYLES --- */
-.faq-container {
-  margin-top: 15px;
-}
-.faq-item {
-  background: #f9f9f9;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-}
-.faq-item summary {
-  font-weight: bold;
-  cursor: pointer;
-  outline: none;
-}
-.faq-item p {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #444;
-  line-height: 1.4;
-}
-.faq-item[open] {
-  background: #fff;
-  border-color: var(--primary);
-}
-
-.loading-btn {
-  opacity: 0.7;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-/* --- PREMIUM MODAL ALERT UPGRADE --- */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5) !important; /* Mas dark na background */
-  backdrop-filter: blur(4px) !important; /* Blur effect sa likod */
+/* .nav-auth-view helper (used in some pages) */
+.nav-auth-view {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  opacity: 1;
-  transition: opacity 0.3s ease;
+  gap: 15px;
 }
 
-.modal-overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.modal-box {
-  background: white !important;
-  padding: 30px 25px !important;
-  border-radius: 16px !important; /* Mas rounded */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
-  width: 90% !important;
-  max-width: 380px !important;
-  text-align: center !important;
-  transform: scale(1);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.modal-overlay.hidden .modal-box {
-  transform: scale(0.8); /* Cool pop-in animation */
-}
-
-.modal-box h3 {
-  margin: 0 0 10px !important;
-  color: #1e293b !important;
-  font-size: 1.5rem !important;
-  font-weight: bold !important;
-}
-
-.modal-box p {
-  color: #475569 !important;
-  font-size: 1rem !important;
-  margin-bottom: 25px !important;
-  line-height: 1.5 !important;
-}
-
-.modal-box button {
-  background: #006633 !important;
-  color: white !important;
-  border: none !important;
-  padding: 12px 25px !important;
-  border-radius: 8px !important;
-  font-size: 1rem !important;
-  font-weight: bold !important;
-  cursor: pointer !important;
-  width: 100% !important;
-  transition:
-    background 0.2s,
-    transform 0.1s !important;
-}
-
-.modal-box button:hover {
-  background: #004d26 !important;
-}
-
-.modal-box button:active {
-  transform: scale(0.97) !important;
-}
-/* ----------------------------------- */
-
-/* --- NEW FIXES FOR PC MODAL & MOBILE RESPONSIVENESS --- */
-
-/* 1. Palaparin ang modal sa PC para hindi mukhang pang-mobile */
-@media (min-width: 768px) {
-  .event-modal-box {
-    max-width: 600px !important;
-    padding: 30px !important;
+/* Admin table mobile fix */
+@media (min-width: 769px) {
+  .admin-table th:last-child {
+    text-align: right;
   }
 }
 
-/* 2. Ayusin ang Campus Selector sa Mobile para hindi mawala */
-@media (max-width: 768px) {
-  .nav-right {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  .campus-dropdown {
-    width: 100%;
-    margin-bottom: 5px;
-    font-size: 12px;
-  }
-}
-
-/* 3. Force Gray out sa Registered Button */
-.btn:disabled,
-.btn-disabled {
-  background-color: #9ca3af !important;
-  border-color: #9ca3af !important;
-  color: white !important;
-  cursor: not-allowed !important;
-  opacity: 1 !important;
-}
-
-/* --- UI POLISHING FIXES --- */
-
-/* 1. Fix para hindi maputol ang Modal sa PC (Lalabas ang scrollbar kung mahaba) */
-.event-modal-box {
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* 2. Fix para sa Gap ng Action Buttons sa Order List */
-.event-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
-}
-.event-action-area {
-  margin-top: auto; /* Itutulak niya yung buttons pababa */
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* Consistent spacing */
-  padding-top: 15px;
-}
-.event-action-area button {
-  margin: 0 !important; /* Tatanggalin ang manual margins */
-}
-
-/* 3. Fix para sa Admin Table sa Mobile (Para mabasa ang labels) */
 @media (max-width: 768px) {
   .admin-table th,
   .admin-table td {
     font-size: 12px;
     padding: 10px 8px;
-    white-space: nowrap; /* Hindi magugusot ang text */
+    white-space: nowrap;
   }
 }
 
-/* ========================================= */
-/* --- MASTER UI & DARK MODE OVERRIDES --- */
-/* ========================================= */
+/* --- 17. DARK MODE OVERRIDES --- */
 
-/* 1. Fix Event Title (Para hindi humaba ang card kapag mahaba ang text) */
-.event-title {
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* Hanggang 2 lines lang tapos magkaka "..." */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
-  min-height: 43px; /* Keep uniform card height */
-}
-
-/* 2. Fix Mobile Navbar Alignment & Campus Selector */
-@media (max-width: 768px) {
-  .campus-dropdown {
-    display: block !important; /* Ipakita ulit sa mobile */
-    max-width: 130px; /* Paliitin para kumasya sa header */
-    padding: 5px 8px;
-    font-size: 11px;
-    margin-right: 5px;
-  }
-  .nav-right {
-    gap: 8px !important;
-    justify-content: flex-end;
-  }
-}
-
-/* 3. DARK MODE CONSISTENCY (Modals, QR, Settings) */
+/* Modals */
 .dark-mode .modal-box {
-  background: var(--card-bg) !important;
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
 }
+
 .dark-mode .modal-box h3,
 .dark-mode .qr-title {
-  color: var(--primary) !important;
+  color: var(--primary);
 }
+
 .dark-mode .modal-box p,
 .dark-mode .setting-item {
-  color: var(--text-color) !important;
+  color: var(--text-color);
 }
+
 .dark-mode .qr-image-container {
   background: var(--bg-color);
   border-color: var(--border-color);
 }
 
-/* ========================================= */
-/* --- FINAL UI & DARK MODE POLISH --- */
-/* ========================================= */
-
-/* Fix 1: Notification Dropdown Dark Mode */
+/* Notifications */
 .dark-mode #notif-modal {
-  background: var(--card-bg) !important;
-  border: 1px solid var(--border-color) !important;
-}
-.dark-mode .notif-item {
-  border-bottom: 1px solid var(--border-color) !important;
-  color: var(--text-color) !important;
-}
-.dark-mode .notif-item b {
-  color: var(--primary) !important;
+  background: var(--card-bg);
+  border-color: var(--border-color);
 }
 
-/* Fix 2: Paid Event Warning Box Dark Mode (Para sa mga pink box) */
+.dark-mode .notif-item {
+  border-bottom-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.dark-mode .notif-item b {
+  color: var(--primary);
+}
+
+/* Paid event warning boxes (inline styles) */
 .dark-mode div[style*="fef2f2"],
 .dark-mode div[style*="fee2e2"] {
   background-color: #450a0a !important;
   border-color: #7f1d1d !important;
   color: #fca5a5 !important;
 }
+
 .dark-mode div[style*="fef2f2"] *,
 .dark-mode div[style*="fee2e2"] * {
   color: #fca5a5 !important;
 }
 
-/* Fix 3: Mobile Header & Campus Selector Perfect Alignment */
-@media (max-width: 768px) {
-  .nav-right {
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-  }
-  .campus-dropdown {
-    width: auto !important;
-    max-width: 140px !important;
-    margin-bottom: 0 !important;
-    padding: 6px 10px !important;
-    font-size: 12px !important;
-    height: 35px !important;
-  }
-  #notif-btn {
-    margin-top: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-  }
-} /* Fix 4: Mobile Campus Selector as Icon */
-@media (max-width: 768px) {
-  .campus-dropdown {
-    width: auto !important;
-    max-width: none !important;
-    margin-bottom: 0 !important;
-    padding: 6px 8px !important;
-    font-size: 0 !important; /* Itago ang text */
-    height: 35px !important;
-    background: transparent !important; /* Walang bg kapag dark mode */
-    border: none !important;
-    color: var(--nav-text) !important;
-  }
-
-  /* Gumamit ng custom icon na mukhang drop-down icon */
-  .campus-dropdown::after {
-    content: "📍"; /* Or pwede kang gumamit ng SVG/FontAwesome kung meron */
-    font-size: 16px;
-    visibility: visible;
-  }
-
-  /* Ipakita ulit ang option text kapag pinindot */
-  .campus-dropdown option {
-    font-size: 14px !important;
-    color: #000;
-  }
-}
-
-/* 2. Ayusin ang Campus Selector sa Mobile para hindi mawala */
-@media (max-width: 768px) {
-  .nav-right {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  .campus-dropdown {
-    display: block !important; /* <--- DAGDAG MO ITO */
-    width: 100%;
-    margin-bottom: 5px;
-    font-size: 12px;
-  }
-}
-
-/* Fix: Paid Event Reminder Dark Mode */
+/* Payment section in event modal */
 .dark-mode #payment-section {
   background-color: #450a0a !important;
   border-color: #7f1d1d !important;
 }
+
 .dark-mode #payment-section p {
   color: #fca5a5 !important;
 }
 
-/* ========================================= */
-/* --- MOBILE CAMPUS SELECTOR (ICON ONLY) ---*/
-/* ========================================= */
+/* QR Scanner */
+.dark-mode .qr-scanner-wrapper,
+.dark-mode #reader,
+.dark-mode #entry-reader {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
 
+.dark-mode .qr-scanner-wrapper * {
+  color: var(--text-color);
+}
+
+.dark-mode .qr-status-box {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+/* --- 18. MOBILE RESPONSIVE (single consolidated block) --- */
 @media (max-width: 768px) {
+  /* Logo: back to normal flow, hide text */
+  .logo-container {
+    position: static;
+    transform: none;
+  }
+
+  .logo-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-text,
+  .user-greeting,
+  #user-greeting {
+    display: none;
+  }
+
+  /* Collapsible search bar */
+  .search-container {
+    width: 35px;
+    height: 35px;
+    overflow: hidden;
+    background: transparent;
+    transition: width 0.3s ease;
+    padding: 5px;
+    margin-left: 5px;
+    cursor: pointer;
+  }
+
+  .search-container input {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    transition:
+      width 0.3s ease,
+      opacity 0.3s ease;
+  }
+
+  .search-container:focus-within {
+    width: 160px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+  }
+
+  .search-container:focus-within input {
+    width: 100%;
+    opacity: 1;
+    margin-left: 5px;
+  }
+
+  /* Nav right: tight row, no wrap */
   .nav-right {
     display: flex;
     align-items: center;
-    flex-wrap: nowrap !important;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
     gap: 5px;
   }
 
+  #notif-btn {
+    display: flex !important;
+    align-items: center;
+  }
+
+  /* Campus dropdown: icon-only (SVG map pin) */
   .campus-dropdown {
     display: block !important;
     width: 35px !important;
     height: 35px !important;
     padding: 0 !important;
     margin: 0 !important;
-    
-    /* Itago ang text at ang default gray box ng browser */
     color: transparent !important;
     font-size: 0 !important;
     background-color: transparent !important;
     border: none !important;
     -webkit-appearance: none !important;
     appearance: none !important;
-    
-    /* Ipalit ang White Map Pin Icon gamit ang SVG */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
@@ -1081,18 +903,60 @@ input:checked + .slider:before {
     cursor: pointer;
   }
 
-  /* Ipakita ulit ang mga text kapag na-click na yung icon */
   .campus-dropdown option {
     color: #000 !important;
-    font-size: 16px !important; /* 16px para hindi mag-auto zoom ang iPhone */
+    font-size: 16px !important;
   }
-}
 
-/* Fix: Paid Event Reminder Dark Mode */
-.dark-mode #payment-section {
-  background-color: #450a0a !important;
-  border-color: #7f1d1d !important;
-}
-.dark-mode #payment-section p {
-  color: #fca5a5 !important;
+  /* Sidebar: slide-in overlay */
+  .sidebar {
+    position: absolute;
+    height: calc(100vh - 70px);
+    z-index: 1000;
+    transform: translateX(-100%);
+    width: 240px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Main content */
+  .main-content {
+    padding: 15px;
+    margin-bottom: 60px;
+  }
+
+  /* Bottom nav */
+  .bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: var(--nav-bg);
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .bottom-nav a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+  }
+
+  .bottom-nav a.active {
+    color: white;
+  }
+
+  /* Nav auth view */
+  .nav-auth-view {
+    gap: 10px;
+  }
 }

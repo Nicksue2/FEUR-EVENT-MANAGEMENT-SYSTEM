@@ -1,3 +1,7 @@
+/* ============================================================
+   FEUR EVENTS — MAPS PAGE STYLESHEET
+   ============================================================ */
+
 .maps-main {
   max-width: 1000px;
   margin: 40px auto;
@@ -48,17 +52,7 @@
   }
 }
 
-/* Dark Mode Fix for Maps */
-.dark-mode .maps-card {
-  background: var(--card-bg) !important;
-  border-color: var(--border-color) !important;
-}
-
-.dark-mode .map-container iframe {
-  filter: grayscale(100%) invert(90%) contrast(85%);
-}
-
-/* Fix: Make outline buttons visible on white/dark background */
+/* --- BUTTON STYLES --- */
 .map-btn.btn-outline {
   border: 1.5px solid var(--primary) !important;
   color: var(--primary) !important;
@@ -69,16 +63,6 @@
   color: white !important;
 }
 
-.dark-mode .map-btn.btn-outline {
-  border: 1.5px solid var(--text-color) !important;
-  color: var(--text-color) !important;
-}
-
-.dark-mode .map-btn.btn-outline:hover {
-  background: var(--sidebar-hover) !important;
-}
-
-/* Fix para sa Street View / 2D Map Buttons */
 .mode-btn.btn-outline {
   border: 1.5px solid var(--primary) !important;
   color: var(--primary) !important;
@@ -90,45 +74,54 @@
   color: white !important;
 }
 
-.dark-mode .mode-btn.btn-outline {
-  border: 1.5px solid var(--text-color) !important;
+/* --- DARK MODE --- */
+.dark-mode .map-container iframe {
+  filter: grayscale(100%) invert(90%) contrast(85%);
+}
+
+.dark-mode .map-btn.btn-outline {
+  border-color: var(--text-color) !important;
   color: var(--text-color) !important;
 }
 
-/* --- MOBILE VIEW OPTIMIZATION --- */
+.dark-mode .map-btn.btn-outline:hover {
+  background: var(--sidebar-hover) !important;
+}
+
+.dark-mode .mode-btn.btn-outline {
+  border-color: var(--text-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* --- MOBILE --- */
 @media (max-width: 768px) {
-  /* Bawasan ang padding ng main area para lumapad ang card */
   .main-content {
     padding: 10px !important;
   }
 
-  /* Bawasan ang padding sa loob ng card */
   .maps-card {
-    padding: 15px 10px !important;
-    margin-top: 10px !important;
+    padding: 15px 10px;
+    margin-top: 10px;
   }
 
-  /* Paliitin ang buttons para magkasya sa isang linya */
   .campus-buttons {
-    gap: 6px !important;
-    margin-bottom: 15px !important;
+    gap: 6px;
+    margin-bottom: 15px;
   }
 
   .map-btn {
-    min-width: 90px !important; /* Mula 130px, ginawa nating 90px */
-    padding: 6px 5px !important;
-    font-size: 11px !important;
+    min-width: 90px;
+    padding: 6px 5px;
+    font-size: 11px;
   }
 
-  /* Paliitin din ang switching buttons (Street/2D) */
   .mode-btn {
-    padding: 5px 10px !important;
-    font-size: 11px !important;
+    padding: 5px 10px;
+    font-size: 11px;
   }
 
-  /* I-adjust ang height ng Map para hindi masyadong mahaba sa CP */
   .map-container iframe {
-    height: 50vh !important; /* 50% ng screen height lang */
-    min-height: 350px !important;
+    height: 50vh;
+    min-height: 350px;
   }
 }

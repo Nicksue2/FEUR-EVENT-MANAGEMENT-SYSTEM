@@ -1,10 +1,9 @@
-/* --- ADMIN DASHBOARD STYLES --- */
+/* ============================================================
+   FEUR EVENTS — ADMIN STYLESHEET
+   Optimized: duplicates removed, media queries consolidated
+   ============================================================ */
 
-/* Global reset para iwas overflow */
-* {
-  box-sizing: border-box;
-}
-
+/* --- 1. ADMIN BODY --- */
 .admin-body {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -20,17 +19,90 @@
   flex: 1;
 }
 
-/* --- Header & Nav --- */
+/* --- 2. ADMIN TOP NAV --- */
 .admin-top-nav {
   background: var(--nav-bg);
   color: var(--nav-text);
-  height: 70px;
   position: relative;
   display: flex;
   align-items: center;
   padding: 0 20px;
 }
 
+/* Sub-nav variant (tabs inside header) */
+.admin-header-nav {
+  height: auto !important;
+  flex-direction: column;
+  padding: 0 !important;
+}
+
+.header-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 20px;
+  height: 60px;
+}
+
+.admin-sub-nav {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-nav-links {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.admin-nav-links::-webkit-scrollbar {
+  display: none;
+}
+
+.sec-link {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 5px;
+  position: relative;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+/* Hover underline indicator */
+.sec-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 4px;
+  background: rgba(250, 204, 21, 0.4);
+  border-radius: 4px 4px 0 0;
+  transition: width 0.3s ease;
+}
+
+.sec-link:hover::after {
+  width: 100%;
+}
+
+/* Active state overrides hover */
+.sec-link.active {
+  color: var(--secondary) !important;
+}
+
+.sec-link.active::after {
+  width: 100% !important;
+  background: var(--secondary) !important;
+}
+
+/* Nav helpers */
 .nav-left-wrapper {
   display: flex;
   align-items: center;
@@ -71,7 +143,7 @@
   font-weight: 500;
 }
 
-/* --- Stats Section --- */
+/* --- 3. STATS SECTION --- */
 .stats-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -79,17 +151,14 @@
   margin-bottom: 30px;
 }
 
+/* Merged: all .stat-box variants unified */
 .stat-box {
-  background: var(--primary);
+  background: #006633;
   color: white;
   padding: 25px;
   border-radius: 12px;
   text-align: center;
   box-shadow: var(--shadow);
-}
-
-.stat-box.stat-attended {
-  background: #166534;
 }
 
 .stat-box h3 {
@@ -102,7 +171,20 @@
   opacity: 0.9;
 }
 
-/* --- Admin Cards --- */
+/* Clickable stat interaction */
+.clickable-stat {
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    filter 0.2s;
+}
+
+.clickable-stat:hover {
+  transform: translateY(-5px);
+  filter: brightness(0.9);
+}
+
+/* --- 4. ADMIN CARDS --- */
 .admin-card {
   background: var(--card-bg);
   padding: 25px;
@@ -129,7 +211,7 @@
   margin: 0;
 }
 
-/* --- Buttons --- */
+/* --- 5. BUTTONS (admin-specific) --- */
 .btn-create-event {
   background: #006633;
   color: white;
@@ -146,7 +228,22 @@
   font-weight: bold;
 }
 
-/* --- CRUD Form --- */
+.btn-edit {
+  background: #facc15;
+  color: #000;
+}
+
+.btn-delete {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-edit:hover,
+.btn-delete:hover {
+  opacity: 0.8;
+}
+
+/* --- 6. CRUD FORM --- */
 .event-form {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -184,7 +281,7 @@
   border-color: var(--primary);
 }
 
-/* --- Management Table --- */
+/* --- 7. TABLES --- */
 .table-wrapper {
   overflow-x: auto;
   background: var(--card-bg);
@@ -219,50 +316,34 @@
   color: var(--primary);
 }
 
-/* --- Actions Column PC Fix --- */
 .admin-table th:last-child {
   text-align: right;
 }
 
+/* Action column flex alignment */
 .admin-table td[style*="display:flex"] {
   flex-wrap: wrap;
   gap: 8px !important;
-  justify-content: flex-end; /* Push sa dulo */
+  justify-content: flex-end;
 }
 
-.btn-edit {
-  background: #facc15;
-  color: #000;
-}
-.btn-delete {
-  background: #ef4444;
-  color: #fff;
-}
-.btn-edit:hover,
-.btn-delete:hover {
-  opacity: 0.8;
+.admin-actions-flex {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
 }
 
-/* Utilities */
-.mt-10 {
-  margin-top: 10px;
-}
-.mt-30 {
-  margin-top: 30px;
-}
-.mb-10 {
-  margin-bottom: 10px;
-}
-
-/* --- MODAL UPDATES (PC OPTIMIZED) --- */
+/* --- 8. MODALS (admin-specific additions) --- */
 .modal-title-green {
   margin-bottom: 15px;
   color: #006633;
 }
+
 .modal-title-primary {
   margin-bottom: 15px;
   color: var(--primary);
 }
+
 .modal-divider {
   margin: 25px 0;
   border: 0;
@@ -290,7 +371,78 @@
   height: 42px;
 }
 
-/* --- SIDEBAR LAYOUT --- */
+/* Modal table alignment */
+#attendees-modal .admin-table th:last-child,
+#attendees-modal .admin-table td:last-child,
+#user-management-modal .admin-table th:last-child,
+#user-management-modal .admin-table td:last-child {
+  text-align: center !important;
+}
+
+#attendees-modal .admin-table td:last-child .status-badge,
+#user-management-modal .admin-table td:last-child .status-badge {
+  display: inline-block;
+  width: 120px;
+  text-align: center;
+}
+
+/* --- 9. ATTENDEE SEARCH TOOLS --- */
+.attendee-tools {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+  width: 100%;
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Re-use .search-icon from style.css but override position for admin */
+.search-wrapper .search-icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: #777;
+  pointer-events: none;
+  z-index: 2;
+  margin: 0;
+}
+
+.expand-input {
+  width: 100%;
+  padding: 10px 10px 10px 38px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  height: 42px;
+  transition: all 0.3s ease;
+  background: var(--bg-color);
+  color: var(--text-color);
+  outline: none;
+}
+
+.expand-input:focus {
+  border-color: var(--primary);
+}
+
+.filter-select {
+  flex: 0 0 140px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  height: 42px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+/* --- 10. SIDEBAR (layout, inherits from style.css) --- */
 .layout-container {
   display: flex;
   flex: 1;
@@ -311,26 +463,99 @@
   display: none;
 }
 
-/* ======================================================== */
-/* --- MOBILE RESPONSIVE FIXES (NO MORE SIDEWAYS SCROLL) -- */
-/* ======================================================== */
+/* --- 11. ANALYTICS CHART --- */
+.chart-wrapper {
+  width: 100%;
+  height: 350px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#analyticsChart {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* --- 12. UTILITY CLASSES --- */
+.mt-10 {
+  margin-top: 10px;
+}
+.mt-30 {
+  margin-top: 30px;
+}
+.mb-10 {
+  margin-bottom: 10px;
+}
+
+/* --- 13. DARK MODE OVERRIDES --- */
+.dark-mode .admin-table tr {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: none;
+}
+
+.dark-mode .admin-table th {
+  background: var(--sidebar-bg);
+  color: white;
+  border-color: var(--border-color);
+}
+
+.dark-mode .admin-table td {
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.dark-mode .admin-table td[style*="color:gray"] {
+  color: #aaaaaa !important;
+}
+
+.dark-mode .expand-input,
+.dark-mode .filter-select {
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.dark-mode .chart-wrapper {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+}
+
+.dark-mode #analytics-modal .modal-box {
+  background: var(--card-bg);
+  color: var(--text-color);
+}
+
+.dark-mode .modal-title-green {
+  color: #009135;
+}
+
+/* --- 14. MOBILE RESPONSIVE (consolidated) --- */
 @media (max-width: 768px) {
-  /* Layout Adjustments */
+  /* Layout */
   .layout-container {
     height: auto;
     min-height: calc(100vh - 70px);
   }
+
   .admin-main {
     padding: 15px;
   }
+
   .event-form {
     grid-template-columns: 1fr;
   }
 
-  /* Navbar Mobile Alignments */
+  /* Nav */
   .admin-top-nav {
     padding: 10px 15px;
   }
+
   .nav-center-wrapper {
     position: relative;
     left: 0;
@@ -338,11 +563,27 @@
     flex: 1;
     justify-content: center;
   }
+
   .header-user-greeting {
-    display: none; /* Itago sa phone para di siksik */
+    display: none;
   }
 
-  /* Sidebar Mobile Behavior */
+  .logo-text {
+    display: none;
+  }
+
+  /* Sub-nav tabs */
+  .admin-nav-links {
+    gap: 20px;
+    padding: 0 15px;
+    justify-content: flex-start;
+  }
+
+  .sec-link {
+    font-size: 12px;
+  }
+
+  /* Sidebar */
   .sidebar {
     position: fixed;
     top: 70px;
@@ -352,17 +593,20 @@
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
     z-index: 999;
   }
+
   .sidebar.open {
     left: 0;
   }
+
   .sidebar.minimized.open {
     width: 250px;
   }
+
   .sidebar.minimized.open .nav-text {
     display: inline-block;
   }
 
-  /* --- 1. MODAL MOBILE FIXES --- */
+  /* Modals */
   .modal-box.modal-box-large {
     width: 95% !important;
     padding: 20px !important;
@@ -370,7 +614,13 @@
     border-radius: 12px;
   }
 
-  /* Stack Search and Filter vertically */
+  #attendees-modal .table-wrapper,
+  #user-management-modal .table-wrapper {
+    max-height: 400px;
+    overflow-x: hidden !important;
+  }
+
+  /* Stack attendee search/filter */
   #attendees-modal > div[style*="display: flex"] {
     flex-direction: column;
     gap: 10px;
@@ -382,29 +632,20 @@
     margin: 0;
   }
 
-  #attendees-modal .table-wrapper,
-  #user-management-modal .table-wrapper {
-    max-height: 400px;
-    overflow-x: hidden !important; /* STRICTLY NO HORIZONTAL SCROLL */
-  }
-
-  /* --- 2. TABLE TO CARD VIEW (Ang magic trick) --- */
-  /* Pinipilit natin ang table na mag-iba ng form para mag-fit sa phone */
+  /* Table → Card layout */
   .admin-table,
   .admin-table tbody,
   .admin-table tr,
   .admin-table td {
     display: block;
     width: 100%;
-    min-width: 0; /* Override sa min-width sa PC */
+    min-width: 0;
   }
 
-  /* Itago ang standard Headers */
   .admin-table thead {
     display: none;
   }
 
-  /* Gawing Card ang bawat Row */
   .admin-table tr {
     margin-bottom: 15px;
     border: 1px solid var(--border-color);
@@ -414,15 +655,13 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   }
 
-  /* Ayusin ang alignment ng Text */
   .admin-table td {
     text-align: left !important;
     padding: 6px 0;
     border: none;
-    word-break: break-word; /* Hahatiin ang mahabang email para di lumagpas */
+    word-break: break-word;
   }
 
-  /* Gawing parang Title/Header yung unang Column (Name o Event Title) */
   .admin-table td:first-child {
     font-size: 16px;
     font-weight: bold;
@@ -432,73 +671,25 @@
     margin-bottom: 5px;
   }
 
-  /* Ayusin ang Action Buttons sa loob ng Card (ilalagay sa ibaba) */
   .admin-table td[style*="display:flex"] {
     display: flex !important;
-    justify-content: flex-start !important; /* I-align sa kaliwa sa phone */
+    justify-content: flex-start !important;
     flex-wrap: wrap;
     margin-top: 10px;
     padding-top: 15px;
     border-top: 1px solid #eee;
   }
-}
 
-/* --- EXPANDING SEARCH BAR --- */
-.attendee-tools {
-  display: flex;
-  flex-direction: row; /* Laging magkatabi */
-  gap: 10px;
-  margin-bottom: 15px;
-  align-items: center;
-  width: 100%;
-}
+  /* Action buttons */
+  .admin-actions-flex {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+  }
 
-.search-wrapper {
-  display: flex;
-  align-items: center;
-  flex: 1; /* Full size sa PC */
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  width: 18px;
-  height: 18px;
-  color: #777;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.expand-input {
-  width: 100%;
-  padding: 10px 10px 10px 38px !important;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  height: 42px;
-  transition: all 0.3s ease;
-  background: var(--bg-color);
-  color: var(--text-color);
-  outline: none;
-}
-
-.expand-input:focus {
-  border-color: var(--primary);
-}
-
-.filter-select {
-  flex: 0 0 140px; /* Fixed width sa PC */
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  height: 42px;
-  transition: all 0.3s ease;
-  outline: none;
-}
-
-/* --- MOBILE EXPAND LOGIC --- */
-@media (max-width: 768px) {
+  /* Attendee tools: expanding search */
   .attendee-tools {
     flex-direction: row !important;
   }
@@ -507,26 +698,23 @@
     flex: 0 0 42px;
   }
 
-  /* Nakatago kapag hindi pinipindot */
   .expand-input {
     padding: 10px !important;
     color: transparent;
     background: transparent;
-    border-color: transparent; /* Itago ang border */
+    border-color: transparent;
     cursor: pointer;
   }
 
   .expand-input::placeholder {
-    color: transparent; /* Itago ang text */
+    color: transparent;
   }
 
   .filter-select {
     flex: 1;
     min-width: 0;
-    opacity: 1;
   }
 
-  /* Lalabas kapag pinindot */
   .search-wrapper:focus-within {
     flex: 1 1 100%;
   }
@@ -534,13 +722,13 @@
   .search-wrapper:focus-within .expand-input {
     color: var(--text-color);
     background: var(--bg-color);
-    border-color: var(--border-color); /* Ipakita ang border */
+    border-color: var(--border-color);
     padding: 10px 10px 10px 38px !important;
     cursor: text;
   }
 
   .search-wrapper:focus-within .expand-input::placeholder {
-    color: #999; /* Ipakita ang text */
+    color: #999;
   }
 
   .search-wrapper:focus-within ~ .filter-select {
@@ -551,267 +739,23 @@
     overflow: hidden;
     margin: 0;
   }
-}
 
-/* ========================================= */
-/* --- ADMIN DARK MODE FIXES --- */
-/* ========================================= */
-
-.dark-mode .admin-table tr {
-  background: var(--card-bg) !important;
-  border-color: var(--border-color) !important;
-  box-shadow: none;
-}
-.dark-mode .admin-table th {
-  background: var(--sidebar-bg);
-  color: white;
-  border-color: var(--border-color);
-}
-.dark-mode .admin-table td {
-  color: var(--text-color) !important;
-  border-color: var(--border-color) !important;
-}
-.dark-mode .expand-input,
-.dark-mode .filter-select {
-  background: var(--bg-color) !important;
-  color: var(--text-color) !important;
-  border-color: var(--border-color) !important;
-}
-/* Fix para sa gray text sa loob ng Admin Cards sa mobile */
-.dark-mode .admin-table td[style*="color:gray"] {
-  color: #aaaaaa !important;
-}
-/* ========================================= */
-/* --- FINAL ADMIN DARK MODE POLISH --- */
-/* ========================================= */
-
-/* Fix 1: Admin Table Cards in Mobile View */
-@media (max-width: 768px) {
+  /* Dark mode mobile table */
   .dark-mode .admin-table tr {
     background-color: var(--card-bg) !important;
     border-color: var(--border-color) !important;
   }
+
   .dark-mode .admin-table td {
     border-color: var(--border-color) !important;
     color: var(--text-color) !important;
   }
+
   .dark-mode .admin-table td:first-child {
     border-bottom-color: var(--border-color) !important;
   }
+
   .dark-mode .admin-table td[style*="display:flex"] {
     border-top-color: var(--border-color) !important;
   }
-}
-
-/* Fix 2: Live Scanner Dark Mode */
-.dark-mode .qr-scanner-wrapper,
-.dark-mode #reader,
-.dark-mode #entry-reader {
-  background-color: var(--card-bg) !important;
-  border-color: var(--border-color) !important;
-}
-.dark-mode .qr-scanner-wrapper * {
-  color: var(--text-color) !important;
-}
-.dark-mode .qr-status-box {
-  background-color: var(--bg-color) !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-color) !important;
-}
-/* Fix para sa broken lines at button alignment */
-.admin-actions-flex {
-  display: flex;
-  justify-content: flex-end;
-  gap: 5px;
-}
-
-@media (max-width: 768px) {
-  .admin-actions-flex {
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    margin-top: 10px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-  }
-}
-
-/* --- FIX: MODAL TABLE ALIGNMENT (STATUS COLUMNS) --- */
-#attendees-modal .admin-table th:last-child,
-#attendees-modal .admin-table td:last-child,
-#user-management-modal .admin-table th:last-child,
-#user-management-modal .admin-table td:last-child {
-  text-align: center !important;
-}
-
-#attendees-modal .admin-table td:last-child .status-badge,
-#user-management-modal .admin-table td:last-child .status-badge {
-  display: inline-block;
-  width: 120px; /* Para pare-parehas ang lapad ng mga badges */
-  text-align: center;
-}
-/* --- NEW ADMIN HEADER & SUB-NAV --- */
-.admin-header-nav {
-  height: auto !important; /* Hahayaan nating lumaki base sa content */
-  flex-direction: column;
-  padding: 0 !important;
-}
-
-.header-main-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 10px 20px;
-  height: 60px;
-}
-
-.admin-sub-nav {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.1); /* Slightly darker row para sa links */
-  display: flex;
-  justify-content: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.admin-nav-links {
-  display: flex;
-  gap: 30px;
-  overflow-x: auto; /* Para sa mobile scroll */
-  scrollbar-width: none;
-}
-.admin-nav-links::-webkit-scrollbar {
-  display: none;
-}
-
-.sec-link {
-  color: rgba(255, 255, 255, 0.6);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 12px 5px;
-  position: relative;
-  transition: all 0.3s ease;
-  white-space: nowrap; /* Iwas wrap sa mobile */
-}
-
-.sec-link.active {
-  color: var(--secondary) !important;
-}
-
-.sec-link.active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: var(--secondary);
-  border-radius: 4px 4px 0 0;
-}
-
-/* Mobile Adjustments */
-@media (max-width: 768px) {
-  .admin-nav-links {
-    gap: 20px;
-    padding: 0 15px;
-    justify-content: flex-start; /* Simula sa kaliwa sa phone */
-  }
-  .sec-link {
-    font-size: 12px;
-  }
-  .logo-text {
-    display: none;
-  }
-}
-
-/* Hover effect para sa indicator */
-.sec-link::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0; /* Default ay tago */
-  height: 4px;
-  background: rgba(250, 204, 21, 0.4); /* Faded Yellow */
-  border-radius: 4px 4px 0 0;
-  transition: width 0.3s ease;
-}
-
-.sec-link:hover::after {
-  width: 100%; /* Lalabas kapag hinover */
-}
-
-.sec-link.active::after {
-  width: 100% !important;
-  background: var(--secondary) !important; /* Solid Yellow */
-}
-
-/* Analytics Interactivity */
-.clickable-stat {
-  cursor: pointer;
-  transition:
-    transform 0.2s,
-    filter 0.2s;
-}
-.clickable-stat:hover {
-  transform: translateY(-5px);
-  filter: brightness(1.2);
-}
-/* --- ANALYTICS MODAL FIX --- */
-.chart-wrapper {
-  width: 100%;
-  height: 350px !important; /* Fixed height para hindi lumagpas */
-  background: white; /* Para malinis tignan ket naka dark mode ang dashboard */
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-#analyticsChart {
-  max-width: 100% !important;
-  max-height: 100% !important;
-}
-
-/* Adjust modal title para sa dark mode */
-.dark-mode .modal-title-green {
-  color: #009135 !important;
-}
-
-/* Palitan ito para mag-match ang kulay ng tatlong boxes */
-.stat-box.stat-attended {
-  background: var(--primary) !important;
-}
-
-/* Fix para sa modal background sa dark mode */
-.dark-mode #analytics-modal .modal-box {
-  background: var(--card-bg) !important;
-  color: var(--text-color) !important;
-}
-
-.dark-mode .chart-wrapper {
-  background: #ffffff !important; /* Keep white para kitang-kita ang chart lines */
-  border: 1px solid var(--border-color);
-}
-
-/* Stat Boxes Color Update */
-.stat-box {
-  background: #006633 !important; /* Dark green na katulad ng button */
-  color: white;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: var(--shadow);
-}
-
-.stat-box.stat-attended {
-  background: #006633 !important; /* Siguradong match silang lahat */
-}
-
-/* Para hindi masakit sa mata kapag hino-hover (kung clickable) */
-.clickable-stat:hover {
-  transform: translateY(-5px);
-  filter: brightness(0.9); /* Imbes na mag-glow, magdidilim nang konti */
 }
