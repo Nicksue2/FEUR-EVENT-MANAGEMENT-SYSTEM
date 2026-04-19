@@ -162,8 +162,15 @@ export function initUI() {
   document.addEventListener("click", (e) => {
     const sidebar = document.getElementById("sidebar");
     const burgerBtn = document.getElementById("burger-btn");
-    if (sidebar && sidebar.classList.contains("open") && window.innerWidth <= 768) {
-      if (!sidebar.contains(e.target) && (!burgerBtn || !burgerBtn.contains(e.target))) {
+    if (
+      sidebar &&
+      sidebar.classList.contains("open") &&
+      window.innerWidth <= 768
+    ) {
+      if (
+        !sidebar.contains(e.target) &&
+        (!burgerBtn || !burgerBtn.contains(e.target))
+      ) {
         sidebar.classList.remove("open");
       }
     }
@@ -199,8 +206,9 @@ export function initUI() {
       if (window.emailjs) {
         emailjs
           .send("service_nczv2qc", "template_4unbsmi", {
-            from_email: userEmail,
-            subject: subject,
+            email: userEmail, // matches {{email}} in template
+            name: userEmail, // matches {{name}} in template
+            title: subject, // matches {{title}} in template (subject dropdown value)
             message: message,
           })
           .then(() => {
@@ -210,7 +218,10 @@ export function initUI() {
           })
           .catch((error) => {
             console.error("EmailJS error:", error);
-            showCustomAlert("Error", "Failed to send message. Please try again.");
+            showCustomAlert(
+              "Error",
+              "Failed to send message. Please try again.",
+            );
             if (btn) btn.innerText = "Send Message";
           });
       }
@@ -252,7 +263,7 @@ export function initUI() {
   });
 
   // Burger button toggle
-  document.getElementById("burger-btn")?.addEventListener("click", function() {
+  document.getElementById("burger-btn")?.addEventListener("click", function () {
     this.classList.toggle("active");
     document
       .getElementById("sidebar")
@@ -287,8 +298,8 @@ export function renderSidebar(role) {
 
   // Dynamic path prefixes: pages in /pages/ link to siblings; root links up
   const inPages = path.includes("pages/");
-  const pagePrefix = inPages ? "" : "pages/";   // prefix to reach /pages/ siblings
-  const rootPrefix = inPages ? "../" : "";       // prefix to reach root (index.html)
+  const pagePrefix = inPages ? "" : "pages/"; // prefix to reach /pages/ siblings
+  const rootPrefix = inPages ? "../" : ""; // prefix to reach root (index.html)
 
   const dashPath = rootPrefix + "index.html";
   const orderPath = pagePrefix + "orderlist.html";
@@ -306,10 +317,10 @@ export function renderSidebar(role) {
     const adminPath = pagePrefix + "admin.html";
     const scannerPath = pagePrefix + "scanner.html";
     adminLinks = `
-      <a href="${adminPath}" class="${path.includes('admin') ? 'active' : ''}">
+      <a href="${adminPath}" class="${path.includes("admin") ? "active" : ""}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>Manage Events</span>
       </a>
-      <a href="${scannerPath}" class="${path.includes('scanner') ? 'active' : ''}">
+      <a href="${scannerPath}" class="${path.includes("scanner") ? "active" : ""}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg> <span>Entry Scanner</span>
       </a>
     `;

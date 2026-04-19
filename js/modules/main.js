@@ -1,6 +1,11 @@
 import { supabase } from "./api.js";
 import { state } from "./state.js";
-import { initUI, showCustomAlert, showCustomConfirm, loadNotifications } from "./ui.js";
+import {
+  initUI,
+  showCustomAlert,
+  showCustomConfirm,
+  loadNotifications,
+} from "./ui.js";
 import { initAuth } from "./auth.js";
 import { initAdmin } from "./admin.js";
 
@@ -13,10 +18,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   if ("serviceWorker" in navigator) {
     const isSubPage = window.location.pathname.includes("/pages/");
     const swPath = isSubPage ? "../sw.js" : "sw.js";
-    
+
     navigator.serviceWorker
       .register(swPath)
-      .then((reg) => console.log("ServiceWorker registered with scope:", reg.scope))
+      .then((reg) =>
+        console.log("ServiceWorker registered with scope:", reg.scope),
+      )
       .catch((err) => console.log("ServiceWorker registration failed:", err));
   }
 
@@ -48,7 +55,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("search-input")?.addEventListener("input", (e) => {
       const term = e.target.value.toLowerCase();
       renderEvents(
-        state.allEventsGlobal.filter((ev) => ev.title.toLowerCase().includes(term)),
+        state.allEventsGlobal.filter((ev) =>
+          ev.title.toLowerCase().includes(term),
+        ),
       );
     });
 
@@ -335,7 +344,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             actionHTML = `<button class="btn btn-outline w-100" disabled style="border-color:#166534; color:#166534;">Attended</button>`;
           } else {
             if (event.price == 0 || order.payment_status === "paid") {
-              actionHTML = `<button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}">View QR Code</button>`;
+              actionHTML = `<button class="btn btn-solid w-100 qr-code-btn" data-order-id="${order.id}" data-event-title="${event.title}" data-event-date="${event.event_date || "TBA"}" data-event-campus="${event.campus || ""}">View QR Code</button>`;
               if (event.price == 0) {
                 actionHTML += `<button class="btn btn-outline w-100 cancel-ticket-btn" data-order-id="${order.id}" data-price="${event.price}" style="border-color:#ef4444; color:#ef4444; font-size:12px; padding:6px; font-weight:bold;">Cancel Ticket</button>`;
               }
@@ -369,9 +378,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <span>📅 ${event.event_date || "TBA"}</span>
                     <span>📍 FEU Roosevelt ${event.campus}</span>
                 </div>
-                ${event.price > 0 ? `<button class="btn btn-outline w-100 ref-no-btn" data-order-id="${order.id}" style="margin-bottom:8px; border-color:var(--primary); color:var(--primary); font-size:12px; padding:6px; font-weight:bold;">📄 View Ref No.</button>` : ""}
-                
-                ${actionHTML}
+                <div class="event-action-area">
+                    ${event.price > 0 ? `<button class="btn btn-outline w-100 ref-no-btn" data-order-id="${order.id}" style="border-color:var(--primary); color:var(--primary); font-size:12px; padding:6px; font-weight:bold;">📄 View Ref No.</button>` : ""}
+                    ${actionHTML}
+                </div>
             </div>`;
           ordersGrid.appendChild(card);
         });
@@ -430,10 +440,121 @@ document.addEventListener("DOMContentLoaded", async () => {
           });
         });
 
+        // --- QR TICKET IMAGE GENERATOR ---
+        async function generateQRTicketImage(
+          eventTitle,
+          eventDate,
+          eventCampus,
+          orderId,
+        ) {
+          return new Promise((resolve, reject) => {
+            const qrContainer = document.getElementById("qr-code-image");
+            const qrSource =
+              qrContainer.querySelector("canvas") ||
+              qrContainer.querySelector("img");
+            if (!qrSource) {
+              reject(new Error("QR not ready"));
+              return;
+            }
+
+            const W = 420,
+              H = 580;
+            const canvas = document.createElement("canvas");
+            canvas.width = W;
+            canvas.height = H;
+            const ctx = canvas.getContext("2d");
+
+            function draw() {
+              // White base
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, W, H);
+
+              // Green header
+              ctx.fillStyle = "#006633";
+              ctx.fillRect(0, 0, W, 85);
+
+              // Header text
+              ctx.textAlign = "center";
+              ctx.fillStyle = "#facc15";
+              ctx.font = "bold 26px 'Segoe UI', Arial, sans-serif";
+              ctx.fillText("FEUR EVENTS", W / 2, 38);
+              ctx.fillStyle = "rgba(255,255,255,0.85)";
+              ctx.font = "13px 'Segoe UI', Arial, sans-serif";
+              ctx.fillText("Official Event Ticket", W / 2, 62);
+
+              // QR code (centered, white padded box)
+              const qrSize = 230;
+              const qrX = (W - qrSize) / 2;
+              const qrY = 105;
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24);
+              ctx.drawImage(qrSource, qrX, qrY, qrSize, qrSize);
+
+              // Divider line
+              ctx.strokeStyle = "#e2e8f0";
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(30, qrY + qrSize + 22);
+              ctx.lineTo(W - 30, qrY + qrSize + 22);
+              ctx.stroke();
+
+              // Event title (word-wrap)
+              ctx.fillStyle = "#1e293b";
+              ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
+              let y = qrY + qrSize + 48;
+              const words = eventTitle.split(" ");
+              let line = "";
+              for (let i = 0; i < words.length; i++) {
+                const test = line + words[i] + " ";
+                if (ctx.measureText(test).width > 360 && i > 0) {
+                  ctx.fillText(line.trim(), W / 2, y);
+                  line = words[i] + " ";
+                  y += 26;
+                } else {
+                  line = test;
+                }
+              }
+              ctx.fillText(line.trim(), W / 2, y);
+              y += 32;
+
+              // Date and campus
+              ctx.fillStyle = "#64748b";
+              ctx.font = "13px 'Segoe UI', Arial, sans-serif";
+              ctx.fillText(`📅  ${eventDate}`, W / 2, y);
+              y += 22;
+              ctx.fillText(`📍  FEU Roosevelt ${eventCampus}`, W / 2, y);
+              y += 30;
+
+              // Ticket ID
+              ctx.fillStyle = "#006633";
+              ctx.font = "bold 11px 'Segoe UI', Arial, sans-serif";
+              ctx.fillText(`FEUR-TICKET-${orderId}`, W / 2, y);
+
+              // Yellow bottom bar
+              ctx.fillStyle = "#facc15";
+              ctx.fillRect(0, H - 8, W, 8);
+
+              resolve(canvas.toDataURL("image/png"));
+            }
+
+            if (qrSource.tagName === "CANVAS") {
+              draw();
+            } else if (qrSource.complete) {
+              draw();
+            } else {
+              qrSource.onload = draw;
+              qrSource.onerror = reject;
+            }
+          });
+        }
+
         document.querySelectorAll(".qr-code-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
             const orderId = btn.getAttribute("data-order-id");
             const eventTitle = btn.getAttribute("data-event-title");
+            const eventDate = btn.getAttribute("data-event-date") || "TBA";
+            const eventCampus = btn.getAttribute("data-event-campus") || "";
+
             document.getElementById("qr-event-title").innerText = eventTitle;
             const qrContainer = document.getElementById("qr-code-image");
             qrContainer.innerHTML = "";
@@ -449,6 +570,48 @@ document.addEventListener("DOMContentLoaded", async () => {
             } else {
               console.error("ERROR: QRCode library hindi nag-load!");
             }
+
+            // Inject download button once, then update its listener each open
+            let dlBtn = document.getElementById("download-qr-btn");
+            if (!dlBtn) {
+              dlBtn = document.createElement("button");
+              dlBtn.id = "download-qr-btn";
+              dlBtn.className = "btn btn-solid";
+              dlBtn.style.cssText =
+                "width:100%; margin-bottom:10px; background:#006633; color:white;";
+              const closeBtn = document.getElementById("close-qr-modal");
+              closeBtn.parentNode.insertBefore(dlBtn, closeBtn);
+            }
+            dlBtn.innerText = "⬇ Save QR Ticket";
+
+            // Replace node to clear old event listeners
+            const freshDlBtn = dlBtn.cloneNode(true);
+            dlBtn.parentNode.replaceChild(freshDlBtn, dlBtn);
+
+            freshDlBtn.addEventListener("click", async () => {
+              freshDlBtn.innerText = "Generating...";
+              freshDlBtn.disabled = true;
+              try {
+                const dataUrl = await generateQRTicketImage(
+                  eventTitle,
+                  eventDate,
+                  eventCampus,
+                  orderId,
+                );
+                const link = document.createElement("a");
+                link.download = `FEUR-Ticket-${eventTitle.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
+                link.href = dataUrl;
+                link.click();
+              } catch (err) {
+                showCustomAlert(
+                  "Error",
+                  "Could not generate ticket image. Please try again.",
+                );
+              }
+              freshDlBtn.innerText = "⬇ Save QR Ticket";
+              freshDlBtn.disabled = false;
+            });
+
             document.getElementById("qr-modal")?.classList.remove("hidden");
           });
         });

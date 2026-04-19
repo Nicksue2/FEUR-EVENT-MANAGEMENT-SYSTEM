@@ -182,7 +182,7 @@
 
 /* Admin Specific Sidebar Adjustment (only for pages with sub-nav) */
 .admin-header-nav + .layout-container .sidebar {
-  top: 100px; 
+  top: 100px;
   height: calc(100vh - 100px);
 }
 
@@ -262,11 +262,11 @@
   background: transparent;
 }
 .main-content::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
 }
 .dark-mode .main-content::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .header-section {
@@ -370,12 +370,12 @@
     font-size: 16px !important;
   }
 
-  /* Mobile sidebar: fixed, full-height flush from top */
+  /* Mobile sidebar: fixed, starts below the 70px sticky header */
   .sidebar {
     position: fixed;
-    top: 0;
+    top: 70px;
     left: 0;
-    height: 100vh;
+    height: calc(100vh - 70px);
     margin: 0;
     z-index: 1000;
     transform: translateX(-100%);

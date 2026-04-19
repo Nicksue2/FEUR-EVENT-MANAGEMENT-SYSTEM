@@ -1,6 +1,11 @@
 import { supabase } from "./api.js";
 import { state } from "./state.js";
-import { showCustomAlert, togglePassword, renderSidebar, loadNotifications } from "./ui.js";
+import {
+  showCustomAlert,
+  togglePassword,
+  renderSidebar,
+  loadNotifications,
+} from "./ui.js";
 
 export async function initAuth() {
   const path = state.path;
@@ -30,7 +35,9 @@ export async function initAuth() {
       (path.includes("admin") || path.includes("scanner")) &&
       state.userRole !== "admin"
     ) {
-      window.location.href = path.includes("pages/") ? "../index.html" : "index.html";
+      window.location.href = path.includes("pages/")
+        ? "../index.html"
+        : "index.html";
       return;
     }
 
@@ -48,10 +55,12 @@ export async function initAuth() {
       path.includes("orderlist.html") ||
       path.includes("scanner.html")
     ) {
-      window.location.href = path.includes("pages/") ? "signin.html" : "pages/signin.html";
+      window.location.href = path.includes("pages/")
+        ? "signin.html"
+        : "pages/signin.html";
       return;
     }
-    
+
     renderSidebar(state.userRole);
 
     document
@@ -252,6 +261,7 @@ export async function initAuth() {
           if (btn) {
             btn.innerText = "Log In";
             btn.disabled = false;
+            btn.classList.remove("loading-btn"); // ← was missing; pointer-events:none kept button unclickable
           }
           return;
         }

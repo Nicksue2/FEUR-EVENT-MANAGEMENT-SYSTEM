@@ -1,4 +1,4 @@
-const CACHE_NAME = "feur-events-v7.0.0";
+const CACHE_NAME = "feur-events-v7.6.5";
 
 const urlsToCache = [
   "./",
@@ -25,7 +25,7 @@ const urlsToCache = [
   "./pages/maps.html",
   "./pages/orderlist.html",
   "./pages/scanner.html",
-  "./pages/reset-password.html"
+  "./pages/reset-password.html",
 ];
 
 // Install
