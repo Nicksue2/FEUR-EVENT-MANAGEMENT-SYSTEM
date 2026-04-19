@@ -2,13 +2,11 @@
    FEUR EVENTS — HELP PAGE STYLESHEET
    ============================================================ */
 
-.help-body {
-  background: #f4f6f8;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  overflow-y: auto !important;
-  display: block !important;
+/* help-main-content: adjustments for the help page inside standard layout */
+.help-main-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px;
 }
 
 /* --- HEADER --- */
@@ -76,9 +74,6 @@
 
 /* --- MAIN LAYOUT --- */
 .help-main {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 0 20px 40px;
   display: flex;
   flex-direction: column;
   gap: 25px;

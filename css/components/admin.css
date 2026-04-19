@@ -1,6 +1,5 @@
 /* ============================================================
    FEUR EVENTS — ADMIN STYLESHEET
-   Optimized: duplicates removed, media queries consolidated
    ============================================================ */
 
 /* --- 1. ADMIN BODY --- */
@@ -31,7 +30,7 @@
 
 /* Sub-nav variant (tabs inside header) */
 .admin-header-nav {
-  height: auto !important;
+  height: 100px !important;
   flex-direction: column;
   padding: 0 !important;
 }
@@ -41,7 +40,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 10px 20px;
+  padding: 0 20px;
   height: 60px;
 }
 

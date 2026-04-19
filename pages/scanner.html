@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entry Scanner - FEUR Events</title>
+    <link rel="stylesheet" href="../css/components/base.css" />
+    <link rel="stylesheet" href="../css/components/layout.css" />
+    <link rel="stylesheet" href="../css/components/components.css" />
+    <link rel="stylesheet" href="../css/components/admin.css" />
+    <script
+      src="https://unpkg.com/html5-qrcode"
+      type="text/javascript"
+    ></script>
+    <link rel="icon" type="image/x-icon" href="../images/feurlogo.png" />
+    <link rel="manifest" href="../manifest.json" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="../images/feurlogo.png" />
+  </head>
+  <body class="admin-body">
+    <header class="top-nav">
+      <div class="nav-left">
+        <button id="burger-btn" class="icon-btn">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M3 12h18M3 6h18M3 18h18" />
+          </svg>
+        </button>
+      </div>
+      <div class="logo-container">
+        <a href="../index.html" class="logo-link">
+          <img src="../images/feurlogo.png" alt="FEUR Logo" class="logo-img" />
+          <h2 class="logo-text">Live Scanner</h2>
+        </a>
+      </div>
+      <div class="nav-right">
+        <div id="user-greeting" class="user-greeting">Admin Mode</div>
+      </div>
+    </header>
+
+    <div class="layout-container">
+      <aside id="sidebar" class="sidebar"></aside>
+
+      <main class="main-content">
+        <div class="header-section">
+          <h2>Event Admission Gate</h2>
+          <p>Scan user tickets here for official event check-in.</p>
+        </div>
+
+        <div class="qr-scanner-wrapper">
+          <div id="entry-reader"></div>
+        </div>
+        <div id="entry-result" class="qr-status-box">Waiting for ticket...</div>
+      </main>
+    </div>
+    <script type="module" src="../js/modules/main.js"></script>
+  </body>
+</html>

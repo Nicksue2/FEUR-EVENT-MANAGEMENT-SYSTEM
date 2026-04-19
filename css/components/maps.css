@@ -75,9 +75,8 @@
 }
 
 /* --- DARK MODE --- */
-.dark-mode .map-container iframe {
-  filter: grayscale(100%) invert(90%) contrast(85%);
-}
+/* NOTE: Intentionally NO filter on .map-container iframe.
+   Maps colors are left completely untouched in dark mode. */
 
 .dark-mode .map-btn.btn-outline {
   border-color: var(--text-color) !important;

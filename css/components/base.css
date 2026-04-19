@@ -1,0 +1,80 @@
+/* ============================================================
+   FEUR EVENTS — BASE STYLES
+   ============================================================ */
+
+/* --- 1. THEME VARIABLES --- */
+:root {
+  --bg-color: #f4f6f8;
+  --text-color: #333333;
+  --card-bg: #ffffff;
+  --nav-bg: #006633;
+  --nav-text: #ffffff;
+  --sidebar-bg: #004d26;
+  --sidebar-hover: #00331a;
+  --border-color: #e0e0e0;
+  --primary: #006633;
+  --secondary: #facc15;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dark-mode {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --nav-bg: #0d0d0d;
+  --nav-text: #ffffff;
+  --sidebar-bg: #1a1a1a;
+  --sidebar-hover: #333333;
+  --border-color: #333333;
+  --primary: #00ff66;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* --- 2. GLOBAL RESET --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition:
+    background 0.3s,
+    color 0.3s;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- 3. UTILITIES --- */
+.hidden {
+  display: none !important;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.full-width-mt20 {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.loading-btn {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn:disabled,
+.btn-disabled {
+  background-color: #9ca3af !important;
+  border-color: #9ca3af !important;
+  color: white !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}

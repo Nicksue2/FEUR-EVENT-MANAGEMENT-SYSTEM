@@ -1,0 +1,500 @@
+/* ============================================================
+   FEUR EVENTS — COMPONENTS STYLES
+   ============================================================ */
+
+/* --- EVENT CARDS --- */
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.event-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.event-img {
+  width: 100%;
+  height: 160px;
+  background: #ddd;
+  object-fit: cover;
+}
+
+.event-info {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.event-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: var(--text-color);
+  /* Clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  min-height: 43px;
+}
+
+.event-meta {
+  font-size: 13px;
+  color: gray;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.event-action-area {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 15px;
+}
+
+.event-action-area button {
+  margin: 0 !important;
+}
+
+/* --- BUTTONS --- */
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+  text-align: center;
+  border: none;
+  transition: 0.2s;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--nav-text);
+  color: var(--nav-text);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-solid {
+  background: var(--secondary);
+  color: #000;
+}
+
+.btn-solid:hover {
+  background: #eab308;
+}
+
+/* --- STATUS BADGE --- */
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  background: #dcfce7;
+  color: #166534;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* --- MODALS --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-box {
+  background: var(--card-bg);
+  color: var(--text-color);
+  padding: 30px 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  position: relative;
+  transform: scale(1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.hidden .modal-box {
+  transform: scale(0.8);
+}
+
+.modal-box h3 {
+  margin: 0 0 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modal-box p {
+  font-size: 1rem;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.modal-box button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+}
+
+.modal-box button:hover {
+  opacity: 0.9;
+}
+
+.modal-box button:active {
+  transform: scale(0.97);
+}
+
+/* Alert box specifics */
+.alert-box {
+  text-align: center;
+}
+
+.alert-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.alert-margin {
+  margin: 15px 0;
+}
+
+/* Event details modal */
+.event-modal-box {
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  text-align: left;
+}
+
+.modal-event-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.close-modal:hover {
+  color: var(--primary);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Wide modal on PC */
+@media (min-width: 768px) {
+  .event-modal-box {
+    max-width: 600px;
+    padding: 30px;
+  }
+}
+
+/* --- SETTINGS TOGGLE SWITCH --- */
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* --- QR CODE MODAL --- */
+.qr-modal-box {
+  text-align: center;
+  max-width: 400px;
+  padding: 30px;
+}
+
+.qr-title {
+  color: var(--primary);
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.qr-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 25px;
+  min-height: 250px;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+}
+
+.qr-code-btn {
+  margin-top: auto;
+}
+
+.qr-close-btn {
+  width: 100%;
+  background: #6b7280;
+  color: white;
+}
+
+.qr-close-btn:hover {
+  background: #4b5563;
+}
+
+/* QR Scanner */
+.qr-scanner-wrapper {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.qr-status-box {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f4f6f8;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.1rem;
+  border: 2px solid #e5e7eb;
+}
+
+/* --- NOTIFICATIONS --- */
+.notif-container {
+  position: relative;
+}
+
+#notif-modal {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-top: 10px;
+  padding: 15px;
+  z-index: 9999;
+}
+
+#notif-modal h4 {
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.notif-item {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13px;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary);
+}
+
+/* --- DARK MODE OVERRIDES --- */
+
+/* Modals */
+.dark-mode .modal-box {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+
+.dark-mode .modal-box h3,
+.dark-mode .qr-title {
+  color: var(--primary);
+}
+
+.dark-mode .modal-box p,
+.dark-mode .setting-item {
+  color: var(--text-color);
+}
+
+.dark-mode .qr-image-container {
+  background: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+/* Notifications */
+.dark-mode #notif-modal {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-mode .notif-item {
+  border-bottom-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.dark-mode .notif-item b {
+  color: var(--primary);
+}
+
+/* Paid event warning boxes */
+.dark-mode div[style*="fef2f2"],
+.dark-mode div[style*="fee2e2"] {
+  background-color: #450a0a !important;
+  border-color: #7f1d1d !important;
+  color: #fca5a5 !important;
+}
+
+.dark-mode div[style*="fef2f2"] *,
+.dark-mode div[style*="fee2e2"] * {
+  color: #fca5a5 !important;
+}
+
+/* Payment section in event modal */
+.dark-mode #payment-section {
+  background-color: #450a0a !important;
+  border-color: #7f1d1d !important;
+}
+
+.dark-mode #payment-section p {
+  color: #fca5a5 !important;
+}
+
+/* QR Scanner */
+.dark-mode .qr-scanner-wrapper,
+.dark-mode #reader,
+.dark-mode #entry-reader {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-mode .qr-scanner-wrapper * {
+  color: var(--text-color);
+}
+
+.dark-mode .qr-status-box {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}

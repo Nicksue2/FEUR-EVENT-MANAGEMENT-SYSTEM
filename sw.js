@@ -1,14 +1,31 @@
-const CACHE_NAME = "feur-events-v6.7.7.8 reverted ver";
+const CACHE_NAME = "feur-events-v7.0.0";
 
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/admin.html",
-  "/style.css",
-  "/admin-style.css",
-  "/script.js",
-  "/images/feurlogo.png",
-  "/manifest.json",
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./images/feurlogo.png",
+  "./css/components/base.css",
+  "./css/components/layout.css",
+  "./css/components/components.css",
+  "./css/components/admin.css",
+  "./css/components/help.css",
+  "./css/components/maps.css",
+  "./css/components/signinup.css",
+  "./js/modules/main.js",
+  "./js/modules/api.js",
+  "./js/modules/auth.js",
+  "./js/modules/state.js",
+  "./js/modules/ui.js",
+  "./js/modules/admin.js",
+  "./pages/admin.html",
+  "./pages/signin.html",
+  "./pages/signup.html",
+  "./pages/help.html",
+  "./pages/maps.html",
+  "./pages/orderlist.html",
+  "./pages/scanner.html",
+  "./pages/reset-password.html"
 ];
 
 // Install

@@ -1,0 +1,408 @@
+/* ============================================================
+   FEUR EVENTS — LAYOUT STYLES
+   ============================================================ */
+
+/* --- 4. TOP NAV / HEADER --- */
+.top-nav {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: var(--nav-bg);
+  color: var(--nav-text);
+  padding: 10px 20px;
+  height: 70px;
+  z-index: 1100;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+/* Hamburger Animation */
+#burger-btn svg {
+  transition: transform 0.3s ease-in-out;
+}
+
+#burger-btn.active svg {
+  transform: rotate(90deg);
+}
+
+.nav-left,
+.nav-right {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 15px;
+  z-index: 2;
+}
+
+.nav-left {
+  justify-content: flex-start;
+}
+
+.nav-right {
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+#auth-user-view {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--nav-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- 5. LOGO --- */
+.logo-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: #ffffff;
+  border: 2px solid var(--secondary);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--nav-text);
+}
+
+/* --- 6. SEARCH BAR --- */
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 5px 15px;
+}
+
+.search-icon {
+  color: var(--nav-text);
+  margin-right: 8px;
+}
+
+.search-container input {
+  background: transparent;
+  border: none;
+  color: var(--nav-text);
+  outline: none;
+  width: 200px;
+  font-size: 14px;
+}
+
+.search-container input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* --- 7. CAMPUS DROPDOWN (desktop) --- */
+.campus-dropdown {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+}
+
+/* --- 8. AUTH AREA --- */
+.user-greeting {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* --- 10. SIDEBAR & LAYOUT --- */
+.layout-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 240px;
+  background: var(--sidebar-bg);
+  transition:
+    width 0.3s,
+    transform 0.3s;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* Sticky under the 70px header; fills remaining viewport */
+  position: sticky;
+  top: 70px;
+  height: calc(100vh - 70px);
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+/* Admin Specific Sidebar Adjustment (only for pages with sub-nav) */
+.admin-header-nav + .layout-container .sidebar {
+  top: 100px; 
+  height: calc(100vh - 100px);
+}
+
+.sidebar.minimized {
+  width: 70px;
+}
+
+.sidebar.minimized span {
+  display: none;
+}
+
+/* Push Settings/Logout to the absolute bottom */
+.sidebar-bottom {
+  margin-top: auto;
+}
+
+.side-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+.side-menu a {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 25px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.sidebar.minimized .side-menu a {
+  padding: 15px 25px;
+  justify-content: center;
+}
+
+.side-menu a:hover,
+.side-menu a.active {
+  background: var(--sidebar-hover);
+  border-left: 4px solid var(--secondary);
+}
+
+/* Logout link: red accent */
+.logout-link {
+  color: #ef4444 !important;
+}
+
+.logout-link:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-left: 4px solid #ef4444 !important;
+}
+
+/* Close button: hidden */
+.sidebar-close-btn {
+  display: none !important;
+}
+
+.bottom-nav {
+  display: none;
+}
+
+/* --- 11. MAIN CONTENT --- */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+.dark-mode .main-content::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+}
+
+.header-section {
+  margin-bottom: 25px;
+}
+
+.header-section h2 {
+  font-size: 24px;
+  color: var(--primary);
+  margin-bottom: 5px;
+}
+
+/* --- MOBILE RESPONSIVE --- */
+@media (max-width: 768px) {
+  /* Logo */
+  .logo-container {
+    position: static;
+    transform: none;
+  }
+
+  .logo-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-text,
+  .user-greeting,
+  #user-greeting {
+    display: none;
+  }
+
+  /* Search */
+  .search-container {
+    width: 35px;
+    height: 35px;
+    overflow: hidden;
+    background: transparent;
+    transition: width 0.3s ease;
+    padding: 5px;
+    margin-left: 5px;
+    cursor: pointer;
+  }
+
+  .search-container input {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    transition:
+      width 0.3s ease,
+      opacity 0.3s ease;
+  }
+
+  .search-container:focus-within {
+    width: 160px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+  }
+
+  .search-container:focus-within input {
+    width: 100%;
+    opacity: 1;
+    margin-left: 5px;
+  }
+
+  /* Nav Right */
+  .nav-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 5px;
+  }
+
+  #notif-btn {
+    display: flex !important;
+    align-items: center;
+  }
+
+  /* Campus dropdown */
+  .campus-dropdown {
+    display: block !important;
+    width: 35px !important;
+    height: 35px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 22px !important;
+    cursor: pointer;
+  }
+
+  .campus-dropdown option {
+    color: #000 !important;
+    font-size: 16px !important;
+  }
+
+  /* Mobile sidebar: fixed, full-height flush from top */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    margin: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    width: 240px;
+    overflow-y: auto;
+    justify-content: flex-start;
+  }
+
+  /* Push Settings/Logout to the absolute bottom of the mobile sidebar */
+  .sidebar-bottom {
+    margin-top: auto;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Main content */
+  .main-content {
+    padding: 15px;
+    margin-bottom: 60px;
+  }
+
+  /* Nav auth view */
+
+  /* Nav auth view */
+  .nav-auth-view {
+    gap: 10px;
+  }
+}
