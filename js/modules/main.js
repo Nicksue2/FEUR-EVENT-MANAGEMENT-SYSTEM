@@ -46,10 +46,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     eventsGrid &&
     (path === "/" || path.includes("index.html") || path === "")
   ) {
+    eventsGrid.innerHTML = `
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading events...</p>
+      </div>
+    `;
     const { data: events } = await supabase.from("events").select("*");
     if (events) {
       state.allEventsGlobal = events;
       renderEvents(state.allEventsGlobal);
+
+      // --- REALTIME SLOTS UPDATE ---
+      supabase
+        .channel("public:orders-realtime")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "orders" },
+          (payload) => {
+            const eventId = payload.new.event_id;
+            const card = document.querySelector(
+              `.event-card[data-id="${eventId}"]`,
+            );
+            if (card) {
+              const metaSpans = card.querySelectorAll(".event-meta span");
+              if (metaSpans.length >= 4) {
+                const slotsSpan = metaSpans[3];
+                const b = slotsSpan.querySelector("b");
+                if (b && b.innerText !== "Sold Out") {
+                  let currentSlots = parseInt(b.innerText);
+                  if (!isNaN(currentSlots) && currentSlots > 0) {
+                    currentSlots--;
+                    if (currentSlots === 0) {
+                      slotsSpan.innerHTML = `📊 <b style="color:red;">Sold Out</b>`;
+                    } else {
+                      b.innerText = currentSlots;
+                    }
+                  }
+                }
+              }
+            }
+          },
+        )
+        .subscribe();
     }
 
     document.getElementById("search-input")?.addEventListener("input", (e) => {
@@ -296,6 +335,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const ordersGrid = document.getElementById("orders-grid");
   if (ordersGrid && path.includes("orderlist")) {
     const fetchOrders = async () => {
+      ordersGrid.innerHTML = `
+        <div class="loading-container">
+          <div class="loading-spinner"></div>
+          <p>Loading your tickets...</p>
+        </div>
+      `;
       const { data: orders, error } = await supabase
         .from("orders")
         .select(

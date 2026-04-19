@@ -6,8 +6,20 @@ export async function initAdmin() {
   if (!state.path.includes("admin") || state.userRole !== "admin") return;
 
   const fetchAdminEvents = async () => {
-    const { data: events } = await supabase.from("events").select("*");
     const list = document.getElementById("admin-event-list");
+    if (list) {
+      list.innerHTML = `
+        <tr>
+          <td colspan="100%">
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <p>Loading records...</p>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+    const { data: events } = await supabase.from("events").select("*");
     if (list && events) {
       list.innerHTML = events
         .map(
@@ -87,7 +99,18 @@ export async function initAdmin() {
     document.getElementById("attendees-modal-title").innerText =
       `${eventTitle} - Attendees`;
     const list = document.getElementById("attendees-list");
-    list.innerHTML = `<tr><td colspan="3" style="text-align:center;">Loading...</td></tr>`;
+    if (list) {
+      list.innerHTML = `
+        <tr>
+          <td colspan="100%">
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <p>Loading records...</p>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
     document.getElementById("attendees-modal").classList.remove("hidden");
 
     const { data: orders } = await supabase
@@ -261,11 +284,23 @@ export async function initAdmin() {
   fetchAdminEvents();
 
   const fetchAdminUsers = async () => {
+    const list = document.getElementById("admin-user-list");
+    if (list) {
+      list.innerHTML = `
+        <tr>
+          <td colspan="100%">
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <p>Loading records...</p>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
     const { data: profiles } = await supabase
       .from("profiles")
       .select("*")
       .order("first_name", { ascending: true });
-    const list = document.getElementById("admin-user-list");
 
     if (list && profiles) {
       list.innerHTML = profiles
@@ -378,6 +413,19 @@ export async function initAdmin() {
   fetchAdminUsers();
 
   const fetchPaymentApprovals = async () => {
+    const list = document.getElementById("payment-approvals-list");
+    if (list) {
+      list.innerHTML = `
+        <tr>
+          <td colspan="100%">
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <p>Loading records...</p>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
     const { data: pendingOrders, error } = await supabase
       .from("orders")
       .select(
@@ -387,7 +435,6 @@ export async function initAdmin() {
       .not("proof_of_payment_url", "is", null)
       .not("status", "eq", "Cancelled");
 
-    const list = document.getElementById("payment-approvals-list");
     if (!list) return;
 
     if (error || !pendingOrders || pendingOrders.length === 0) {
