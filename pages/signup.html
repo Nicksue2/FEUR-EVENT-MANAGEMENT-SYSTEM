@@ -30,11 +30,26 @@
       <h2>Register Account</h2>
       <form id="signup-form">
         <div class="form-group">
-          <input type="text" id="fname" placeholder="First Name" required />
+          <input
+            type="text"
+            id="fname"
+            placeholder="First Name"
+            minlength="2"
+            maxlength="50"
+            required
+          />
         </div>
         <div class="form-group">
-          <input type="text" id="lname" placeholder="Last Name" required />
+          <input
+            type="text"
+            id="lname"
+            placeholder="Last Name"
+            minlength="2"
+            maxlength="50"
+            required
+          />
         </div>
+        <div id="name-error" style="color: #ef4444; font-size: 11px; margin-bottom: 10px; display: none;">* Names can only contain letters, spaces, and hyphens.</div>
         <div class="form-group">
           <input
             type="email"
@@ -53,6 +68,7 @@
             oninput="this.value = this.value.replace(/[^0-9]/g, '')"
             required
           />
+          <span id="phone-hint" style="font-size: 11px; color: #666; margin-top: 4px; display: block;">* Must be exactly 11 digits</span>
         </div>
         <div class="form-group">
           <input

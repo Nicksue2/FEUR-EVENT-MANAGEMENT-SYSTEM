@@ -104,6 +104,20 @@ export async function initAuth() {
       });
     }
 
+    const phoneInput = document.getElementById("phone");
+    const phoneHint = document.getElementById("phone-hint");
+    if (phoneInput && phoneHint) {
+      phoneInput.addEventListener("input", () => {
+        if (phoneInput.value.length === 11) {
+          phoneHint.style.color = "#10b981"; // Success green
+          phoneHint.innerText = "✓ Valid 11-digit format";
+        } else {
+          phoneHint.style.color = "#ef4444"; // Error red
+          phoneHint.innerText = "* Must be exactly 11 digits";
+        }
+      });
+    }
+
     document
       .getElementById("signup-form")
       ?.addEventListener("submit", async (e) => {
@@ -120,6 +134,37 @@ export async function initAuth() {
           );
           if (typeof turnstile !== "undefined") turnstile.reset();
           return;
+        }
+
+        const phone = document.getElementById("phone").value;
+        if (phone.length !== 11) {
+          showCustomAlert(
+            "Invalid Phone",
+            "Phone number must be exactly <b>11 digits</b>.",
+          );
+          if (typeof turnstile !== "undefined") turnstile.reset();
+          return;
+        }
+
+        const fname = document.getElementById("fname").value.trim();
+        const lname = document.getElementById("lname").value.trim();
+        const nameRegex = /^[a-zA-Z\s-]+$/;
+        const nameError = document.getElementById("name-error");
+
+        if (!nameRegex.test(fname) || !nameRegex.test(lname)) {
+          if (nameError) nameError.style.display = "block";
+          document.getElementById("fname").style.borderColor = "#ef4444";
+          document.getElementById("lname").style.borderColor = "#ef4444";
+          showCustomAlert(
+            "Invalid Name",
+            "Names can only contain letters, spaces, and hyphens.",
+          );
+          if (typeof turnstile !== "undefined") turnstile.reset();
+          return;
+        } else {
+          if (nameError) nameError.style.display = "none";
+          document.getElementById("fname").style.borderColor = "";
+          document.getElementById("lname").style.borderColor = "";
         }
 
         registerBtn.innerText = "Processing...";
@@ -151,23 +196,34 @@ export async function initAuth() {
         });
 
         if (error) {
-          showCustomAlert("Error", error.message);
+          showCustomAlert("Registration Error", error.message);
           registerBtn.innerText = "Sign Up";
           registerBtn.disabled = false;
           if (typeof turnstile !== "undefined") turnstile.reset();
-        } else {
-          if (data.user) {
-            await supabase.from("profiles").insert([
-              {
-                id: data.user.id,
-                first_name: document.getElementById("fname").value,
-                last_name: document.getElementById("lname").value,
-                phone_number: document.getElementById("phone").value,
-                school_email: email,
-                role: "user",
-              },
-            ]);
-          }
+          return; // STOP FLOW HERE
+        }
+
+        // Supabase returns an empty identities array if the email is already taken
+        // depending on your project settings (Email enumeration protection).
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+          showCustomAlert("Error", "This email is already registered. Please use another or log in.");
+          registerBtn.innerText = "Sign Up";
+          registerBtn.disabled = false;
+          if (typeof turnstile !== "undefined") turnstile.reset();
+          return;
+        }
+
+        if (data.user) {
+          await supabase.from("profiles").insert([
+            {
+              id: data.user.id,
+              first_name: fname,
+              last_name: lname,
+              phone_number: phone,
+              school_email: email,
+              role: "user",
+            },
+          ]);
           showCustomAlert(
             "Success",
             "Registration successful! Confirm email before logging in.",
@@ -175,6 +231,10 @@ export async function initAuth() {
           setTimeout(() => {
             window.location.href = "signin.html";
           }, 1500);
+        } else {
+          showCustomAlert("Error", "An unexpected error occurred. Please try again.");
+          registerBtn.innerText = "Sign Up";
+          registerBtn.disabled = false;
         }
       });
   }

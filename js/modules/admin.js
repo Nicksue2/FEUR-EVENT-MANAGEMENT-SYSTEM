@@ -202,11 +202,15 @@ export async function initAdmin() {
     });
 
   window.deleteEvent = async (id) => {
-    if (confirm("Delete this event?")) {
-      await supabase.from("events").delete().eq("id", id);
-      fetchAdminEvents();
-      showCustomAlert("System", "Event deleted.");
-    }
+    showCustomConfirm(
+      "Delete Event",
+      "Are you sure you want to delete this event? This action cannot be undone.",
+      async () => {
+        await supabase.from("events").delete().eq("id", id);
+        fetchAdminEvents();
+        showCustomAlert("System", "Event deleted.");
+      },
+    );
   };
 
   const eventModal = document.getElementById("event-modal");
@@ -311,7 +315,9 @@ export async function initAdmin() {
           <td>${p.school_email}</td>
           <td>${p.phone_number || "N/A"}</td>
           <td><span class="status-badge" style="background:${p.role === "admin" ? "#fef08a" : "#e5e7eb"}; color:black; padding: 4px 8px; border-radius: 4px;">${p.role}</span></td>
-          <td><button class="btn btn-solid" style="background:#facc15; padding:5px 15px; color:black; border:none; border-radius:4px; cursor:pointer;" onclick="window.manageUser('${p.id}')">Manage</button></td>
+          <td>
+            <button class="btn btn-solid" style="background:#facc15; padding:5px 15px; color:black; border:none; border-radius:4px; cursor:pointer;" onclick="window.manageUser('${p.id}')">Manage</button>
+          </td>
         </tr>`,
         )
         .join("");
@@ -345,6 +351,16 @@ export async function initAdmin() {
 
       const titleEl = document.getElementById("user-modal-title");
       if (titleEl) titleEl.innerText = `Manage: ${profile.school_email}`;
+
+      // Wire up delete button for this specific user
+      const deleteBtn = document.getElementById("delete-user-btn");
+      if (deleteBtn) {
+        const newDeleteBtn = deleteBtn.cloneNode(true);
+        deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+        newDeleteBtn.addEventListener("click", () => {
+          window.deleteUser(profile.id, profile.school_email);
+        });
+      }
     }
 
     const { data: orders } = await supabase
@@ -409,6 +425,33 @@ export async function initAdmin() {
         .getElementById("user-management-modal")
         .classList.add("hidden");
     });
+
+  window.deleteUser = async (userId, email) => {
+    showCustomConfirm(
+      "Delete User Account",
+      `Are you sure you want to delete <b>${email}</b>?<br><br><span style="color:#ef4444;">Warning: This will also delete all their event registrations and order history. This action is irreversible.</span>`,
+      async () => {
+        try {
+          // 1. Delete associated orders first due to Foreign Key constraints
+          await supabase.from("orders").delete().eq("user_id", userId);
+
+          // 2. Delete the profile record
+          const { error } = await supabase
+            .from("profiles")
+            .delete()
+            .eq("id", userId);
+
+          if (error) throw error;
+
+          showCustomAlert("Success", "User and associated records deleted.");
+          fetchAdminUsers();
+        } catch (err) {
+          console.error("Deletion error:", err);
+          showCustomAlert("Error", "Failed to delete user: " + err.message);
+        }
+      },
+    );
+  };
 
   fetchAdminUsers();
 
