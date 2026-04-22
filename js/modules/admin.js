@@ -601,26 +601,25 @@ export async function initAdmin() {
 
   const adminMain = document.querySelector(".main-content");
   const sections = document.querySelectorAll(
-    "#qr-section, #event-list-section, #user-management-section, #payment-approvals-section",
+    "#validator-section, #events-section, #users-section, #payments-section",
   );
   const navLinks = document.querySelectorAll(".sec-link");
 
-  if (adminMain && navLinks.length > 0) {
+  if (navLinks.length > 0) {
     const highlightSection = () => {
       let current = "";
-      const isAtBottom =
-        adminMain.scrollHeight - adminMain.scrollTop <=
-        adminMain.clientHeight + 50;
+      const scrollPos = window.scrollY || document.documentElement.scrollTop;
 
-      if (isAtBottom) {
-        current = "payment-approvals-section";
-      } else {
-        sections.forEach((section) => {
-          const sectionTop = section.offsetTop;
-          if (adminMain.scrollTop >= sectionTop - 150) {
-            current = section.getAttribute("id");
-          }
-        });
+      sections.forEach((section) => {
+        const sectionTop = section.offsetTop - 120; // Offset for sticky header
+        if (scrollPos >= sectionTop) {
+          current = section.getAttribute("id");
+        }
+      });
+
+      // Special case for bottom of page
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+        current = "payments-section";
       }
 
       navLinks.forEach((link) => {
@@ -631,7 +630,7 @@ export async function initAdmin() {
       });
     };
 
-    adminMain.addEventListener("scroll", highlightSection);
+    window.addEventListener("scroll", highlightSection);
 
     navLinks.forEach((link) => {
       link.addEventListener("click", function (e) {
@@ -640,10 +639,14 @@ export async function initAdmin() {
         const targetSection = document.querySelector(targetId);
 
         if (targetSection) {
-          navLinks.forEach((l) => l.classList.remove("active"));
-          this.classList.add("active");
-          adminMain.scrollTo({
-            top: targetSection.offsetTop - 20,
+          const offset = 100; // Header height offset
+          const bodyRect = document.body.getBoundingClientRect().top;
+          const elementRect = targetSection.getBoundingClientRect().top;
+          const elementPosition = elementRect - bodyRect;
+          const offsetPosition = elementPosition - offset;
+
+          window.scrollTo({
+            top: offsetPosition,
             behavior: "smooth",
           });
         }

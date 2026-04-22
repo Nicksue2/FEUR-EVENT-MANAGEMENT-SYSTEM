@@ -8,20 +8,21 @@
     <link rel="stylesheet" href="css/components/layout.css" />
     <link rel="stylesheet" href="css/components/components.css" />
     <link rel="icon" type="image/x-icon" href="images/feurlogo.png" />
-
     <style>
-      /* Piliting itaas ang Tidio bubble sa mobile */
-      #tidio-chat-iframe {
-        bottom: 20px !important; /* Taasan mo 'to kung gusto mong mas mataas pa */
+      /* Chat widget positioning to avoid Bottom Nav overlap */
+      #tidio-chat-iframe, 
+      #tidio-chat {
+        bottom: 100px !important;
+        z-index: 40 !important;
       }
-
+      
       @media only screen and (max-width: 768px) {
-        #tidio-chat-iframe {
-          bottom: 30px !important; /* Mas mataas na margin para sa mobile Safe Area */
+        #tidio-chat-iframe,
+        #tidio-chat {
+          bottom: 100px !important;
         }
       }
     </style>
-
     <script
       type="text/javascript"
       src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
@@ -31,17 +32,27 @@
         emailjs.init("RzFhb6MyWEm1QADV2");
       })();
     </script>
-
     <link rel="manifest" href="manifest.json" />
-
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="apple-touch-icon" href="images/feurlogo.png" />
   </head>
   <body>
+    <!-- SPLASH SCREEN (iOS STYLE) -->
+    <div id="splash-screen">
+      <div class="splash-content">
+        <img
+          src="images/feurlogo.png"
+          alt="FEUR Logo"
+          class="splash-logo"
+        />
+        <div class="splash-loader"></div>
+      </div>
+    </div>
+
     <header class="top-nav">
       <div class="nav-left">
-        <button id="burger-btn" class="icon-btn">
+        <button id="burger-btn" class="icon-btn desktop-only-flex">
           <svg
             width="24"
             height="24"
@@ -84,7 +95,6 @@
           <option value="Marikina">Marikina</option>
           <option value="Rodriguez">Rodriguez</option>
         </select>
-
         <div id="auth-user-view" class="hidden user-only">
           <div class="notif-container">
             <button id="notif-btn" class="icon-btn">
@@ -109,7 +119,6 @@
           </div>
           <div id="user-greeting" class="user-greeting">Welcome!</div>
         </div>
-
         <div id="guest-view" class="auth-buttons guest-only">
           <a href="pages/signin.html" class="btn btn-outline">Log In</a>
           <a href="pages/signup.html" class="btn btn-solid">Sign Up</a>
@@ -121,15 +130,77 @@
       <aside id="sidebar" class="sidebar"></aside>
 
       <main class="main-content">
-        <div class="header-section">
-          <h2>All Events</h2>
-          <p>Discover and register for activities across campuses.</p>
+        <!-- DESKTOP: full events grid -->
+        <div class="desktop-only-block">
+          <div class="header-section">
+            <h2>All Events</h2>
+            <p>Discover and register for activities across campuses.</p>
+          </div>
+          <div id="events-grid" class="events-grid">
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <p>Loading events...</p>
+            </div>
+          </div>
         </div>
-        <div id="events-grid" class="events-grid">
-          <p class="loading-text">Loading events...</p>
+
+        <!-- MOBILE: hero + slider + calendar -->
+        <div class="mobile-only-block" id="mobile-dashboard">
+          <div class="m-section-hdr">
+            <span class="m-section-pill">📅 Upcoming Event</span>
+          </div>
+          <div id="upcoming-event">
+            <div class="hero-skeleton pulse"></div>
+          </div>
+
+          <div class="m-section-hdr m-section-hdr--row">
+            <span class="m-section-txt">All Events</span>
+            <span class="m-section-hint">Swipe →</span>
+          </div>
+          <div id="horizontal-events-slider" class="h-slider-wrap">
+            <div class="h-scroll">
+              <div class="slider-skeleton pulse"></div>
+              <div class="slider-skeleton pulse"></div>
+              <div class="slider-skeleton pulse"></div>
+            </div>
+          </div>
+
+          <div class="m-section-hdr">
+            <span class="m-section-txt">📆 This Week</span>
+          </div>
+          <div id="weekly-calendar" class="cal-strip"></div>
+
+          <!-- QUICK LINKS GRID (Mobile Bottom Section) -->
+          <div class="quick-links-grid">
+            <a href="pages/maps.html" class="ql-item ql-maps">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span>Campus Maps</span>
+            </a>
+            <a href="pages/help.html" class="ql-item ql-help">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>Help Center</span>
+            </a>
+          </div>
+
+          <!-- Bottom padding handled in CSS -->
         </div>
       </main>
     </div>
+
+    <!-- Floating FABs removed (Converted to Grid) -->
+
+
+    <!-- BOTTOM NAVIGATION (injected by ui.js) -->
+    <nav class="bottom-nav" id="bottom-nav"></nav>
+
+    <!-- ════ MODALS (all preserved) ════ -->
 
     <div id="custom-alert" class="modal-overlay hidden">
       <div class="modal-box alert-box">
@@ -176,7 +247,6 @@
           id="modal-event-desc"
           style="font-size: 14px; margin-bottom: 20px; line-height: 1.5"
         ></p>
-
         <div
           id="payment-section"
           style="
@@ -207,14 +277,13 @@
             "
           >
             By clicking register, your slot will be reserved for
-            <b>5 business days</b>. <br /><br />
+            <b>5 business days</b>.<br /><br />
             Please pay via <b>GCash (09615939028)</b> or at the
             <b>FEUR Finance Office</b>. You will be given a Reference Number
-            after registering. <br /><br />
+            after registering.<br /><br />
             <i>You can upload your receipt later in your <b>Order List</b>.</i>
           </p>
         </div>
-
         <button
           id="modal-register-btn"
           class="btn btn-solid"
@@ -225,34 +294,7 @@
       </div>
     </div>
 
-    <div id="settings-modal" class="modal-overlay hidden">
-      <div class="modal-box">
-        <h3>Settings</h3>
-        <div class="setting-item">
-          <span>Dark Mode</span>
-          <label class="switch"
-            ><input type="checkbox" id="dark-toggle" /><span
-              class="slider"
-            ></span
-          ></label>
-        </div>
-        <div class="setting-item">
-          <span>Outlook Email Updates</span>
-          <label class="switch"
-            ><input type="checkbox" id="email-notif-toggle" checked /><span
-              class="slider"
-            ></span
-          ></label>
-        </div>
-        <button
-          id="close-settings"
-          class="btn btn-solid"
-          style="width: 100%; margin-top: 20px"
-        >
-          Save & Close
-        </button>
-      </div>
-    </div>
+    <!-- Settings Modal is now dynamically injected by ui.js -->
 
     <div id="auth-modal" class="modal-overlay hidden">
       <div class="modal-box">
@@ -271,11 +313,6 @@
       src="//code.tidio.co/utrn5uimu1asbvg0la0z1vw4pxnvopcz.js"
       async
     ></script>
-
     <script type="module" src="js/modules/main.js"></script>
-
-
-
-    <!-- Service Worker registration handled in js/modules/main.js -->
   </body>
 </html>

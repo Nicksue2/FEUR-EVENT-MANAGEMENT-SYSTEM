@@ -2,6 +2,22 @@ import { supabase } from "./api.js";
 import { state } from "./state.js";
 
 // --- 1. REUSABLE HELPERS ---
+export const initSplashScreen = () => {
+  const splash = document.getElementById("splash-screen");
+  if (splash) {
+    // iOS Style: Wait 1.2s before starting the fade
+    setTimeout(() => {
+      splash.style.opacity = "0";
+      splash.style.visibility = "hidden";
+
+      // Wait for the 0.4s transition to finish, then remove
+      setTimeout(() => {
+        splash.remove();
+      }, 300);
+    }, 500);
+  }
+};
+
 export const showCustomAlert = (title, message) => {
   const alertModal = document.getElementById("custom-alert");
   if (alertModal) {
@@ -116,25 +132,32 @@ export async function loadNotifications() {
 }
 
 // --- 3. SETTINGS MODAL INJECTION (Global) ---
-// Injects the settings modal into the body if it doesn't already exist.
-// This makes Settings work on ALL pages without duplicating HTML.
 function injectSettingsModal() {
-  if (document.getElementById("settings-modal")) return; // already present
+  if (document.getElementById("settings-modal")) return;
   const modal = document.createElement("div");
   modal.id = "settings-modal";
   modal.className = "modal-overlay hidden";
   modal.innerHTML = `
-    <div class="modal-box">
-      <h3>Settings</h3>
+    <div class="modal-box settings-box">
+      <button class="settings-close-x" id="close-settings">&times;</button>
+      <h3 class="settings-title">⚙️ Settings</h3>
       <div class="setting-item">
         <span>Dark Mode</span>
         <label class="switch"><input type="checkbox" id="dark-toggle" /><span class="slider"></span></label>
       </div>
       <div class="setting-item">
-        <span>Outlook Email Updates</span>
+        <span>Email Notifications</span>
         <label class="switch"><input type="checkbox" id="email-notif-toggle" checked /><span class="slider"></span></label>
       </div>
-      <button id="close-settings" class="btn btn-solid" style="width:100%;margin-top:20px">Save &amp; Close</button>
+      <div class="setting-divider"></div>
+      <button id="settings-logout-btn" class="settings-logout-btn user-only hidden">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Log Out
+      </button>
     </div>
   `;
   document.body.appendChild(modal);
@@ -257,10 +280,19 @@ export function initUI() {
     searchContainerDom.addEventListener("click", () => searchInputDom.focus());
   }
 
-  // Settings modal close
+  // Settings modal close (X button - no Save needed, dark mode auto-applies)
   document.getElementById("close-settings")?.addEventListener("click", () => {
-    document.getElementById("settings-modal").classList.add("hidden");
+    document.getElementById("settings-modal")?.classList.add("hidden");
   });
+
+  // Settings logout button (inside the modal)
+  document
+    .getElementById("settings-logout-btn")
+    ?.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      const inPages = window.location.pathname.includes("/pages/");
+      window.location.href = inPages ? "../index.html" : "index.html";
+    });
 
   // Burger button toggle
   document.getElementById("burger-btn")?.addEventListener("click", function () {
@@ -296,10 +328,9 @@ export function renderSidebar(role) {
   const path = state.path;
   const isDash = path === "/" || path.includes("index.html") || path === "";
 
-  // Dynamic path prefixes: pages in /pages/ link to siblings; root links up
   const inPages = path.includes("pages/");
-  const pagePrefix = inPages ? "" : "pages/"; // prefix to reach /pages/ siblings
-  const rootPrefix = inPages ? "../" : ""; // prefix to reach root (index.html)
+  const pagePrefix = inPages ? "" : "pages/";
+  const rootPrefix = inPages ? "../" : "";
 
   const dashPath = rootPrefix + "index.html";
   const orderPath = pagePrefix + "orderlist.html";
@@ -311,7 +342,6 @@ export function renderSidebar(role) {
   const helpActive = path.includes("help") ? "active" : "";
   const mapsActive = path.includes("maps") ? "active" : "";
 
-  // Admin-only links: only rendered if role is exactly 'admin'
   let adminLinks = "";
   if (role === "admin") {
     const adminPath = pagePrefix + "admin.html";
@@ -362,15 +392,17 @@ export function renderSidebar(role) {
 
   sidebar.innerHTML = html;
 
-  // Wire up settings button click
   document.querySelectorAll(".nav-settings-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       document.getElementById("settings-modal")?.classList.remove("hidden");
+      // Show logout inside settings for logged-in users
+      document
+        .querySelectorAll(".user-only")
+        .forEach((el) => el.classList.remove("hidden"));
     });
   });
 
-  // Wire up logout button
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
     if (state.currentUser) {
@@ -382,4 +414,116 @@ export function renderSidebar(role) {
       });
     }
   }
+
+  // Wire settings-logout-btn (inside settings modal, for mobile)
+  const settingsLogout = document.getElementById("settings-logout-btn");
+  if (settingsLogout && state.currentUser) {
+    settingsLogout.classList.remove("hidden");
+    settingsLogout.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.href = rootPrefix + "index.html";
+    });
+  }
+
+  // Render the mobile bottom navigation
+  renderBottomNav(role, { dashPath, orderPath, pagePrefix, rootPrefix, path });
+}
+
+// --- 6. BOTTOM NAV RENDERING ---
+// --- 6. BOTTOM NAV RENDERING ---
+function renderBottomNav(role, { dashPath, orderPath, pagePrefix, rootPrefix, path }) {
+  const nav = document.getElementById("bottom-nav");
+  if (!nav) return;
+
+  const user = state.currentUser;
+  const isAdmin = role === "admin";
+  const isGuest = !user;
+
+  // Additional Paths
+  const scannerPath = pagePrefix + "scanner.html";
+  const adminPath = pagePrefix + "admin.html";
+  const mapsPath = pagePrefix + "maps.html";
+  const helpPath = pagePrefix + "help.html";
+
+  // Active flags
+  const isDash = path === "/" || path.endsWith("index.html") || path === "" || path.endsWith("EVENT-MANAGEMENT-SYSTEM/");
+  const isOrder = path.includes("orderlist.html");
+  const isScanner = path.includes("scanner.html");
+  const isMap = path.includes("maps.html");
+  const isHelp = path.includes("help.html");
+  const isAdminPage = path.includes("admin.html");
+
+  // SVGs
+  const svgHome = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`;
+  const svgOrder = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`;
+  const svgScanner = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>`;
+  const svgAdmin = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+  const svgMaps = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+  const svgHelp = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+  const svgGear = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`;
+  const svgUser = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+
+  let items = [];
+
+  if (isGuest) {
+    // Logged Out: [Home, Maps, Help, Settings]
+    items = [
+      { href: dashPath, label: "Home", svg: svgHome, active: isDash },
+      { href: mapsPath, label: "Maps", svg: svgMaps, active: isMap },
+      { href: helpPath, label: "Help", svg: svgHelp, active: isHelp },
+      { href: "#", label: "Settings", svg: svgGear, class: "bn-settings-btn" }
+    ];
+    // Hide redundancy on index
+    if (isDash) {
+      const qlGrid = document.querySelector(".quick-links-grid");
+      if (qlGrid) qlGrid.classList.add("hidden");
+    }
+  } else if (isAdmin) {
+    // Admin: [Home, Orders, Scanner (Center), Admin, Settings]
+    items = [
+      { href: dashPath, label: "Home", svg: svgHome, active: isDash },
+      { href: orderPath, label: "Orders", svg: svgOrder, active: isOrder },
+      { href: scannerPath, label: "Scanner", svg: svgScanner, active: isScanner, isCenter: true },
+      { href: adminPath, label: "Admin", svg: svgAdmin, active: isAdminPage },
+      { href: "#", label: "Settings", svg: svgGear, class: "bn-settings-btn" }
+    ];
+  } else {
+    // User: [Home, Orders, User, Maps, Settings]
+    items = [
+      { href: dashPath, label: "Home", svg: svgHome, active: isDash },
+      { href: orderPath, label: "Orders", svg: svgOrder, active: isOrder },
+      { href: "#", label: "Profile", svg: svgUser, isCenter: true }, // Relevant User Icon
+      { href: mapsPath, label: "Maps", svg: svgMaps, active: isMap },
+      { href: "#", label: "Settings", svg: svgGear, class: "bn-settings-btn" }
+    ];
+  }
+
+  nav.innerHTML = items.map(item => {
+    const activeClass = item.active ? "active bn-active" : "";
+    if (item.isCenter) {
+      return `
+        <a href="${item.href}" class="bn-item bn-center ${activeClass}">
+          <div class="bn-center-pill">${item.svg}</div>
+          <span>${item.label}</span>
+        </a>
+      `;
+    }
+    return `
+      <a href="${item.href}" class="bn-item ${item.class || ""} ${activeClass}">
+        ${item.svg}
+        <span>${item.label}</span>
+      </a>
+    `;
+  }).join("");
+
+  // Wire settings button
+  nav.querySelectorAll(".bn-settings-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("settings-modal")?.classList.remove("hidden");
+      if (state.currentUser) {
+        document.getElementById("settings-logout-btn")?.classList.remove("hidden");
+      }
+    });
+  });
 }

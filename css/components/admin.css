@@ -8,7 +8,7 @@
   color: var(--text-color);
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
 }
 
@@ -30,9 +30,13 @@
 
 /* Sub-nav variant (tabs inside header) */
 .admin-header-nav {
-  height: 100px !important;
+  height: auto !important;
+  min-height: 100px;
   flex-direction: column;
   padding: 0 !important;
+  z-index: 1100 !important; /* Above scrolling content */
+  position: sticky !important;
+  top: 0;
 }
 
 .header-main-row {
@@ -152,12 +156,13 @@
 
 /* Merged: all .stat-box variants unified */
 .stat-box {
-  background: #006633;
+  background: var(--primary);
   color: white;
-  padding: 25px;
-  border-radius: 12px;
+  padding: 25px 15px; /* Fixed padding for squished labels */
+  border-radius: 16px;
   text-align: center;
   box-shadow: var(--shadow);
+  width: 100%;
 }
 
 .stat-box h3 {
@@ -187,10 +192,11 @@
 .admin-card {
   background: var(--card-bg);
   padding: 25px;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
   margin-bottom: 30px;
   border: 1px solid var(--border-color);
+  width: 100%;
 }
 
 .admin-header,
@@ -445,8 +451,6 @@
 .layout-container {
   display: flex;
   flex: 1;
-  height: calc(100vh - 70px);
-  overflow: hidden;
   position: relative;
 }
 
@@ -539,11 +543,36 @@
   /* Layout */
   .layout-container {
     height: auto;
-    min-height: calc(100vh - 70px);
+    min-height: 100vh;
+    display: block;
   }
 
   .admin-main {
-    padding: 15px;
+    padding: 15px 20px; /* Better side spacing */
+  }
+
+  .admin-header h2, .event-list-title {
+    padding: 0 5px;
+  }
+
+  /* Stack stats boxes vertically with better spacing */
+  .stats-container {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+    margin-bottom: 25px;
+  }
+
+  .stat-box {
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Fix anchor scroll positioning for fixed header */
+  #qr-section, 
+  #event-list-section, 
+  #user-management-section, 
+  #payment-approvals-section {
+    scroll-margin-top: 140px;
   }
 
   .event-form {
@@ -756,5 +785,16 @@
 
   .dark-mode .admin-table td[style*="display:flex"] {
     border-top-color: var(--border-color) !important;
+  }
+
+  /* Phase 4: Dark Mode Stat Boxes Fix */
+  .dark-mode .stat-box {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: #f8fafc !important;
+  }
+  
+  .dark-mode .stat-box h3 {
+    color: #10b981 !important;
   }
 }

@@ -4,7 +4,7 @@
 
 /* --- 1. THEME VARIABLES --- */
 :root {
-  --bg-color: #f4f6f8;
+  --bg-color: linear-gradient(135deg, #f8fafc 0%, #dcfce7 100%);
   --text-color: #333333;
   --card-bg: #ffffff;
   --nav-bg: #006633;
@@ -18,19 +18,23 @@
 }
 
 .dark-mode {
-  --bg-color: #121212;
-  --text-color: #e0e0e0;
-  --card-bg: #1e1e1e;
+  --bg-color: #09090b;
+  --card-bg: #18181b;
+  --text-color: #f8fafc;
   --nav-bg: #0d0d0d;
   --nav-text: #ffffff;
   --sidebar-bg: #1a1a1a;
   --sidebar-hover: #333333;
-  --border-color: #333333;
+  --border-color: #27272a;
   --primary: #00ff66;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* --- 2. GLOBAL RESET --- */
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -39,20 +43,77 @@
 }
 
 body {
-  background-color: var(--bg-color);
+  background: var(--bg-color);
   color: var(--text-color);
   transition:
     background 0.3s,
     color 0.3s;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 /* --- 3. UTILITIES --- */
 .hidden {
   display: none !important;
+}
+
+/* --- 4. SPLASH SCREEN (iOS Style) --- */
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition:
+    opacity 0.4s ease-out,
+    visibility 0.4s ease-out;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.splash-logo {
+  width: 120px;
+  height: 120px;
+  animation: smooth-scale 1.5s infinite ease-in-out;
+}
+
+.splash-loader {
+  width: 35px;
+  height: 35px;
+  border: 3px solid rgba(0, 102, 51, 0.1);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes smooth-scale {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .w-100 {

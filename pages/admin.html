@@ -46,16 +46,32 @@
         </div>
 
         <div class="nav-right">
-          <div id="user-greeting" class="user-greeting">Welcome, Admin!</div>
+          <div id="auth-user-view" class="hidden user-only">
+            <div class="notif-container">
+              <button id="notif-btn" class="icon-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+              </button>
+              <div id="notif-modal" class="modern-modal hidden">
+                <h4>Notifications</h4>
+                <div class="notif-list" id="notif-list">
+                  <div class="loading-text">Loading...</div>
+                </div>
+              </div>
+            </div>
+            <div id="user-greeting" class="user-greeting">Welcome, Admin!</div>
+          </div>
         </div>
       </div>
 
       <div class="admin-sub-nav">
         <div class="admin-nav-links">
-          <a href="#qr-section" class="sec-link active">Validator</a>
-          <a href="#event-list-section" class="sec-link">Events</a>
-          <a href="#user-management-section" class="sec-link">Users</a>
-          <a href="#payment-approvals-section" class="sec-link">Payments</a>
+          <a href="#validator-section" class="sec-link active">Validator</a>
+          <a href="#events-section" class="sec-link">Events</a>
+          <a href="#users-section" class="sec-link">Users</a>
+          <a href="#payments-section" class="sec-link">Payments</a>
         </div>
       </div>
     </header>
@@ -100,7 +116,7 @@
           </div>
         </div>
 
-        <section class="admin-card qr-section" id="qr-section">
+        <section class="admin-card qr-section" id="validator-section">
           <div class="admin-header">
             <h3>QR Validator (Check Legitimacy Only)</h3>
           </div>
@@ -112,7 +128,7 @@
           </div>
         </section>
 
-        <div class="admin-card" id="event-list-section">
+        <div class="admin-card" id="events-section">
           <div class="event-list-header">
             <h3 class="event-list-title">Event List</h3>
             <button id="open-create-event-modal" class="btn-create-event">
@@ -135,7 +151,7 @@
           </div>
         </div>
 
-        <div class="admin-card mt-30" id="user-management-section">
+        <div class="admin-card mt-30" id="users-section">
           <h3>User Management</h3>
           <div class="table-wrapper">
             <table class="admin-table">
@@ -153,7 +169,7 @@
           </div>
         </div>
 
-        <div class="admin-card mt-30" id="payment-approvals-section">
+        <div class="admin-card mt-30" id="payments-section">
           <div class="admin-header">
             <h2>Payment Approvals</h2>
           </div>
@@ -397,34 +413,10 @@
       </div>
     </div>
 
-    <div id="settings-modal" class="modal-overlay hidden">
-      <div class="modal-box">
-        <h3 style="color: var(--primary); margin-bottom: 15px">Settings</h3>
-        <div class="setting-item">
-          <span>Dark Mode</span>
-          <label class="switch"
-            ><input type="checkbox" id="dark-toggle" /><span
-              class="slider"
-            ></span
-          ></label>
-        </div>
-        <div class="setting-item">
-          <span>Outlook Email Updates</span>
-          <label class="switch"
-            ><input type="checkbox" id="email-notif-toggle" checked /><span
-              class="slider"
-            ></span
-          ></label>
-        </div>
-        <button
-          id="close-settings"
-          class="btn btn-solid"
-          style="width: 100%; margin-top: 20px"
-        >
-          Save & Close
-        </button>
-      </div>
-    </div>
+    <!-- Settings Modal injected by ui.js -->
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="bottom-nav" id="bottom-nav"></nav>
 
     <script type="module" src="../js/modules/main.js"></script>
     <script>

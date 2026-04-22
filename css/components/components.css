@@ -11,7 +11,7 @@
 
 .event-card {
   background: var(--card-bg);
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow: var(--shadow);
   border: 1px solid var(--border-color);
@@ -19,6 +19,7 @@
   flex-direction: column;
   transition: transform 0.2s;
   cursor: pointer;
+  width: 100%;
 }
 
 .event-card:hover {

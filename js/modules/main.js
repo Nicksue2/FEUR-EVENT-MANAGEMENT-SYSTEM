@@ -2,6 +2,7 @@ import { supabase } from "./api.js";
 import { state } from "./state.js";
 import {
   initUI,
+  initSplashScreen,
   showCustomAlert,
   showCustomConfirm,
   loadNotifications,
@@ -10,6 +11,7 @@ import { initAuth } from "./auth.js";
 import { initAdmin } from "./admin.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
+  initSplashScreen();
   initUI();
   await initAuth();
   initAdmin();
@@ -55,7 +57,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { data: events } = await supabase.from("events").select("*");
     if (events) {
       state.allEventsGlobal = events;
-      renderEvents(state.allEventsGlobal);
+      renderEvents(state.allEventsGlobal); // desktop grid
+      renderMobileDashboard(state.allEventsGlobal); // mobile hero + slider + calendar
 
       // --- REALTIME SLOTS UPDATE ---
       supabase
@@ -93,22 +96,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("search-input")?.addEventListener("input", (e) => {
       const term = e.target.value.toLowerCase();
-      renderEvents(
-        state.allEventsGlobal.filter((ev) =>
-          ev.title.toLowerCase().includes(term),
-        ),
+      const filtered = state.allEventsGlobal.filter((ev) =>
+        ev.title.toLowerCase().includes(term),
       );
+      renderEvents(filtered);
+      renderMobileDashboard(filtered);
     });
 
     document
       .getElementById("campus-select")
       ?.addEventListener("change", (e) => {
         const campus = e.target.value;
-        renderEvents(
+        const filtered =
           campus === "All"
             ? state.allEventsGlobal
-            : state.allEventsGlobal.filter((ev) => ev.campus === campus),
-        );
+            : state.allEventsGlobal.filter((ev) => ev.campus === campus);
+        renderEvents(filtered);
+        renderMobileDashboard(filtered);
       });
   }
 
@@ -154,58 +158,217 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
             `;
 
-      card.addEventListener("click", async () => {
-        state.currentSelectedEvent = event;
-        document.getElementById("modal-event-img").src =
-          event.poster_url ||
-          "https://via.placeholder.com/500x200?text=FEUR+Event";
-        document.getElementById("modal-event-title").innerText = event.title;
-        document.getElementById("modal-event-meta").innerHTML =
-          `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus} <br><br>📊 <b>Available Slots:</b> ${slotsLeft} / ${maxCap}`;
-        document.getElementById("modal-event-desc").innerText =
-          event.description || "No description available for this event.";
-
-        const paymentSection = document.getElementById("payment-section");
-        const priceDisplay = document.getElementById("modal-price-display");
-        if (paymentSection) {
-          if (event.price > 0) {
-            paymentSection.style.display = "block";
-            if (priceDisplay) priceDisplay.innerText = event.price;
-          } else {
-            paymentSection.style.display = "none";
-          }
-        }
-
-        const modalBtn = document.getElementById("modal-register-btn");
-        if (modalBtn) {
-          modalBtn.innerText = "Checking...";
-          modalBtn.disabled = true;
-
-          const registered = await isUserRegistered(event.id);
-
-          if (registered) {
-            modalBtn.innerText = "Registered";
-            modalBtn.style.background = "gray";
-            modalBtn.style.color = "white";
-            modalBtn.disabled = true;
-          } else if (slotsLeft <= 0) {
-            modalBtn.innerText = "Sold Out";
-            modalBtn.style.background = "#ef4444";
-            modalBtn.style.color = "white";
-            modalBtn.disabled = true;
-          } else {
-            modalBtn.innerText = "Register Now";
-            modalBtn.style.background = "var(--primary)";
-            modalBtn.style.color = "white";
-            modalBtn.disabled = false;
-          }
-        }
-        document
-          .getElementById("event-details-modal")
-          ?.classList.remove("hidden");
-      });
+      card.addEventListener("click", () =>
+        openEventDetailsModal(event, slotsLeft),
+      );
       eventsGrid.appendChild(card);
     }
+  }
+
+  // ── Shared modal opener (used by desktop grid + mobile hero + slider) ──
+  async function openEventDetailsModal(event, knownSlotsLeft) {
+    state.currentSelectedEvent = event;
+    document.getElementById("modal-event-img").src =
+      event.poster_url || "https://via.placeholder.com/500x200?text=FEUR+Event";
+    document.getElementById("modal-event-title").innerText = event.title;
+
+    // If slotsLeft not supplied, fetch it
+    let slotsLeft = knownSlotsLeft;
+    if (slotsLeft === null || slotsLeft === undefined) {
+      const { count } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", event.id)
+        .not("status", "eq", "Cancelled");
+      slotsLeft = Math.max(0, (event.max_capacity || 100) - (count || 0));
+    }
+    const maxCap = event.max_capacity || 100;
+
+    document.getElementById("modal-event-meta").innerHTML =
+      `📅 ${event.event_date || "TBA"} at ${event.event_time || ""} <br>📍 FEU Roosevelt ${event.campus} <br><br>📊 <b>Available Slots:</b> ${slotsLeft} / ${maxCap}`;
+    document.getElementById("modal-event-desc").innerText =
+      event.description || "No description available for this event.";
+
+    const paymentSection = document.getElementById("payment-section");
+    const priceDisplay = document.getElementById("modal-price-display");
+    if (paymentSection) {
+      if (event.price > 0) {
+        paymentSection.style.display = "block";
+        if (priceDisplay) priceDisplay.innerText = event.price;
+      } else {
+        paymentSection.style.display = "none";
+      }
+    }
+
+    const modalBtn = document.getElementById("modal-register-btn");
+    if (modalBtn) {
+      modalBtn.innerText = "Checking...";
+      modalBtn.disabled = true;
+      const registered = await isUserRegistered(event.id);
+      if (registered) {
+        modalBtn.innerText = "Registered ✓";
+        modalBtn.style.background = "#6b7280";
+        modalBtn.style.color = "white";
+        modalBtn.disabled = true;
+      } else if (slotsLeft <= 0) {
+        modalBtn.innerText = "Sold Out";
+        modalBtn.style.background = "#ef4444";
+        modalBtn.style.color = "white";
+        modalBtn.disabled = true;
+      } else {
+        modalBtn.innerText = "Register Now";
+        modalBtn.style.background = "";
+        modalBtn.style.color = "";
+        modalBtn.disabled = false;
+      }
+    }
+    document.getElementById("event-details-modal")?.classList.remove("hidden");
+  }
+
+  // ── MOBILE DASHBOARD: hero card + horizontal slider + calendar ──
+  async function renderMobileDashboard(events) {
+    const upcomingEl = document.getElementById("upcoming-event");
+    const sliderEl = document.getElementById("horizontal-events-slider");
+    if (!upcomingEl && !sliderEl) return;
+
+    const today = new Date().toISOString().split("T")[0];
+    const sorted = [...events]
+      .filter((ev) => ev.event_date)
+      .sort((a, b) => a.event_date.localeCompare(b.event_date));
+    const upcomingEvent =
+      sorted.find((ev) => ev.event_date >= today) || sorted[0] || events[0];
+
+    // ── Hero Card ──
+    if (upcomingEl && upcomingEvent) {
+      const { count } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", upcomingEvent.id)
+        .not("status", "eq", "Cancelled");
+      const heroSlots = Math.max(
+        0,
+        (upcomingEvent.max_capacity || 100) - (count || 0),
+      );
+      const isPaidHero =
+        upcomingEvent.price > 0 ? `₱${upcomingEvent.price}` : "FREE";
+      const soldOut = heroSlots <= 0;
+
+      upcomingEl.innerHTML = `
+        <div class="hero-card" data-id="${upcomingEvent.id}">
+          <div class="hero-bg" style="background-image:url('${upcomingEvent.poster_url || ""}')"></div>
+          <div class="hero-gradient"></div>
+          <div class="hero-content">
+            <div class="hero-chips">
+              <span class="hero-chip hero-chip--date">📅 ${upcomingEvent.event_date || "TBA"}</span>
+              <span class="hero-chip hero-chip--price ${upcomingEvent.price > 0 ? "hero-chip--paid" : "hero-chip--free"}">${isPaidHero}</span>
+              ${soldOut ? '<span class="hero-chip hero-chip--soldout">Sold Out</span>' : ""}
+            </div>
+            <div class="hero-title">${upcomingEvent.title}</div>
+            <div class="hero-meta">📍 FEU Roosevelt ${upcomingEvent.campus} · ${soldOut ? "Sold Out" : heroSlots + " slots left"}</div>
+            <button class="hero-register-btn" ${soldOut ? "disabled" : ""}>${soldOut ? "Sold Out" : "Register Now →"}</button>
+          </div>
+        </div>
+      `;
+
+      const heroCard = upcomingEl.querySelector(".hero-card");
+      heroCard.addEventListener("click", () =>
+        openEventDetailsModal(upcomingEvent, heroSlots),
+      );
+    }
+
+    // ── Horizontal Slider ──
+    if (sliderEl) {
+      const sliderEvents = upcomingEvent
+        ? events.filter((ev) => ev.id !== upcomingEvent.id)
+        : events;
+
+      if (sliderEvents.length === 0) {
+        sliderEl.innerHTML = `<p style="padding:0 20px;color:gray;font-size:14px;">No other events right now.</p>`;
+        return;
+      }
+
+      const cardsHtml = sliderEvents
+        .map((ev) => {
+          const paid = ev.price > 0 ? `₱${ev.price}` : "FREE";
+          return `
+          <div class="slider-card" data-id="${ev.id}">
+            <div class="slider-img-wrap">
+              <img src="${ev.poster_url || "https://via.placeholder.com/200x120?text=FEUR"}" class="slider-img" loading="lazy" onerror="this.src='https://via.placeholder.com/200x120?text=FEUR'" />
+              <span class="slider-price-badge ${ev.price > 0 ? "badge-paid" : "badge-free"}">${paid}</span>
+            </div>
+            <div class="slider-info">
+              <div class="slider-title">${ev.title}</div>
+              <div class="slider-meta">📅 ${ev.event_date || "TBA"}</div>
+              <div class="slider-meta">📍 ${ev.campus}</div>
+            </div>
+          </div>
+        `;
+        })
+        .join("");
+
+      sliderEl.innerHTML = `<div class="h-scroll">${cardsHtml}</div>`;
+
+      sliderEl.querySelectorAll(".slider-card").forEach((card) => {
+        const ev = events.find((e) => e.id === card.dataset.id);
+        if (ev)
+          card.addEventListener("click", () => openEventDetailsModal(ev, null));
+      });
+    }
+
+    // ── Weekly Calendar ──
+    renderWeeklyCalendar(events);
+  }
+
+  function renderWeeklyCalendar(events) {
+    const calEl = document.getElementById("weekly-calendar");
+    if (!calEl) return;
+
+    const today = new Date();
+    const dayAbbr = ["S", "M", "T", "W", "T", "F", "S"];
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+
+    // Build a set of event dates this week for dot indicators
+    const eventDates = new Set(
+      (events || []).map((ev) => ev.event_date).filter(Boolean),
+    );
+
+    let daysHtml = "";
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startOfWeek);
+      d.setDate(startOfWeek.getDate() + i);
+      const isToday = d.toDateString() === today.toDateString();
+      const dateStr = d.toISOString().split("T")[0];
+      const hasEvent = eventDates.has(dateStr);
+
+      daysHtml += `
+        <div class="cal-day${isToday ? " cal-today" : ""}">
+          <span class="cal-day-name">${dayAbbr[i]}</span>
+          <span class="cal-day-num">${d.getDate()}</span>
+          ${hasEvent ? '<span class="cal-event-dot"></span>' : '<span class="cal-event-dot cal-event-dot--empty"></span>'}
+        </div>
+      `;
+    }
+
+    calEl.innerHTML = `
+      <div class="cal-month-label">${months[today.getMonth()]} ${today.getFullYear()}</div>
+      <div class="cal-days-row">${daysHtml}</div>
+    `;
   }
 
   document
