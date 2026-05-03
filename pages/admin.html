@@ -234,13 +234,76 @@
             <label>Price (0 for Free)</label>
             <input type="number" id="price" value="0" />
           </div>
-          <div class="form-control">
-            <label>Poster URL</label>
-            <input
-              type="text"
-              id="poster_url"
-              placeholder="images/sample.jpg"
-            />
+          <div class="form-control full-width">
+            <label class="poster-field-label">Event Poster</label>
+
+            <!-- Premium segmented control toggle -->
+            <div class="poster-segment" id="poster-mode-toggle" role="tablist">
+              <button
+                type="button"
+                class="poster-seg-btn poster-seg-btn--active"
+                id="mode-url-btn"
+                role="tab"
+                aria-selected="true"
+                onclick="switchPosterMode('url')"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                URL Link
+              </button>
+              <button
+                type="button"
+                class="poster-seg-btn"
+                id="mode-upload-btn"
+                role="tab"
+                aria-selected="false"
+                onclick="switchPosterMode('upload')"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                Upload File
+              </button>
+            </div>
+
+            <!-- Panel A: URL input -->
+            <div id="poster-url-panel" class="poster-input-panel">
+              <div class="poster-url-wrap">
+                <svg class="poster-url-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <input
+                  type="text"
+                  id="poster_url"
+                  class="poster-url-input"
+                  placeholder="https://example.com/poster.jpg"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <!-- Panel B: File upload dropzone -->
+            <div id="poster-upload-panel" class="poster-input-panel" style="display:none;">
+              <label class="poster-dropzone" for="event-poster-file" id="poster-dropzone-label">
+                <div class="poster-dropzone-inner">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="poster-drop-icon"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                  <span class="poster-drop-text" id="poster-drop-text">Click or drag image here</span>
+                  <span class="poster-drop-hint">PNG, JPG, WEBP up to 5 MB</span>
+                </div>
+                <input
+                  type="file"
+                  id="event-poster-file"
+                  accept="image/*"
+                  class="poster-file-hidden"
+                />
+              </label>
+            </div>
+
+            <!-- Shared image preview card (shown for both modes) -->
+            <div class="poster-preview-card" id="poster-preview-card">
+              <!-- Placeholder state -->
+              <div class="poster-preview-placeholder" id="poster-preview-placeholder">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <p>Image preview will appear here</p>
+              </div>
+              <!-- Loaded state -->
+              <img id="poster-preview-img" class="poster-preview-img" src="" alt="Poster Preview" style="display:none;" />
+            </div>
           </div>
           <div class="form-control full-width">
             <label>Description</label>
@@ -413,10 +476,229 @@
       </div>
     </div>
 
+    <!-- ============================================================
+         TWO-STEP DELETION FAILSAFE MODALS
+         ============================================================ -->
+
+    <!-- STEP 1: Psychological Warning Modal -->
+    <div id="delete-warn-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="delete-warn-title">
+      <div class="modal-box delete-failsafe-box">
+        <!-- Warning icon -->
+        <div class="dfm-icon-ring dfm-icon-ring--warn">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+
+        <h3 id="delete-warn-title" class="dfm-title">Stop — Are You Sure?</h3>
+        <p class="dfm-subtitle" id="delete-warn-subject"></p>
+        <div class="dfm-consequences">
+          <p class="dfm-consequence-hdr">⚠️ This will permanently:</p>
+          <ul id="delete-warn-bullets" class="dfm-bullet-list"></ul>
+        </div>
+        <p class="dfm-note">There is no undo. No backup. No recovery.</p>
+
+        <!-- Psychological design: Cancel is the big, inviting primary action -->
+        <div class="dfm-actions">
+          <button id="delete-warn-cancel" class="btn dfm-btn-keep">
+            ✓ No, Keep It Safe
+          </button>
+          <button id="delete-warn-proceed" class="btn dfm-btn-proceed">
+            Proceed to Delete →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Manual Verification Modal -->
+    <div id="delete-verify-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="delete-verify-title">
+      <div class="modal-box delete-failsafe-box">
+        <!-- Danger icon -->
+        <div class="dfm-icon-ring dfm-icon-ring--danger">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+
+        <h3 id="delete-verify-title" class="dfm-title dfm-title--danger">Final Confirmation</h3>
+        <p class="dfm-subtitle">This is your last chance to stop. Once confirmed, <strong>this data is gone forever.</strong></p>
+
+        <div class="dfm-type-field">
+          <label for="delete-verify-input" class="dfm-type-label">
+            Type <span class="dfm-type-keyword">DELETE</span> to confirm:
+          </label>
+          <input
+            id="delete-verify-input"
+            type="text"
+            class="dfm-input"
+            placeholder="Type DELETE here…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <div class="dfm-actions">
+          <button id="delete-verify-cancel" class="btn dfm-btn-keep">
+            ✓ Cancel — Go Back
+          </button>
+          <button id="delete-verify-confirm" class="btn dfm-btn-final" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Permanently Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Settings Modal injected by ui.js -->
 
     <!-- MOBILE BOTTOM NAVIGATION -->
     <nav class="bottom-nav" id="bottom-nav"></nav>
+
+    <!-- Poster dual-input: toggle, live preview, drag-and-drop -->
+    <script>
+      // ── Shared preview helpers ──────────────────────────────────────────────
+      function _showPreview(src) {
+        const img         = document.getElementById('poster-preview-img');
+        const placeholder = document.getElementById('poster-preview-placeholder');
+        if (!img || !placeholder) return;
+        img.src = src;
+        img.style.display    = 'block';
+        placeholder.style.display = 'none';
+      }
+
+      function _clearPreview() {
+        const img         = document.getElementById('poster-preview-img');
+        const placeholder = document.getElementById('poster-preview-placeholder');
+        if (!img || !placeholder) return;
+        img.src = '';
+        img.style.display    = 'none';
+        placeholder.style.display = 'flex';
+      }
+
+      // ── Mode toggle ─────────────────────────────────────────────────────────
+      window.switchPosterMode = function (mode) {
+        const urlPanel    = document.getElementById('poster-url-panel');
+        const uploadPanel = document.getElementById('poster-upload-panel');
+        const urlBtn      = document.getElementById('mode-url-btn');
+        const uploadBtn   = document.getElementById('mode-upload-btn');
+
+        if (mode === 'url') {
+          urlPanel.style.display    = '';
+          uploadPanel.style.display = 'none';
+          urlBtn.classList.add('poster-seg-btn--active');
+          urlBtn.setAttribute('aria-selected', 'true');
+          uploadBtn.classList.remove('poster-seg-btn--active');
+          uploadBtn.setAttribute('aria-selected', 'false');
+
+          // Clear file input & reset dropzone text
+          const fi = document.getElementById('event-poster-file');
+          if (fi) fi.value = '';
+          const dt = document.getElementById('poster-drop-text');
+          if (dt) dt.textContent = 'Click or drag image here';
+
+          // Attempt URL preview from existing input value
+          const urlVal = (document.getElementById('poster_url')?.value || '').trim();
+          if (urlVal) {
+            _tryUrlPreview(urlVal);
+          } else {
+            _clearPreview();
+          }
+
+        } else {
+          urlPanel.style.display    = 'none';
+          uploadPanel.style.display = '';
+          urlBtn.classList.remove('poster-seg-btn--active');
+          urlBtn.setAttribute('aria-selected', 'false');
+          uploadBtn.classList.add('poster-seg-btn--active');
+          uploadBtn.setAttribute('aria-selected', 'true');
+
+          // Clear URL input
+          const urlInput = document.getElementById('poster_url');
+          if (urlInput) urlInput.value = '';
+          _clearPreview();
+        }
+      };
+
+      // ── URL live preview (debounced, validated) ──────────────────────────────
+      function _tryUrlPreview(src) {
+        if (!src) { _clearPreview(); return; }
+        const tester = new Image();
+        tester.onload  = () => _showPreview(src);
+        tester.onerror = () => _clearPreview();
+        tester.src     = src;
+      }
+
+      let _urlDebounce;
+      function _onUrlInput(e) {
+        clearTimeout(_urlDebounce);
+        const val = e.target.value.trim();
+        if (!val) { _clearPreview(); return; }
+        _urlDebounce = setTimeout(() => _tryUrlPreview(val), 600);
+      }
+
+      // ── FileReader preview ───────────────────────────────────────────────────
+      function _onFileChange(e) {
+        const file = e.target.files[0];
+        const dt   = document.getElementById('poster-drop-text');
+        if (!file) {
+          _clearPreview();
+          if (dt) dt.textContent = 'Click or drag image here';
+          return;
+        }
+        if (dt) dt.textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = (ev) => _showPreview(ev.target.result);
+        reader.readAsDataURL(file);
+      }
+
+      // ── Drag-and-drop on dropzone ────────────────────────────────────────────
+      function _initDragDrop() {
+        const zone = document.getElementById('poster-dropzone-label');
+        if (!zone) return;
+
+        ['dragenter', 'dragover'].forEach(evt =>
+          zone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            zone.classList.add('poster-dropzone--drag');
+          })
+        );
+        ['dragleave', 'drop'].forEach(evt =>
+          zone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            zone.classList.remove('poster-dropzone--drag');
+          })
+        );
+        zone.addEventListener('drop', (e) => {
+          const file = e.dataTransfer?.files?.[0];
+          if (!file || !file.type.startsWith('image/')) return;
+          const fi = document.getElementById('event-poster-file');
+          // Inject file into input via DataTransfer
+          try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fi.files = dt.files;
+          } catch (_) { /* Safari fallback: preview-only */ }
+          const dropText = document.getElementById('poster-drop-text');
+          if (dropText) dropText.textContent = file.name;
+          const reader = new FileReader();
+          reader.onload = (ev) => _showPreview(ev.target.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // ── Bootstrap on DOM ready ───────────────────────────────────────────────
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('poster_url')
+          ?.addEventListener('input', _onUrlInput);
+        document.getElementById('event-poster-file')
+          ?.addEventListener('change', _onFileChange);
+        _initDragDrop();
+      });
+    </script>
 
     <script type="module" src="../js/modules/main.js"></script>
     <script>

@@ -201,15 +201,115 @@ export async function initAdmin() {
       document.getElementById("attendees-modal").classList.add("hidden");
     });
 
+  // ── TWO-STEP DELETION FAILSAFE CONTROLLER ─────────────────────────────
+  // Generic engine — called by deleteEvent and deleteUser.
+  // onConfirm: async () => {} — the actual Supabase deletion callback.
+  // opts: { subject, bullets[] }
+  const showDeleteFailsafe = (onConfirm, opts = {}) => {
+    const warnModal   = document.getElementById('delete-warn-modal');
+    const verifyModal = document.getElementById('delete-verify-modal');
+    const subjectEl   = document.getElementById('delete-warn-subject');
+    const bulletsEl   = document.getElementById('delete-warn-bullets');
+    const warnCancel  = document.getElementById('delete-warn-cancel');
+    const warnProceed = document.getElementById('delete-warn-proceed');
+    const verifyCancelBtn  = document.getElementById('delete-verify-cancel');
+    const verifyInput      = document.getElementById('delete-verify-input');
+    const verifyConfirmBtn = document.getElementById('delete-verify-confirm');
+
+    if (!warnModal || !verifyModal) return;
+
+    // Populate Step 1 content
+    subjectEl.textContent = opts.subject || '';
+    bulletsEl.innerHTML = (opts.bullets || []).map(b => `<li>${b}</li>`).join('');
+
+    // Reset Step 2 state
+    verifyInput.value = '';
+    verifyInput.classList.remove('dfm-input--valid', 'dfm-shake');
+    verifyConfirmBtn.disabled = true;
+
+    // Open Step 1
+    warnModal.classList.remove('hidden');
+
+    // ── Helper: close all ──
+    const closeAll = () => {
+      warnModal.classList.add('hidden');
+      verifyModal.classList.add('hidden');
+      // Remove listeners to prevent stacking on re-open
+      warnCancel.replaceWith(warnCancel.cloneNode(true));
+      warnProceed.replaceWith(warnProceed.cloneNode(true));
+      verifyCancelBtn.replaceWith(verifyCancelBtn.cloneNode(true));
+      verifyInput.replaceWith(verifyInput.cloneNode(true));
+      verifyConfirmBtn.replaceWith(verifyConfirmBtn.cloneNode(true));
+    };
+
+    // Re-grab fresh references after cloning
+    const fresh = () => ({
+      warnCancel:       document.getElementById('delete-warn-cancel'),
+      warnProceed:      document.getElementById('delete-warn-proceed'),
+      verifyCancelBtn:  document.getElementById('delete-verify-cancel'),
+      verifyInput:      document.getElementById('delete-verify-input'),
+      verifyConfirmBtn: document.getElementById('delete-verify-confirm'),
+    });
+
+    // Step 1 — Cancel
+    document.getElementById('delete-warn-cancel').addEventListener('click', closeAll);
+
+    // Step 1 — Proceed to Delete
+    document.getElementById('delete-warn-proceed').addEventListener('click', () => {
+      warnModal.classList.add('hidden');
+      verifyModal.classList.remove('hidden');
+      const { verifyInput: inp, verifyConfirmBtn: cfm, verifyCancelBtn: vcb } = fresh();
+
+      // Auto-focus input
+      setTimeout(() => inp.focus(), 60);
+
+      // Live validation of typed word
+      inp.addEventListener('input', () => {
+        const match = inp.value === 'DELETE';
+        cfm.disabled = !match;
+        inp.classList.toggle('dfm-input--valid', match);
+        inp.classList.toggle('dfm-input--invalid', !match && inp.value.length > 0);
+      });
+
+      // Step 2 — Cancel / Go Back
+      vcb.addEventListener('click', () => {
+        verifyModal.classList.add('hidden');
+        warnModal.classList.remove('hidden');
+      });
+
+      // Step 2 — Final confirm (only fires if not disabled)
+      cfm.addEventListener('click', async () => {
+        const { verifyInput: inp2, verifyConfirmBtn: cfm2 } = fresh();
+        if (inp2.value !== 'DELETE') {
+          inp2.classList.remove('dfm-shake');
+          void inp2.offsetWidth; // reflow to restart animation
+          inp2.classList.add('dfm-shake');
+          return;
+        }
+        cfm2.textContent = 'Deleting…';
+        cfm2.disabled = true;
+        closeAll();
+        await onConfirm();
+      });
+    });
+  };
+  // ── END FAILSAFE CONTROLLER ──────────────────────────────────────────────
+
   window.deleteEvent = async (id) => {
-    showCustomConfirm(
-      "Delete Event",
-      "Are you sure you want to delete this event? This action cannot be undone.",
+    showDeleteFailsafe(
       async () => {
-        await supabase.from("events").delete().eq("id", id);
+        await supabase.from('events').delete().eq('id', id);
         fetchAdminEvents();
-        showCustomAlert("System", "Event deleted.");
+        showCustomAlert('System', 'Event permanently deleted.');
       },
+      {
+        subject: 'You are about to delete this event from the system.',
+        bullets: [
+          'Remove the event and all its details',
+          'Delete all associated order and registration records',
+          'This data cannot be recovered',
+        ],
+      }
     );
   };
 
@@ -221,6 +321,8 @@ export async function initAdmin() {
       document.getElementById("event-form").reset();
       document.getElementById("event-id").value = "";
       document.getElementById("form-title").innerText = "Add New Event";
+      // Reset poster panel to URL mode
+      if (typeof window.switchPosterMode === 'function') window.switchPosterMode('url');
       if (eventModal) eventModal.classList.remove("hidden");
     });
 
@@ -243,7 +345,10 @@ export async function initAdmin() {
       document.getElementById("date").value = ev.event_date || ev.date;
       document.getElementById("price").value = ev.price || 0;
       document.getElementById("desc").value = ev.description;
-      document.getElementById("poster_url").value = ev.poster_url;
+
+      // Reset to URL mode and pre-fill the existing poster URL
+      if (typeof window.switchPosterMode === 'function') window.switchPosterMode('url');
+      document.getElementById("poster_url").value = ev.poster_url || '';
 
       document.getElementById("form-title").innerText = "Edit: " + ev.title;
       if (eventModal) eventModal.classList.remove("hidden");
@@ -254,34 +359,83 @@ export async function initAdmin() {
     .getElementById("event-form")
     ?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const id = document.getElementById("event-id").value;
+      const id  = document.getElementById("event-id").value;
       const btn = e.submitter;
-      btn.innerText = "Saving...";
-      btn.disabled = true;
 
+      // ── Determine poster source ──────────────────────────────────────────
+      const uploadPanel = document.getElementById('poster-upload-panel');
+      const isUploadMode = uploadPanel && uploadPanel.style.display !== 'none';
+      let posterUrl = '';
+
+      if (isUploadMode) {
+        // UPLOAD mode: push file to Supabase Storage
+        const fileInput = document.getElementById('event-poster-file');
+        const file      = fileInput?.files?.[0];
+
+        if (!file) {
+          showCustomAlert('Missing Poster', 'Please select an image file to upload, or switch to URL mode.');
+          return;
+        }
+
+        btn.innerText = 'Uploading & Saving...';
+        btn.disabled  = true;
+
+        // Unique filename: timestamp + sanitised original name
+        const ext      = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('event-posters')
+          .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+        if (uploadError) {
+          showCustomAlert('Upload Failed', 'Could not upload the image: ' + uploadError.message);
+          btn.innerText = 'Save Event';
+          btn.disabled  = false;
+          return;
+        }
+
+        // Retrieve the permanent public URL
+        const { data: urlData } = supabase.storage
+          .from('event-posters')
+          .getPublicUrl(fileName);
+        posterUrl = urlData?.publicUrl || '';
+
+      } else {
+        // URL mode: use the text input value directly
+        posterUrl = document.getElementById('poster_url').value.trim();
+        // poster_url is optional — no hard block if empty
+        btn.innerText = 'Saving...';
+        btn.disabled  = true;
+      }
+      // ── Build & upsert event record ──────────────────────────────────────
       const eventData = {
-        title: document.getElementById("title").value,
-        campus: document.getElementById("campus").value,
-        event_date: document.getElementById("date").value,
-        price: document.getElementById("price").value,
-        description: document.getElementById("desc").value,
-        poster_url: document.getElementById("poster_url").value,
+        title:       document.getElementById('title').value,
+        campus:      document.getElementById('campus').value,
+        event_date:  document.getElementById('date').value,
+        price:       document.getElementById('price').value,
+        description: document.getElementById('desc').value,
+        poster_url:  posterUrl,
       };
 
       if (id) {
-        await supabase.from("events").update(eventData).eq("id", id);
-        showCustomAlert("Success", "Event Updated!");
+        await supabase.from('events').update(eventData).eq('id', id);
+        showCustomAlert('Success', 'Event Updated!');
       } else {
-        await supabase.from("events").insert([eventData]);
-        showCustomAlert("Success", "Event Created!");
+        await supabase.from('events').insert([eventData]);
+        showCustomAlert('Success', 'Event Created!');
       }
 
-      document.getElementById("event-form").reset();
-      document.getElementById("event-id").value = "";
-      if (eventModal) eventModal.classList.add("hidden");
+      // ── Full reset (form + poster panels + preview) ──────────────────────
+      document.getElementById('event-form').reset();
+      document.getElementById('event-id').value = '';
+      // Clear the shared preview card using the global helper defined in the page script
+      if (typeof _clearPreview === 'function') _clearPreview();
+      if (typeof window.switchPosterMode === 'function') window.switchPosterMode('url');
+      if (eventModal) eventModal.classList.add('hidden');
 
-      btn.innerText = "Save Event";
-      btn.disabled = false;
+      btn.innerText = 'Save Event';
+      btn.disabled  = false;
       fetchAdminEvents();
     });
 
@@ -427,29 +581,35 @@ export async function initAdmin() {
     });
 
   window.deleteUser = async (userId, email) => {
-    showCustomConfirm(
-      "Delete User Account",
-      `Are you sure you want to delete <b>${email}</b>?<br><br><span style="color:#ef4444;">Warning: This will also delete all their event registrations and order history. This action is irreversible.</span>`,
+    showDeleteFailsafe(
       async () => {
         try {
-          // 1. Delete associated orders first due to Foreign Key constraints
-          await supabase.from("orders").delete().eq("user_id", userId);
+          // 1. Delete associated orders first (Foreign Key constraint)
+          await supabase.from('orders').delete().eq('user_id', userId);
 
           // 2. Delete the profile record
           const { error } = await supabase
-            .from("profiles")
+            .from('profiles')
             .delete()
-            .eq("id", userId);
+            .eq('id', userId);
 
           if (error) throw error;
 
-          showCustomAlert("Success", "User and associated records deleted.");
+          showCustomAlert('Success', 'User and all associated records permanently deleted.');
           fetchAdminUsers();
         } catch (err) {
-          console.error("Deletion error:", err);
-          showCustomAlert("Error", "Failed to delete user: " + err.message);
+          console.error('Deletion error:', err);
+          showCustomAlert('Error', 'Failed to delete user: ' + err.message);
         }
       },
+      {
+        subject: `You are about to permanently delete the account: ${email}`,
+        bullets: [
+          'Delete their profile and personal information',
+          'Delete ALL their event registrations and order history',
+          'This account cannot be restored',
+        ],
+      }
     );
   };
 
