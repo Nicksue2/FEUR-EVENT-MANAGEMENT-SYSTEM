@@ -23,9 +23,16 @@ export async function initAuth() {
         .single();
       if (profile) {
         state.userRole = profile.role || "user";
+
+        // Update top-nav greeting (desktop)
         const greetingEl = document.getElementById("user-greeting");
         if (greetingEl)
           greetingEl.innerText = `Welcome, ${profile.first_name.toUpperCase()}!`;
+
+        // Update mobile dashboard greeting span
+        const mobileNameEl = document.getElementById("user-greeting-name");
+        if (mobileNameEl)
+          mobileNameEl.innerText = profile.first_name;
       }
     } catch (err) {
       console.error("Error fetching profile:", err);
@@ -62,6 +69,10 @@ export async function initAuth() {
     }
 
     renderSidebar(state.userRole);
+
+    // Guest: set mobile greeting to "Guest"
+    const mobileNameEl = document.getElementById("user-greeting-name");
+    if (mobileNameEl) mobileNameEl.innerText = "Guest";
 
     document
       .querySelectorAll(".user-only")

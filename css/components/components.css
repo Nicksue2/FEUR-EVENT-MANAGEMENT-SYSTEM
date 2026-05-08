@@ -11,10 +11,10 @@
 
 .event-card {
   background: var(--card-bg);
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   box-shadow: var(--shadow);
-  border: 1px solid var(--border-color);
+  border: none;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s;

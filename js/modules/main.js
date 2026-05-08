@@ -369,7 +369,307 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div class="cal-month-label">${months[today.getMonth()]} ${today.getFullYear()}</div>
       <div class="cal-days-row">${daysHtml}</div>
     `;
+
+    calEl.style.cursor = "pointer";
+    calEl.onclick = () => {
+      document.getElementById("full-calendar-modal")?.classList.remove("hidden");
+      renderFullMonth(new Date(), state.allEventsGlobal || []);
+    };
   }
+
+  // --- LIVE DATE & GREETING ---
+  function updateLiveDate() {
+    const liveDateEl = document.getElementById("live-date");
+    if (!liveDateEl) return;
+    const now = new Date();
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const dayName = days[now.getDay()];
+    const monthName = months[now.getMonth()];
+    const dateNum = String(now.getDate()).padStart(2, '0');
+    const year = now.getFullYear();
+    liveDateEl.innerText = `${dayName} - ${monthName} ${dateNum}, ${year}`;
+  }
+  updateLiveDate();
+
+  // NOTE: #user-greeting-name is set by auth.js after profile fetch resolves.
+  // Do not set it here to avoid race conditions with the profiles table query.
+
+  // --- LIVE WEATHER ---
+  // Store weather state for modal population
+  const weatherState = { temp: '--', location: '--', desc: '--', wind: '--', humidity: '--', uv: '--', feels: '--', iconHtml: '' };
+
+  async function fetchWeather(lat, lon) {
+    try {
+      const wRes = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+        `&current_weather=true` +
+        `&hourly=relative_humidity_2m,apparent_temperature,uv_index` +
+        `&current=windspeed_10m&windspeed_unit=kmh&timezone=auto&forecast_days=1`
+      );
+      const wData = await wRes.json();
+
+      let locName = 'Rodriguez';
+      try {
+        const lRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+        const lData = await lRes.json();
+        locName = lData.address?.city || lData.address?.town || lData.address?.village || lData.address?.municipality || 'Unknown';
+      } catch (e) {
+        console.warn('Reverse geocode failed, using default');
+      }
+
+      const cw = wData.current_weather;
+      const wmoCode = cw.weathercode;
+      const roundedTemp = Math.round(cw.temperature);
+      const windSpeed = Math.round(wData.current?.windspeed_10m ?? cw.windspeed);
+
+      // Pick first hourly index (current hour approximation)
+      const hourlyIdx = new Date().getHours();
+      const humidity = wData.hourly?.relative_humidity_2m?.[hourlyIdx] ?? '--';
+      const feelsLike = wData.hourly?.apparent_temperature?.[hourlyIdx] !== undefined
+        ? Math.round(wData.hourly.apparent_temperature[hourlyIdx])
+        : '--';
+      const uvIndex = wData.hourly?.uv_index?.[hourlyIdx] !== undefined
+        ? Math.round(wData.hourly.uv_index[hourlyIdx])
+        : '--';
+
+      let desc = 'Clear';
+      let iconHtml = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+      let iconHtmlLg = iconHtml.replace('width="32" height="32"', 'width="48" height="48"');
+
+      if (wmoCode >= 1 && wmoCode <= 3) {
+        desc = 'Mostly Cloudy';
+        iconHtml = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.1786 10.1947 17.857 10.021C17.3826 6.61113 14.4647 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2386 4.01194 11.4745 4.03534 11.7067C2.31174 12.3995 1 14.0487 1 16C1 18.2091 2.79086 20 5 20H17.5Z"></path></svg>`;
+        iconHtmlLg = iconHtml.replace('width="32" height="32"', 'width="48" height="48"');
+      } else if (wmoCode >= 51 && wmoCode <= 67) {
+        desc = 'Rainy';
+        iconHtml = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path><path d="M16 20l-2-2"></path><path d="M12 22l-2-2"></path><path d="M8 20l-2-2"></path></svg>`;
+        iconHtmlLg = iconHtml.replace('width="32" height="32"', 'width="48" height="48"');
+      } else if (wmoCode >= 71) {
+        desc = 'Stormy';
+      }
+
+      // --- Update widget DOM ---
+      const tempEl = document.getElementById('weather-temp');
+      const locEl = document.getElementById('weather-location');
+      const descEl = document.getElementById('weather-desc');
+      const iconEl = document.getElementById('weather-icon');
+      if (tempEl) tempEl.innerText = `${roundedTemp}°C`;
+      if (locEl) locEl.innerText = locName;
+      if (descEl) descEl.innerText = desc;
+      if (iconEl) iconEl.innerHTML = iconHtml;
+
+      // --- Store in weatherState for modal ---
+      weatherState.temp = `${roundedTemp}°C`;
+      weatherState.location = locName;
+      weatherState.desc = desc;
+      weatherState.wind = `${windSpeed} km/h`;
+      weatherState.humidity = `${humidity}%`;
+      weatherState.uv = `${uvIndex}`;
+      weatherState.feels = `${feelsLike}°C`;
+      weatherState.iconHtml = iconHtmlLg;
+
+    } catch (error) {
+      console.error('Weather fetch failed:', error);
+    }
+  }
+
+  function initWeather() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { fetchWeather(pos.coords.latitude, pos.coords.longitude); },
+        () => { fetchWeather(14.7333, 121.1500); }
+      );
+    } else {
+      fetchWeather(14.7333, 121.1500);
+    }
+  }
+
+  if (document.getElementById('weather-temp')) {
+    initWeather();
+  }
+
+  // --- WEATHER MODAL WIRING ---
+  const weatherWidget = document.getElementById('weather-widget-clickable');
+  const weatherModal = document.getElementById('weather-details-modal');
+
+  function openWeatherModal() {
+    if (!weatherModal) return;
+    // Hydrate modal with latest weatherState
+    const wmIcon = document.getElementById('wm-icon');
+    const wmTemp = document.getElementById('wm-temp');
+    const wmLoc = document.getElementById('wm-location');
+    const wmDesc = document.getElementById('wm-desc');
+    const wmHumidity = document.getElementById('wm-humidity');
+    const wmWind = document.getElementById('wm-wind');
+    const wmUv = document.getElementById('wm-uv');
+    const wmFeels = document.getElementById('wm-feels');
+    if (wmIcon && weatherState.iconHtml) wmIcon.innerHTML = weatherState.iconHtml;
+    if (wmTemp) wmTemp.innerText = weatherState.temp;
+    if (wmLoc) wmLoc.innerText = weatherState.location;
+    if (wmDesc) wmDesc.innerText = weatherState.desc;
+    if (wmHumidity) wmHumidity.innerText = weatherState.humidity;
+    if (wmWind) wmWind.innerText = weatherState.wind;
+    if (wmUv) wmUv.innerText = weatherState.uv;
+    if (wmFeels) wmFeels.innerText = weatherState.feels;
+    weatherModal.classList.remove('hidden');
+  }
+
+  if (weatherWidget) {
+    weatherWidget.addEventListener('click', openWeatherModal);
+  }
+  document.getElementById('close-weather-modal')?.addEventListener('click', () => {
+    weatherModal?.classList.add('hidden');
+  });
+  document.getElementById('close-weather-modal-btn')?.addEventListener('click', () => {
+    weatherModal?.classList.add('hidden');
+  });
+
+  // --- PREMIUM TOAST NOTIFICATION ---
+  function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast-notification');
+    const toastMsg = document.getElementById('toast-message');
+    if (!toast || !toastMsg) return;
+    
+    toastMsg.innerText = message;
+    
+    const icon = toast.querySelector('.toast-icon');
+    if (icon) {
+      if (type === 'error') {
+        icon.style.color = '#ef4444';
+        icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+      } else {
+        icon.style.color = 'var(--primary)';
+        icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+      }
+    }
+    
+    // Force reflow and trigger animation
+    toast.classList.remove('show');
+    void toast.offsetWidth; 
+    toast.classList.add('show');
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+
+  // --- FULL CALENDAR MODAL ---
+  let calendarCurrentDate = new Date();
+  function renderFullMonth(date, eventsList) {
+    const grid = document.getElementById("calendar-days-grid");
+    const header = document.getElementById("calendar-month-year");
+    if (!grid || !header) return;
+
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const monthsNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    header.innerText = `${monthsNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+
+    const eventDates = new Set(
+      (eventsList || []).map((ev) => ev.event_date).filter(Boolean),
+    );
+
+    let html = "";
+    for (let i = 0; i < firstDay; i++) {
+      html += `<div class="calendar-day-cell empty"></div>`;
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      const cellDate = new Date(year, month, i);
+      const isToday = cellDate.toDateString() === today.toDateString();
+      
+      const yyyy = cellDate.getFullYear();
+      const mm = String(cellDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(cellDate.getDate()).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      const hasEvent = eventDates.has(dateStr);
+
+      html += `
+        <div class="calendar-day-cell ${isToday ? "today" : ""}" data-date="${dateStr}">
+          ${i}
+          ${hasEvent ? '<div class="event-dot"></div>' : ''}
+        </div>
+      `;
+    }
+
+    grid.innerHTML = html;
+
+    // Wire click handlers — close calendar, open event modal if event exists on that date
+    grid.querySelectorAll('.calendar-day-cell:not(.empty)').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const cellDateStr = cell.getAttribute('data-date');
+        // Find the event for this date using state.allEventsGlobal for up-to-date data
+        const ev = (state.allEventsGlobal || eventsList || []).find(e => e.event_date === cellDateStr);
+        if (ev) {
+          document.getElementById('full-calendar-modal').classList.add('hidden');
+          openEventDetailsModal(ev, null);
+        } else {
+          showToast("There is no event at this date.", "error");
+        }
+      });
+    });
+  }
+  function changeCalendarMonth(direction) {
+    const grid = document.getElementById("calendar-days-grid");
+    if (grid) {
+      grid.classList.remove('anim-slide-left', 'anim-slide-right');
+      void grid.offsetWidth; // Force reflow to restart animation
+      grid.classList.add(direction === 'next' ? 'anim-slide-left' : 'anim-slide-right');
+    }
+    if (direction === 'next') {
+      calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+    } else {
+      calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+    }
+    renderFullMonth(calendarCurrentDate, state.allEventsGlobal || []);
+  }
+
+  document.getElementById("prev-month-btn")?.addEventListener("click", () => {
+    changeCalendarMonth('prev');
+  });
+  
+  document.getElementById("next-month-btn")?.addEventListener("click", () => {
+    changeCalendarMonth('next');
+  });
+  
+  document.getElementById("close-calendar-modal")?.addEventListener("click", () => {
+    document.getElementById("full-calendar-modal").classList.add("hidden");
+  });
+
+  // Calendar Swipe Support
+  const calendarModalBox = document.querySelector('#full-calendar-modal .modal-box');
+  let touchstartX = 0;
+  let touchendX = 0;
+  
+  calendarModalBox?.addEventListener('touchstart', e => {
+    touchstartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  
+  calendarModalBox?.addEventListener('touchend', e => {
+    touchendX = e.changedTouches[0].screenX;
+    if (touchendX < touchstartX - 50) {
+      // Swiped left (Next Month)
+      changeCalendarMonth('next');
+    } else if (touchendX > touchstartX + 50) {
+      // Swiped right (Prev Month)
+      changeCalendarMonth('prev');
+    }
+  }, { passive: true });
+
+  // Click outside to close modals
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.add('hidden');
+      }
+    });
+  });
 
   document
     .getElementById("modal-register-btn")

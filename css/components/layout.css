@@ -1,5 +1,5 @@
 /* ============================================================
-   FEUR EVENTS — LAYOUT STYLES
+   FEUR EVENTS â€” LAYOUT STYLES
    ============================================================ */
 
 /* --- 4. TOP NAV / HEADER --- */
@@ -405,11 +405,11 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   MOBILE UI OVERHAUL — Bottom Nav, Hero, Slider, Calendar, FABs
-   ═══════════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MOBILE UI OVERHAUL â€” Bottom Nav, Hero, Slider, Calendar, FABs
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Visibility helpers ── */
+/* â”€â”€ Visibility helpers â”€â”€ */
 .desktop-only-block {
   display: block;
 }
@@ -420,13 +420,13 @@
   display: flex;
 }
 
-/* ── FABs & Bottom Nav: hidden on desktop ── */
+/* â”€â”€ FABs & Bottom Nav: hidden on desktop â”€â”€ */
 .fab-group,
 .bottom-nav {
   display: none;
 }
 
-/* ── Settings modal upgrades (all viewports) ── */
+/* â”€â”€ Settings modal upgrades (all viewports) â”€â”€ */
 .settings-box {
   text-align: left !important;
   max-width: 340px !important;
@@ -477,11 +477,11 @@
   color: #f87171 !important;
 }
 
-/* ══════════════════════════
-   MOBILE BREAKPOINT ≤ 768px
-   ══════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MOBILE BREAKPOINT â‰¤ 768px
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (max-width: 768px) {
-  /* ── Show/hide switches ── */
+  /* â”€â”€ Show/hide switches â”€â”€ */
   .desktop-only-block {
     display: none !important;
   }
@@ -492,7 +492,7 @@
     display: none !important;
   }
 
-  /* ── Body: allow scrolling on mobile ── */
+  /* â”€â”€ Body: allow scrolling on mobile â”€â”€ */
   body {
     overflow-x: hidden !important;
     width: 100% !important;
@@ -501,7 +501,7 @@
     display: block; /* Allow natural document flow */
   }
 
-  /* ── Layout: full width, no sidebar ── */
+  /* â”€â”€ Layout: full width, no sidebar â”€â”€ */
   .layout-container {
     width: 100% !important;
     display: block;
@@ -617,7 +617,7 @@
     opacity: 0.8;
   }
 
-  /* ── Top Nav: clean mobile header ── */
+  /* â”€â”€ Top Nav: clean mobile header â”€â”€ */
   .top-nav {
     height: 60px;
     padding: 0 14px;
@@ -661,7 +661,7 @@
     gap: 6px;
   }
 
-  /* ── Mobile Dashboard Sections ── */
+  /* â”€â”€ Mobile Dashboard Sections â”€â”€ */
   #mobile-dashboard {
     padding: 14px 14px 0;
   }
@@ -696,15 +696,16 @@
     font-weight: 500;
   }
 
-  /* ── HERO CARD ── */
+  /* â”€â”€ HERO CARD â”€â”€ */
   .hero-card {
     position: relative;
     width: 100%;
     min-height: 220px;
-    border-radius: 18px;
+    border-radius: 20px;
     overflow: hidden;
     cursor: pointer;
-    box-shadow: 0 8px 32px rgba(0, 102, 51, 0.25);
+    box-shadow: var(--shadow);
+    border: none;
     transition: transform 0.2s;
   }
   .hero-card:active {
@@ -816,7 +817,7 @@
     cursor: default;
   }
 
-  /* ── HERO SKELETON ── */
+  /* â”€â”€ HERO SKELETON â”€â”€ */
   .hero-skeleton {
     width: 100%;
     min-height: 220px;
@@ -824,7 +825,7 @@
     background: var(--border-color);
   }
 
-  /* ── HORIZONTAL SLIDER ── */
+  /* â”€â”€ HORIZONTAL SLIDER â”€â”€ */
   .h-slider-wrap {
     margin: 0 -14px;
     padding: 0 14px;
@@ -848,9 +849,9 @@
     flex: 0 0 175px;
     scroll-snap-align: start;
     background: var(--card-bg);
-    border-radius: 14px;
+    border-radius: 20px;
     overflow: hidden;
-    border: 1px solid var(--border-color);
+    border: none;
     box-shadow: var(--shadow);
     cursor: pointer;
     transition: transform 0.2s;
@@ -915,7 +916,7 @@
     background: var(--border-color);
   }
 
-  /* ── WEEKLY CALENDAR STRIP ── */
+  /* â”€â”€ WEEKLY CALENDAR STRIP â”€â”€ */
   .cal-strip {
     background: var(--card-bg);
     border-radius: 16px;
@@ -970,7 +971,7 @@
     font-weight: 800;
   }
   .dark-mode .cal-today .cal-day-num {
-    color: #000;
+    color: #0c0c0f;
   }
 
   .cal-event-dot {
@@ -983,47 +984,124 @@
     background: transparent;
   }
 
-  /* ── QUICK LINKS GRID ── */
-  .quick-links-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin: 20px 0 30px;
+  /* â”€â”€ GREETING STRIP â”€â”€ */
+  .greeting-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    font-size: 13px;
+    border: 1px solid var(--border-color);
   }
-  .ql-item {
+  .greeting-left {
+    color: var(--text-color);
+  }
+  .greeting-right {
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  /* â”€â”€ ASYMMETRIC WIDGET GRID â”€â”€ */
+  .dashboard-widget-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .widget-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 18px;
-    border: 1px solid var(--border-color);
     text-decoration: none;
     color: var(--text-color);
-    box-shadow: var(--shadow);
-    transition: transform 0.2s;
   }
-  .ql-item:active {
-    transform: scale(0.96);
+  .weather-widget {
+    grid-row: span 2;
+    background: linear-gradient(145deg, #e0f2fe, #f0f9ff);
+    border: 1px solid rgba(255,255,255,0.8);
+    justify-content: space-between;
   }
-  .ql-item svg {
-    color: var(--primary);
+  .weather-icon {
+    margin-bottom: 8px;
   }
-  .ql-item span {
+  .weather-temp {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0;
+    color: #1e293b;
+    line-height: 1;
+  }
+  .weather-location {
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .weather-desc {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 16px;
+  }
+  .weather-footer {
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #334155;
+    margin-top: auto;
+  }
+
+  .stacked-widget {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 14px;
+  }
+  .stacked-maps {
+    background: #fffbeb;
+    border: 1px solid rgba(250, 204, 21, 0.1);
+  }
+  .stacked-help {
+    background: #f0fdf4;
+    border: 1px solid rgba(0, 102, 51, 0.1);
+  }
+  .sw-content {
+    display: flex;
+    flex-direction: column;
+  }
+  .sw-title {
     font-size: 13px;
     font-weight: 700;
+    color: #1e293b;
   }
-  .ql-maps { border-bottom: 4px solid #facc15; }
-  .ql-help { border-bottom: 4px solid #3b82f6; }
+  .sw-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+  .stacked-maps .sw-icon {
+    color: #d97706;
+  }
 
   /* Floating FABs hidden since they are now in the grid */
   .fab-group {
     display: none !important;
   }
 
-  /* ── GLASSMORPHISM BOTTOM NAV ── */
+  /* â”€â”€ GLASSMORPHISM BOTTOM NAV â”€â”€ */
   .bottom-nav {
     display: flex !important;
     position: fixed;
@@ -1079,29 +1157,23 @@
     opacity: 0.7;
   }
   .bn-active, .bn-item.active {
-    color: #006633 !important; /* FEU Green when active */
-    background: rgba(0, 102, 51, 0.05); /* Subtle tint */
-    border-radius: 20px;
+    color: var(--primary) !important; /* Brand Green when active */
+    background: transparent;
+    border-radius: 0;
   }
   .dark-mode .bn-active {
     color: var(--primary) !important;
   }
 
-  /* Active indicator dot */
+  /* Active indicator dot - Removed for eGov styling */
   .bn-active::after {
-    content: "";
-    position: absolute;
-    top: 2px;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: #006633;
+    display: none;
   }
   .dark-mode .bn-active::after {
-    background: var(--primary);
+    display: none;
   }
 
-  /* ── ELEVATED CENTER BUTTON ── */
+  /* â”€â”€ ELEVATED CENTER BUTTON â”€â”€ */
   .bn-center {
     flex: 0 0 65px;
     z-index: 10;
@@ -1114,7 +1186,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 20px rgba(0, 102, 51, 0.4);
+    box-shadow: 0 4px 14px rgba(0, 102, 51, 0.3);
     color: white !important;
     transform: translateY(-20px); /* Breaks out of the pill */
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1133,15 +1205,15 @@
     color: var(--primary);
   }
   .dark-mode .bn-center-pill {
-    background: linear-gradient(145deg, #00cc55, #00ff66);
-    box-shadow: 0 8px 25px rgba(0, 255, 102, 0.4);
-    border-color: #121212;
+    background: linear-gradient(145deg, #2d6a4f, #4ade80);
+    box-shadow: 0 6px 20px rgba(74, 222, 128, 0.2);
+    border-color: #0c0c0f;
   }
   .dark-mode .bn-center-pill svg {
-    stroke: #000 !important;
+    stroke: #0c0c0f !important;
   }
 
-  /* ── Pulse skeleton animation ── */
+  /* â”€â”€ Pulse skeleton animation â”€â”€ */
   @keyframes pulse-bg {
     0%,
     100% {
@@ -1156,7 +1228,7 @@
   }
 } /* end @media (max-width: 768px) */
 
-/* ── PIYU AI CHATBOT POSITIONING ── */
+/* â”€â”€ PIYU AI CHATBOT POSITIONING â”€â”€ */
 #tidio-chat-iframe, #tidio-chat, .piyu-chatbot {
   bottom: 20px !important;
 }
@@ -1165,4 +1237,623 @@
   #tidio-chat-iframe, #tidio-chat, .piyu-chatbot {
     bottom: 95px !important; /* Above floating pill nav */
   }
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   FULL CALENDAR MODAL â€” Apple-tier Glassmorphism
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+/*
+  1. Make the OVERLAY itself nearly transparent â€” this is what lets
+     the backdrop-filter on the modal box blur the PAGE CONTENT behind it.
+     Without this, the modal blurs the dark fog instead of the page.
+*/
+#full-calendar-modal.modal-overlay {
+  background: rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 2. The glass box itself */
+#full-calendar-modal .modal-box {
+  background: rgba(255, 255, 255, 0.80) !important;
+  backdrop-filter: blur(28px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15), 0 2px 8px rgba(0,0,0,0.08) !important;
+  border-radius: 24px !important;
+  padding: 24px 18px 18px !important;
+  max-width: 370px !important;
+  width: 93vw !important;
+  text-align: left !important;
+}
+
+/* Dark mode glass */
+.dark-mode #full-calendar-modal.modal-overlay {
+  background: rgba(0, 0, 0, 0.35) !important;
+}
+.dark-mode #full-calendar-modal .modal-box {
+  background: rgba(16, 16, 20, 0.82) !important;
+  backdrop-filter: blur(28px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+/* â”€â”€ Calendar Header â”€â”€
+   Use #full-calendar-modal scope on ALL interior elements to
+   beat the blanket `.modal-box button` rule in components.css
+*/
+#full-calendar-modal .full-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 8px;
+}
+
+#full-calendar-modal .cal-month-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text-color);
+  margin: 0;
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+  CRITICAL FIX: These MUST be scoped under #full-calendar-modal to
+  override the blanket `.modal-box button { background: var(--primary); width: 100% }`
+  from components.css which has specificity (0,1,1). Adding #full-calendar-modal
+  gives specificity (1,1,1) which wins.
+*/
+#full-calendar-modal .modal-box button.cal-nav-btn,
+#full-calendar-modal .cal-nav-btn {
+  background: transparent !important;
+  color: var(--primary) !important;
+  border: none !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  cursor: pointer;
+  flex-shrink: 0 !important;
+  font-size: 0 !important; /* Suppress any inherited text */
+  transition: background 0.18s ease, transform 0.12s ease;
+}
+#full-calendar-modal .cal-nav-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 2.5;
+  display: block !important;
+  flex-shrink: 0;
+}
+#full-calendar-modal .cal-nav-btn:hover {
+  background: rgba(0, 102, 51, 0.1) !important;
+}
+#full-calendar-modal .cal-nav-btn:active {
+  transform: scale(0.86) !important;
+  background: rgba(0, 102, 51, 0.16) !important;
+}
+.dark-mode #full-calendar-modal .cal-nav-btn:hover {
+  background: rgba(74, 222, 128, 0.12) !important;
+}
+.dark-mode #full-calendar-modal .cal-nav-btn:active {
+  background: rgba(74, 222, 128, 0.2) !important;
+}
+
+/* â”€â”€ Weekday labels â”€â”€ */
+#full-calendar-modal .full-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 4px;
+}
+#full-calendar-modal .full-cal-weekdays span {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 0 5px;
+}
+
+/* â”€â”€ Day grid â”€â”€ */
+#full-calendar-modal .full-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* ── Day cells — iOS circular style ── */
+.calendar-day-cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: rgba(0, 0, 0, 0.03);
+}
+.dark-mode .calendar-day-cell {
+  background: rgba(255, 255, 255, 0.04);
+}
+.calendar-day-cell:not(.empty):not(.today):hover {
+  background: rgba(0, 102, 51, 0.12);
+  transform: scale(1.05);
+}
+.dark-mode .calendar-day-cell:not(.empty):not(.today):hover {
+  background: rgba(74, 222, 128, 0.15);
+}
+.calendar-day-cell:not(.empty):active {
+  transform: scale(0.92);
+}
+.calendar-day-cell.empty {
+  background: transparent !important;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Today: solid brand circle */
+.calendar-day-cell.today {
+  background: var(--primary) !important;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(0, 102, 51, 0.3);
+}
+.dark-mode .calendar-day-cell.today {
+  color: #0c0c0f;
+  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+/* Event dot — red badge, top-right, does not disrupt text */
+.calendar-day-cell .event-dot {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
+}
+.dark-mode .calendar-day-cell .event-dot {
+  box-shadow: 0 0 0 2px rgba(16,16,20,0.9);
+}
+.calendar-day-cell.today .event-dot {
+  box-shadow: 0 0 0 1.5px var(--primary);
+}
+
+/* â”€â”€ Close button (calendar) â”€â”€
+   Override the blanket .modal-box button green background
+*/
+#full-calendar-modal .modal-box button#close-calendar-modal {
+  background: transparent !important;
+  border: 1.5px solid rgba(0, 102, 51, 0.35) !important;
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  width: 100% !important;
+  margin-top: 16px !important;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+#full-calendar-modal .modal-box button#close-calendar-modal:hover {
+  background: rgba(0, 102, 51, 0.07) !important;
+}
+.dark-mode #full-calendar-modal .modal-box button#close-calendar-modal {
+  border-color: rgba(74, 222, 128, 0.25) !important;
+  color: #4ade80 !important;
+}
+.dark-mode #full-calendar-modal .modal-box button#close-calendar-modal:hover {
+  background: rgba(74, 222, 128, 0.07) !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   WEATHER WIDGET â€” Dark Mode
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.dark-mode .weather-widget {
+  background: linear-gradient(145deg, #1a2332, #0f172a) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+.dark-mode .weather-widget .weather-temp,
+.dark-mode .weather-widget .weather-location {
+  color: #e2e8f0 !important;
+}
+.dark-mode .weather-widget .weather-desc {
+  color: #94a3b8 !important;
+}
+.dark-mode .weather-widget .weather-footer {
+  color: #64748b !important;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   WEATHER DETAILS MODAL
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.weather-modal-box {
+  max-width: 360px !important;
+  padding: 28px 22px 22px !important;
+  text-align: left !important;
+  position: relative;
+}
+
+.weather-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--border-color);
+  border: none !important;
+  font-size: 16px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0 !important;
+  line-height: 1;
+  border-radius: 50%;
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.weather-modal-close:hover {
+  background: var(--text-secondary);
+  color: var(--card-bg);
+}
+
+.wm-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-color);
+}
+.wm-hero-icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  background: rgba(37, 99, 235, 0.07);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dark-mode .wm-hero-icon {
+  background: rgba(96, 165, 250, 0.10);
+}
+.wm-hero-info { flex: 1; }
+
+.wm-temp {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--text-color);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.wm-location {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 2px;
+}
+.wm-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.wm-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.wm-stat {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.dark-mode .wm-stat {
+  background: rgba(255, 255, 255, 0.03);
+}
+.wm-stat-icon { font-size: 18px; line-height: 1; margin-bottom: 6px; }
+.wm-stat-value {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-color);
+  line-height: 1;
+}
+.wm-stat-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ══════════════════════════════════════════════════════
+   PREMIUM TOAST NOTIFICATION (iOS Dynamic Island Style)
+   ══════════════════════════════════════════════════════ */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-150%);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0,0,0,0.06);
+  padding: 14px 22px;
+  border-radius: 100px;
+  z-index: 10000;
+  pointer-events: none;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+}
+.toast-notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.toast-icon {
+  color: #ef4444; /* Error red */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toast-message {
+  font-size: 15px;
+  box-shadow: 0 0 0 1.5px var(--primary);
+}
+
+/* â”€â”€ Close button (calendar) â”€â”€
+   Override the blanket .modal-box button green background
+*/
+#full-calendar-modal .modal-box button#close-calendar-modal {
+  background: transparent !important;
+  border: 1.5px solid rgba(0, 102, 51, 0.35) !important;
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  width: 100% !important;
+  margin-top: 16px !important;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+#full-calendar-modal .modal-box button#close-calendar-modal:hover {
+  background: rgba(0, 102, 51, 0.07) !important;
+}
+.dark-mode #full-calendar-modal .modal-box button#close-calendar-modal {
+  border-color: rgba(74, 222, 128, 0.25) !important;
+  color: #4ade80 !important;
+}
+.dark-mode #full-calendar-modal .modal-box button#close-calendar-modal:hover {
+  background: rgba(74, 222, 128, 0.07) !important;
+}
+
+/* â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
+   WEATHER WIDGET â€” Dark Mode
+   â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  */
+.dark-mode .weather-widget {
+  background: linear-gradient(145deg, #1a2332, #0f172a) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+.dark-mode .weather-widget .weather-temp,
+.dark-mode .weather-widget .weather-location {
+  color: #e2e8f0 !important;
+}
+.dark-mode .weather-widget .weather-desc {
+  color: #94a3b8 !important;
+}
+.dark-mode .weather-widget .weather-footer {
+  color: #64748b !important;
+}
+
+/* â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
+   WEATHER DETAILS MODAL
+   â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  */
+.weather-modal-box {
+  max-width: 360px !important;
+  padding: 28px 22px 22px !important;
+  text-align: left !important;
+  position: relative;
+}
+
+.weather-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--border-color);
+  border: none !important;
+  font-size: 16px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0 !important;
+  line-height: 1;
+  border-radius: 50%;
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.weather-modal-close:hover {
+  background: var(--text-secondary);
+  color: var(--card-bg);
+}
+
+.wm-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-color);
+}
+.wm-hero-icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  background: rgba(37, 99, 235, 0.07);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dark-mode .wm-hero-icon {
+  background: rgba(96, 165, 250, 0.10);
+}
+.wm-hero-info { flex: 1; }
+
+.wm-temp {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--text-color);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.wm-location {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 2px;
+}
+.wm-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.wm-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.wm-stat {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.dark-mode .wm-stat {
+  background: rgba(255, 255, 255, 0.03);
+}
+.wm-stat-icon { font-size: 18px; line-height: 1; margin-bottom: 6px; }
+.wm-stat-value {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-color);
+  line-height: 1;
+}
+.wm-stat-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ══════════════════════════════════════════════════════
+   PREMIUM TOAST NOTIFICATION (iOS Dynamic Island Style)
+   ══════════════════════════════════════════════════════ */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-150%);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0,0,0,0.06);
+  padding: 14px 22px;
+  border-radius: 100px;
+  z-index: 10000;
+  pointer-events: none;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+}
+.toast-notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.toast-icon {
+  color: #ef4444; /* Error red */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toast-message {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+.dark-mode .toast-notification {
+  background: rgba(22, 22, 26, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ══════════════════════════════════════════════════════
+   CALENDAR SWIPE ANIMATIONS (iOS Motion)
+   ══════════════════════════════════════════════════════ */
+@keyframes calSlideLeft {
+  0% { transform: translateX(20px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes calSlideRight {
+  0% { transform: translateX(-20px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.anim-slide-left {
+  animation: calSlideLeft 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.anim-slide-right {
+  animation: calSlideRight 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }

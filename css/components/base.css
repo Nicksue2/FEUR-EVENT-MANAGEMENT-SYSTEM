@@ -4,30 +4,32 @@
 
 /* --- 1. THEME VARIABLES --- */
 :root {
-  --bg-color: linear-gradient(135deg, #f8fafc 0%, #dcfce7 100%);
-  --text-color: #333333;
+  --bg-color: #F4F6F8;
+  --text-color: #1A1C1E;
+  --text-secondary: #6B7280;
   --card-bg: #ffffff;
   --nav-bg: #006633;
   --nav-text: #ffffff;
   --sidebar-bg: #004d26;
   --sidebar-hover: #00331a;
-  --border-color: #e0e0e0;
+  --border-color: #e5e7eb;
   --primary: #006633;
   --secondary: #facc15;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .dark-mode {
-  --bg-color: #09090b;
-  --card-bg: #18181b;
-  --text-color: #f8fafc;
-  --nav-bg: #0d0d0d;
-  --nav-text: #ffffff;
-  --sidebar-bg: #1a1a1a;
-  --sidebar-hover: #333333;
-  --border-color: #27272a;
-  --primary: #00ff66;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --bg-color: #0c0c0f;
+  --card-bg: #161618;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --nav-bg: #111113;
+  --nav-text: #e2e8f0;
+  --sidebar-bg: #161618;
+  --sidebar-hover: #1e1e22;
+  --border-color: #2a2a30;
+  --primary: #4ade80;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
 
 /* --- 2. GLOBAL RESET --- */
@@ -138,4 +140,19 @@ body {
   color: white !important;
   cursor: not-allowed !important;
   opacity: 1 !important;
+}
+
+/* --- 5. eGov Glass Panel Utility --- */
+.egov-glass-panel {
+  background: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  color: #ffffff;
+}
+
+.dark-mode .egov-glass-panel {
+  background: rgba(10, 10, 10, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }

@@ -146,6 +146,13 @@
 
         <!-- MOBILE: hero + slider + calendar -->
         <div class="mobile-only-block" id="mobile-dashboard">
+
+          <!-- GREETING STRIP — MUST BE FIRST, ABOVE EVERYTHING -->
+          <div class="greeting-strip">
+            <div class="greeting-left">Welcome, <span id="user-greeting-name" style="font-weight: bold; color: var(--primary);">Guest</span>!</div>
+            <div class="greeting-right" id="live-date"></div>
+          </div>
+
           <div class="m-section-hdr">
             <span class="m-section-pill">📅 Upcoming Event</span>
           </div>
@@ -165,29 +172,50 @@
             </div>
           </div>
 
+          <!-- ASYMMETRIC WIDGET GRID -->
+          <div class="dashboard-widget-grid">
+            <div class="widget-card weather-widget" id="weather-widget-clickable" style="cursor:pointer;" role="button" aria-label="View weather details">
+              <div class="weather-icon" id="weather-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                  <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.1786 10.1947 17.857 10.021C17.3826 6.61113 14.4647 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2386 4.01194 11.4745 4.03534 11.7067C2.31174 12.3995 1 14.0487 1 16C1 18.2091 2.79086 20 5 20H17.5Z"></path>
+                </svg>
+              </div>
+              <h3 class="weather-temp" id="weather-temp">--°C</h3>
+              <div class="weather-location" id="weather-location">Loading...</div>
+              <div class="weather-desc" id="weather-desc">Fetching Weather</div>
+              <div class="weather-footer">Weather and Alerts <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.7 10.7l-4 4a.996.996 0 1 1-1.41-1.41L13.17 13H8c-.55 0-1-.45-1-1s.45-1 1-1h5.17l-1.88-1.88a.996.996 0 1 1 1.41-1.41l4 4c.39.39.39 1.03 0 1.42z"/></svg></div>
+            </div>
+            <!-- Campus Map widget -->
+            <a href="pages/maps.html" class="widget-card stacked-widget stacked-maps">
+              <div class="sw-content">
+                <div class="sw-title">Campus Map</div>
+              </div>
+              <div class="sw-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+            </a>
+            <!-- Help Center widget -->
+            <a href="pages/help.html" class="widget-card stacked-widget stacked-help">
+              <div class="sw-content">
+                <div class="sw-title">Help Center</div>
+              </div>
+              <div class="sw-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
+            </a>
+          </div>
+
           <div class="m-section-hdr">
             <span class="m-section-txt">📆 This Week</span>
           </div>
           <div id="weekly-calendar" class="cal-strip"></div>
-
-          <!-- QUICK LINKS GRID (Mobile Bottom Section) -->
-          <div class="quick-links-grid">
-            <a href="pages/maps.html" class="ql-item ql-maps">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-              <span>Campus Maps</span>
-            </a>
-            <a href="pages/help.html" class="ql-item ql-help">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-              </svg>
-              <span>Help Center</span>
-            </a>
-          </div>
 
           <!-- Bottom padding handled in CSS -->
         </div>
@@ -296,6 +324,69 @@
 
     <!-- Settings Modal is now dynamically injected by ui.js -->
 
+    <!-- FULL CALENDAR MODAL -->
+    <div id="full-calendar-modal" class="modal-overlay hidden">
+      <div class="modal-box full-cal-box">
+        <div class="full-cal-header">
+          <button id="prev-month-btn" class="cal-nav-btn" aria-label="Previous month">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h3 id="calendar-month-year" class="cal-month-title"></h3>
+          <button id="next-month-btn" class="cal-nav-btn" aria-label="Next month">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <div class="full-cal-weekdays">
+          <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div id="calendar-days-grid" class="full-cal-grid"></div>
+        <button id="close-calendar-modal" class="btn btn-outline" style="width:100%; margin-top:16px;">Close</button>
+      </div>
+    </div>
+
+    <!-- WEATHER DETAILS MODAL -->
+    <div id="weather-details-modal" class="modal-overlay hidden">
+      <div class="modal-box weather-modal-box">
+        <!-- Hero row: icon + temp + condition -->
+        <div class="wm-hero">
+          <div class="wm-hero-icon" id="wm-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.5">
+              <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1325 20.1786 10.1947 17.857 10.021C17.3826 6.61113 14.4647 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2386 4.01194 11.4745 4.03534 11.7067C2.31174 12.3995 1 14.0487 1 16C1 18.2091 2.79086 20 5 20H17.5Z"></path>
+            </svg>
+          </div>
+          <div class="wm-hero-info">
+            <div class="wm-temp" id="wm-temp">--°C</div>
+            <div class="wm-location" id="wm-location">--</div>
+            <div class="wm-desc" id="wm-desc">--</div>
+          </div>
+        </div>
+        <!-- Stat pills grid -->
+        <div class="wm-stats-grid">
+          <div class="wm-stat">
+            <div class="wm-stat-icon">💧</div>
+            <div class="wm-stat-value" id="wm-humidity">--%</div>
+            <div class="wm-stat-label">Humidity</div>
+          </div>
+          <div class="wm-stat">
+            <div class="wm-stat-icon">💨</div>
+            <div class="wm-stat-value" id="wm-wind">-- km/h</div>
+            <div class="wm-stat-label">Wind</div>
+          </div>
+          <div class="wm-stat">
+            <div class="wm-stat-icon">☀️</div>
+            <div class="wm-stat-value" id="wm-uv">--</div>
+            <div class="wm-stat-label">UV Index</div>
+          </div>
+          <div class="wm-stat">
+            <div class="wm-stat-icon">🌡️</div>
+            <div class="wm-stat-value" id="wm-feels">--°C</div>
+            <div class="wm-stat-label">Feels Like</div>
+          </div>
+        </div>
+        <button id="close-weather-modal-btn" class="btn btn-outline" style="width:100%; margin-top:16px;">Close</button>
+      </div>
+    </div>
+
     <div id="auth-modal" class="modal-overlay hidden">
       <div class="modal-box">
         <h3 style="margin-bottom: 10px; color: var(--primary)">
@@ -308,6 +399,19 @@
         </div>
       </div>
     </div>
+
+    <!-- PREMIUM TOAST NOTIFICATION -->
+    <div id="toast-notification" class="toast-notification">
+      <div class="toast-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <div class="toast-message" id="toast-message"></div>
+    </div>
+
 
     <script
       src="//code.tidio.co/utrn5uimu1asbvg0la0z1vw4pxnvopcz.js"
